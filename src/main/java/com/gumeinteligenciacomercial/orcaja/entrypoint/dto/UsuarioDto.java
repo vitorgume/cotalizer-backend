@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Builder
 public class UsuarioDto {
-    private UUID id;
+    private String id;
     private String nome;
     private String email;
     private String telefone;

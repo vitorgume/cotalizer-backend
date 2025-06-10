@@ -11,8 +11,9 @@ public class OrcamentoMapper {
                 .id(domain.getId())
                 .dataCriacao(domain.getDataCriacao())
                 .titulo(domain.getTitulo())
-                .conteudo(domain.getConteudo())
-                .usuarioDto(UsuarioMapper.paraDto(domain.getUsuario()))
+                .conteudoOriginal(domain.getConteudoOriginal())
+                .usuarioId(domain.getUsuarioId())
+                .urlArquivo(domain.getUrlArquivo())
                 .build();
     }
 
@@ -21,8 +22,9 @@ public class OrcamentoMapper {
                 .id(dto.getId())
                 .dataCriacao(dto.getDataCriacao())
                 .titulo(dto.getTitulo())
-                .conteudo(dto.getConteudo())
-                .usuario(UsuarioMapper.paraDomain(dto.getUsuarioDto()))
+                .conteudoOriginal(dto.getConteudoOriginal())
+                .usuarioId(dto.getUsuarioId())
+                .urlArquivo(dto.getUrlArquivo())
                 .build();
     }
 

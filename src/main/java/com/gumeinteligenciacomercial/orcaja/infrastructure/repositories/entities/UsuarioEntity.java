@@ -1,12 +1,10 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.UUID;
-
-@Entity(name = "Usuario")
-@Table(name = "usuarios")
+@Document(collection = "orcamentos")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,9 +13,7 @@ import java.util.UUID;
 public class UsuarioEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_usuario")
-    private UUID id;
+    private String id;
     private String nome;
     private String email;
     private String telefone;

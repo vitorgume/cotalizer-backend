@@ -6,16 +6,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
 public class OrcamentoDto {
-    private UUID id;
-    private String conteudo;
+    private String id;
+    private String conteudoOriginal;
     private LocalDate dataCriacao;
     private String titulo;
-    private UsuarioDto usuarioDto;
+    private String urlArquivo;
+    private String usuarioId;
 }

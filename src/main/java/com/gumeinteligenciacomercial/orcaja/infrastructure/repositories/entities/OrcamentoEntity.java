@@ -1,14 +1,12 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import lombok.*;
+import org.bson.Document;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
-@Entity(name = "Orcamento")
-@Table(name = "orcamentos")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "orcamentos")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,14 +15,11 @@ import java.util.UUID;
 public class OrcamentoEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_orcamento")
-    private UUID id;
-    private String conteudo;
+    private String id;
+    private String conteudoOriginal;
+    private Document orcamentoFormatado;
+    private String urlArquivo;
     private LocalDate dataCriacao;
     private String titulo;
-
-    @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private UsuarioEntity usuario;
+    private String idUsuario;
 }

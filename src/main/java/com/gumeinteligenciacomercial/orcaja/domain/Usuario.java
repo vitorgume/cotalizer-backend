@@ -2,7 +2,6 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 
 import lombok.*;
 
-import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
@@ -10,7 +9,7 @@ import java.util.UUID;
 @ToString
 @Builder
 public class Usuario {
-    private UUID id;
+    private String id;
     private String nome;
     private String email;
     private String telefone;

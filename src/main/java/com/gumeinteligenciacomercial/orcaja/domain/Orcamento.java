@@ -1,10 +1,9 @@
 package com.gumeinteligenciacomercial.orcaja.domain;
 
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.Map;
 
 @AllArgsConstructor
 @Getter
@@ -12,9 +11,11 @@ import java.util.UUID;
 @ToString
 @Builder
 public class Orcamento {
-    private UUID id;
-    private String conteudo;
+    private String id;
+    private String conteudoOriginal;
+    private Map<String, Object> orcamentoFormatado;
+    private String urlArquivo;
     private LocalDate dataCriacao;
     private String titulo;
-    private Usuario usuario;
+    private String usuarioId;
 }
