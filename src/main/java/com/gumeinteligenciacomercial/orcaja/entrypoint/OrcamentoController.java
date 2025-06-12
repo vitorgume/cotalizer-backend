@@ -1,11 +1,9 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentoUseCase;
-import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("orcamentos")
@@ -37,7 +33,7 @@ public class OrcamentoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto<OrcamentoDto>> consultarPorId(@PathVariable("id") UUID idOrcamento) {
+    public ResponseEntity<ResponseDto<OrcamentoDto>> consultarPorId(@PathVariable("id") String  idOrcamento) {
         OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.consultarPorId(idOrcamento));
         ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
 
@@ -45,7 +41,7 @@ public class OrcamentoController {
     }
 
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<ResponseDto<Page<OrcamentoDto>>> listarPorUsuario(@PathVariable("id") UUID idUsuario, @PageableDefault Pageable pageable) {
+    public ResponseEntity<ResponseDto<Page<OrcamentoDto>>> listarPorUsuario(@PathVariable("id") String  idUsuario, @PageableDefault Pageable pageable) {
         Page<OrcamentoDto> resultado = OrcamentoMapper.paraDtos(useCase.listarPorUsuario(idUsuario, pageable));
         ResponseDto<Page<OrcamentoDto>> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);

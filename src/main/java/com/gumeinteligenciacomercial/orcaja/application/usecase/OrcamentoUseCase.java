@@ -1,5 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,13 +35,13 @@ public class OrcamentoUseCase {
         return orcamentoSalvo;
     }
 
-    public Orcamento consultarPorId(UUID idOrcamento) {
+    public Orcamento consultarPorId(String idOrcamento) {
         log.info("Consultando Orçamento pelo seu id. Id do orçamento: {}", idOrcamento);
 
         Optional<Orcamento> orcamento = gateway.consultarPorId(idOrcamento);
 
         if(orcamento.isEmpty()) {
-            throw new OrcamentoNaoEncontrado();
+            throw new OrcamentoNaoEncontradoException();
         }
 
         log.info("Orçamento consultado com sucesso. Orçamento: {}", orcamento);
@@ -47,7 +49,13 @@ public class OrcamentoUseCase {
         return orcamento.get();
     }
 
-    public Page<Orcamento> listarPorUsuario(UUID idUsuario, Pageable pageable) {
-        Page<Orcamento> orcamentos = 
+    public Page<Orcamento> listarPorUsuario(String idUsuario, Pageable pageable) {
+        log.info("Listando orçamentos pelo usuário. Id do usuário: {}", idUsuario);
+
+        Page<Orcamento> orcamentos = gateway.listarPorUsuario(idUsuario, pageable);
+
+        log.info("Orçamentos listados com sucesso. Orçamentos: {}", orcamentos);
+
+        return orcamentos;
     }
 }
