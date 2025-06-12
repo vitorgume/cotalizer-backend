@@ -3,8 +3,9 @@ package com.gumeinteligenciacomercial.orcaja;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class OrcajaApplication {
 
 	public static void main(String[] args) {
@@ -13,7 +14,7 @@ public class OrcajaApplication {
 		System.setProperty("URL_BD", dotenv.get("URL_BD"));
 		System.setProperty("USER_BD", dotenv.get("USER_BD"));
 		System.setProperty("PASSWORD_BD", dotenv.get("PASSWORD_BD"));
-		System.setProperty("OPENI_API_KEY", dotenv.get("OPENI_API_KEY"));
+		System.setProperty("OPENIA_API_KEY", dotenv.get("OPENIA_API_KEY"));
 
 		SpringApplication.run(OrcajaApplication.class, args);
 	}

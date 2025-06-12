@@ -1,10 +1,10 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
-import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@Document(collection = "orcamentos")
+@Document(collection = "usuraios")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class UsuarioEntity {
 
-    @Id
+    @MongoId
     private String id;
     private String nome;
     private String email;

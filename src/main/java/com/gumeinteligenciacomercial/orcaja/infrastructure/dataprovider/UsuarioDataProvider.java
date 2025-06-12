@@ -39,7 +39,7 @@ public class UsuarioDataProvider implements UsuarioGateway {
     }
 
     @Override
-    public Optional<Usuario> consultarPorId(UUID idUsuario) {
+    public Optional<Usuario> consultarPorId(String idUsuario) {
         Optional<UsuarioEntity> usuarioEntity;
 
         try {
@@ -67,7 +67,7 @@ public class UsuarioDataProvider implements UsuarioGateway {
     }
 
     @Override
-    public void deletar(UUID idUsuario) {
+    public void deletar(String idUsuario) {
         try {
             repository.deleteById(idUsuario);
         } catch (Exception ex) {

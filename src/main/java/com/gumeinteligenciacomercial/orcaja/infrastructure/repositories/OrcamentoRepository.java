@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrcamentoRepository extends MongoRepository<OrcamentoEntity, String> {
-    Page<OrcamentoEntity> findByUsuarioId(String idUsuario, Pageable pageable);
+    Page<OrcamentoEntity> findByIdUsuario(String idUsuario, Pageable pageable);
 }

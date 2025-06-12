@@ -1,8 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
-import jakarta.persistence.Id;
 import lombok.*;
 import org.bson.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDate;
 
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 public class OrcamentoEntity {
 
-    @Id
+    @MongoId
     private String id;
     private String conteudoOriginal;
     private Document orcamentoFormatado;

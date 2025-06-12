@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ArquivoUseCase {
 
-    private static final String BASE_PATH = "/temp/orcamentos/";
+    private static final String BASE_PATH = "C:\\Users\\vitor\\orcaja";
 
     public String salvarArquivo(Map<String, Object> orcamento) {
         try {
@@ -32,8 +33,11 @@ public class ArquivoUseCase {
             Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
             Font normal = FontFactory.getFont(FontFactory.HELVETICA, 12);
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
+            String dataFormatada = LocalDateTime.now().format(formatter);
+
             document.add(new Paragraph("Orçamento", titulo));
-            document.add(new Paragraph("Data de geração: " + LocalDateTime.now(), normal));
+            document.add(new Paragraph("Data de geração: " + dataFormatada, normal));
             document.add(new Paragraph(" "));
 
             document.add(new Paragraph("Cliente: " + orcamento.getOrDefault("cliente", ""), normal));

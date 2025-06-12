@@ -32,14 +32,14 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto<UsuarioDto>> consultarPorId(@PathVariable("id") UUID idUsuario) {
+    public ResponseEntity<ResponseDto<UsuarioDto>> consultarPorId(@PathVariable("id") String idUsuario) {
         UsuarioDto resultado = UsuarioMapper.paraDto(useCase.consultarPorId(idUsuario));
         ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable("id") UUID idUsuario) {
+    public ResponseEntity<Void> deletar(@PathVariable("id") String idUsuario) {
         useCase.deletar(idUsuario);
         return ResponseEntity.noContent().build();
     }

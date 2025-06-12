@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @Slf4j
@@ -45,7 +44,7 @@ public class OrcamentoDataProvider implements OrcamentoGateway {
         Page<OrcamentoEntity> orcamentos;
 
         try {
-            orcamentos = repository.findByUsuarioId(idUsuario, pageable);
+            orcamentos = repository.findByIdUsuario(idUsuario, pageable);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_LISTAR_POR_USUARIO, ex);
             throw new DataProviderException(MENSAGEM_ERRO_LISTAR_POR_USUARIO, ex.getCause());

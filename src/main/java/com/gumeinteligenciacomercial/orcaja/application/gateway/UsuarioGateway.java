@@ -8,9 +8,9 @@ import java.util.UUID;
 public interface UsuarioGateway {
     Usuario salvar(Usuario usuario);
 
-    Optional<Usuario> consultarPorId(UUID idUsuario);
+    Optional<Usuario> consultarPorId(String idUsuario);
 
     Optional<Usuario> consultarPorCpf(String cpf);
 
-    void deletar(UUID idUsuario);
+    void deletar(String idUsuario);
 }

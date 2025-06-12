@@ -36,7 +36,7 @@ public class UsuarioUseCase {
     }
 
 
-    public Usuario consultarPorId(UUID idUsuario) {
+    public Usuario consultarPorId(String idUsuario) {
         log.info("Consultando usuário pelo seu id. Id do usuário: {}", idUsuario);
         Optional<Usuario> usuario = gateway.consultarPorId(idUsuario);
 
@@ -53,7 +53,7 @@ public class UsuarioUseCase {
         return gateway.consultarPorCpf(cpf);
     }
 
-    public void deletar(UUID idUsuario) {
+    public void deletar(String idUsuario) {
         this.consultarPorId(idUsuario);
         gateway.deletar(idUsuario);
     }

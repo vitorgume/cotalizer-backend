@@ -1,9 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
-import jakarta.persistence.Id;
 import lombok.*;
-import lombok.extern.java.Log;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document(collection = "prompts")
 @AllArgsConstructor
@@ -13,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class PromptEntity {
 
-    @Id
+    @MongoId
     private String id;
     private String conteudo;
     private String modelIa;
