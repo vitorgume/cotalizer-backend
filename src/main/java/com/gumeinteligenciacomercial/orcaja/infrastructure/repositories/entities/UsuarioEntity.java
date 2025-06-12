@@ -19,4 +19,5 @@ public class UsuarioEntity {
     private String telefone;
     private String cpf;
     private String cnpj;
+    private String senha;
 }

@@ -23,6 +23,7 @@ public class UsuarioDataProvider implements UsuarioGateway {
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar usuário pelo seu id.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_CPF = "Erro ao consultar usuário pelo seu cpf.";
     private final String MENSAGEM_ERRO_DELETAR_PELO_ID = "Erro ao deletar usuário pelo seu id.";
+    private final String MENSAGEM_ERRO_CONSULTAR_POR_EMAIL = "Erro ao consultar usuário pelo seu email.";
 
     @Override
     public Usuario salvar(Usuario usuario) {
@@ -74,5 +75,19 @@ public class UsuarioDataProvider implements UsuarioGateway {
             log.error(MENSAGEM_ERRO_DELETAR_PELO_ID, ex);
             throw new DataProviderException(MENSAGEM_ERRO_DELETAR_PELO_ID, ex.getCause());
         }
+    }
+
+    @Override
+    public Optional<Usuario> consultarPorEmail(String email) {
+        Optional<UsuarioEntity> usuarioEntity;
+
+        try {
+            usuarioEntity = repository.findByEmail(email);
+        } catch (Exception ex) {
+            log.info(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex.getCause());
+        }
+
+        return usuarioEntity.map(UsuarioMapper::paraDomain);
     }
 }

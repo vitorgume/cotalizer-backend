@@ -22,6 +22,7 @@ public class UsuarioMapper {
                 .email(dto.getEmail())
                 .nome(dto.getNome())
                 .telefone(dto.getTelefone())
+                .senha(dto.getSenha())
                 .build();
     }
 }

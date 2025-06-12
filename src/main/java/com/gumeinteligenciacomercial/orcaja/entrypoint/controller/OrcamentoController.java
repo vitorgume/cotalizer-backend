@@ -1,4 +1,4 @@
-package com.gumeinteligenciacomercial.orcaja.entrypoint;
+package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentoUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;

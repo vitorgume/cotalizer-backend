@@ -2,18 +2,13 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 
 import lombok.*;
 
-
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
-public class Usuario {
-    private String id;
-    private String nome;
+@ToString
+public class Login {
     private String email;
-    private String telefone;
-    private String cpf;
-    private String cnpj;
     private String senha;
+    private String token;
 }
