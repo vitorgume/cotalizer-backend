@@ -1,6 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquvioException;
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -63,7 +63,7 @@ public class ArquivoUseCase {
             return caminhoCompleto;
 
         } catch (Exception e) {
-            throw new ArquvioException("Erro ao gerar PDF", e);
+            throw new ArquivoException("Erro ao gerar PDF", e);
         }
     }
 
