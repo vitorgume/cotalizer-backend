@@ -47,5 +47,10 @@ public class OrcamentoController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable("id") String  id) {
+        useCase.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

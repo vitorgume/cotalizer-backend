@@ -13,4 +13,6 @@ public interface OrcamentoGateway {
     Page<Orcamento> listarPorUsuario(String idUsuario, Pageable pageable);
 
     Orcamento salvar(Orcamento orcamento);
+
+    void deletar(String id);
 }

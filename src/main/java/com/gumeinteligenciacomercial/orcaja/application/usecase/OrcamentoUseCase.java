@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class OrcamentoUseCase {
         String arquivoUrl = arquivoUseCase.salvarArquivo(orcamentoFormatado);
         orcamento.setOrcamentoFormatado(orcamentoFormatado);
         orcamento.setUrlArquivo(arquivoUrl);
+        orcamento.setDataCriacao(LocalDate.now());
         Orcamento orcamentoSalvo = gateway.salvar(orcamento);
 
         log.info("Orçamento cadastrado com sucesso. Orçamento salvo: {}", orcamentoSalvo);
@@ -57,5 +59,10 @@ public class OrcamentoUseCase {
         log.info("Orçamentos listados com sucesso. Orçamentos: {}", orcamentos);
 
         return orcamentos;
+    }
+
+    public void deletar(String id) {
+        this.consultarPorId(id);
+        gateway.deletar(id);
     }
 }

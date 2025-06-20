@@ -23,6 +23,7 @@ public class OrcamentoDataProvider implements OrcamentoGateway {
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar orçamento pelo seu id.";
     private final String MENSAGEM_ERRO_LISTAR_POR_USUARIO = "Erro ao listar orçamentos pelo usuário.";
     private final String MENSAMGEM_ERRO_SALVAR = "Erro ao salvar novo orçamento.";
+    private final String MENSAGEN_ERRO_DELETAR = "Erro deletar orçamento pelo id.";
 
     @Override
     public Optional<Orcamento> consultarPorId(String idOrcamento) {
@@ -65,5 +66,15 @@ public class OrcamentoDataProvider implements OrcamentoGateway {
         }
 
         return OrcamentoMapper.paraDomain(orcamentoEntity);
+    }
+
+    @Override
+    public void deletar(String id) {
+        try {
+            repository.deleteById(id);
+        } catch (Exception ex) {
+            log.error(MENSAGEN_ERRO_DELETAR, ex);
+            throw new DataProviderException(MENSAGEN_ERRO_DELETAR, ex.getCause());
+        }
     }
 }
