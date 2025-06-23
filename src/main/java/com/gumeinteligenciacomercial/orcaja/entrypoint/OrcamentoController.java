@@ -5,12 +5,19 @@ import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("orcamentos")
@@ -20,7 +27,7 @@ public class OrcamentoController {
     private final OrcamentoUseCase useCase;
 
     @PostMapping
-    public ResponseEntity<ResponseDto<OrcamentoDto>> cadastrar(@RequestBody OrcamentoDto novoOrcamento) {
+    public ResponseEntity<ResponseDto<OrcamentoDto>> gerar(@RequestBody OrcamentoDto novoOrcamento) {
         OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.cadastrar(OrcamentoMapper.paraDomain(novoOrcamento)));
         ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(
@@ -53,4 +60,6 @@ public class OrcamentoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping
+    public ResponseEntity<ResponseDto<>>
 }

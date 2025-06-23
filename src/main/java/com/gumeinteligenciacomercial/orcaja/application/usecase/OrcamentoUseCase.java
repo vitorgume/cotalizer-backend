@@ -27,9 +27,8 @@ public class OrcamentoUseCase {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
 
         Map<String, Object> orcamentoFormatado = iaUseCase.gerarOrcamento(orcamento.getConteudoOriginal());
-        String arquivoUrl = arquivoUseCase.salvarArquivo(orcamentoFormatado);
+
         orcamento.setOrcamentoFormatado(orcamentoFormatado);
-        orcamento.setUrlArquivo(arquivoUrl);
         orcamento.setDataCriacao(LocalDate.now());
         Orcamento orcamentoSalvo = gateway.salvar(orcamento);
 

@@ -14,6 +14,7 @@ public class OrcamentoMapper {
                 .conteudoOriginal(domain.getConteudoOriginal())
                 .usuarioId(domain.getUsuarioId())
                 .urlArquivo(domain.getUrlArquivo())
+                .orcamentoFormatado(domain.getOrcamentoFormatado())
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class OrcamentoMapper {
                 .conteudoOriginal(dto.getConteudoOriginal())
                 .usuarioId(dto.getUsuarioId())
                 .urlArquivo(dto.getUrlArquivo())
+                .orcamentoFormatado(dto.getOrcamentoFormatado())
                 .build();
     }
 

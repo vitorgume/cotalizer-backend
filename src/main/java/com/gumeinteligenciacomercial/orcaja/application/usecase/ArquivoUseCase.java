@@ -1,6 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquvioException;
+import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,14 +23,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ArquivoUseCase {
 
-    private static final String BASE_PATH = "C:\\Users\\vitor\\orcaja";
+    private static final String BASE_PATH = "C:/Users/vitor/orcaja";
+    private static final String BASE_API_FILE = "http://localhost:8080/arquivos/";
+    private final OrcamentoUseCase orcamentoUseCase;
 
-    public String salvarArquivo(Map<String, Object> orcamento) {
+    public String salvarArquivo(Orcamento novoOrcamento) {
+        String urlArquivo = "";
         try {
-            String caminhoCompleto = BASE_PATH + gerarNomeArquivo() + ".pdf";
+            Map<String, Object> orcamento = novoOrcamento.getOrcamentoFormatado();
+            String nomeArquivo = gerarNomeArquivo() + ".pdf";
+            String caminhoParaSalvar = Paths.get(BASE_PATH, nomeArquivo).toString();
 
             Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(caminhoCompleto));
+            PdfWriter.getInstance(document, new FileOutputStream(caminhoParaSalvar));
             document.open();
 
             Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
@@ -60,11 +68,15 @@ public class ArquivoUseCase {
 
             document.close();
 
-            return caminhoCompleto;
-
+            urlArquivo = BASE_API_FILE + nomeArquivo;
         } catch (Exception e) {
             throw new ArquvioException("Erro ao gerar PDF", e);
         }
+
+        Orcamento orcamento = orcamentoUseCase.consultarPorId(novoOrcamento.getId());
+        orcamento.setUrlArquivo(urlArquivo);
+        orcamentoUseCase.
+
     }
 
     private String gerarNomeArquivo() {
@@ -72,3 +84,4 @@ public class ArquivoUseCase {
         return "ARQ-" + uuid.substring(0, 5);
     }
 }
+
