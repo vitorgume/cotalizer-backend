@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("orcamentos")
@@ -60,6 +61,11 @@ public class OrcamentoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDto<>>
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseDto<OrcamentoDto>> alterar(@PathVariable("id") String idOrcamento, @RequestBody OrcamentoDto novosDados) {
+        OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.alterar(idOrcamento, OrcamentoMapper.paraDomain(novosDados)));
+        ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
+
+        return ResponseEntity.ok(response);
+    }
 }

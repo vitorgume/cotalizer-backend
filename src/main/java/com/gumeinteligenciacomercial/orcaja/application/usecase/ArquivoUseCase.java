@@ -9,6 +9,7 @@ import com.lowagie.text.FontFactory;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -21,14 +22,17 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArquivoUseCase {
 
     private static final String BASE_PATH = "C:/Users/vitor/orcaja";
     private static final String BASE_API_FILE = "http://localhost:8080/arquivos/";
     private final OrcamentoUseCase orcamentoUseCase;
 
-    public String salvarArquivo(Orcamento novoOrcamento) {
-        String urlArquivo = "";
+    public Orcamento salvarArquivo(Orcamento novoOrcamento) {
+        log.info("Gerenado pdf do orçamento. Orçamento: {}", novoOrcamento);
+
+        String urlArquivo;
         try {
             Map<String, Object> orcamento = novoOrcamento.getOrcamentoFormatado();
             String nomeArquivo = gerarNomeArquivo() + ".pdf";
@@ -75,8 +79,11 @@ public class ArquivoUseCase {
 
         Orcamento orcamento = orcamentoUseCase.consultarPorId(novoOrcamento.getId());
         orcamento.setUrlArquivo(urlArquivo);
-        orcamentoUseCase.
+        Orcamento orcamentoSalvo = orcamentoUseCase.alterar(orcamento.getId(), orcamento);
 
+        log.info("Pdf do orçamento gerado com sucesso. Orçamento: {}", orcamentoSalvo);
+
+        return orcamentoSalvo;
     }
 
     private String gerarNomeArquivo() {

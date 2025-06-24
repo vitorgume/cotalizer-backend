@@ -18,4 +18,10 @@ public class Orcamento {
     private LocalDate dataCriacao;
     private String titulo;
     private String usuarioId;
+
+    public void setDados(Orcamento novoOrcamento) {
+        this.orcamentoFormatado = novoOrcamento.getOrcamentoFormatado();
+        this.titulo = novoOrcamento.getTitulo();
+        this.urlArquivo = novoOrcamento.getUrlArquivo();
+    }
 }

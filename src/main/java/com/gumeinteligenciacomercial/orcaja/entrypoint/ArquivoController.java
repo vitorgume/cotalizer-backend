@@ -27,14 +27,17 @@ public class ArquivoController {
 
     @PostMapping
     public ResponseEntity<ResponseDto<OrcamentoDto>> gerarArquivo(@RequestBody OrcamentoDto orcamento) {
-        useCase.salvarArquivo(OrcamentoMapper.paraDomain(orcamento));
+        OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.salvarArquivo(OrcamentoMapper.paraDomain(orcamento)));
+        ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(UriComponentsBuilder
                 .newInstance()
                 .path("/arquivos/{id}")
-                .buildAndExpand());
+                .buildAndExpand(resultado.getId())
+                .toUri()
+        ).body(response);
     }
 
-    @GetMapping("/arquivos/{nomeArquivo}")
+    @GetMapping("/{nomeArquivo}")
     public ResponseEntity<Resource> downloadArquivo(@PathVariable String nomeArquivo) {
         try {
             Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);

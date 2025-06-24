@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,6 @@ public class OrcamentoUseCase {
 
     private final OrcamentoGateway gateway;
     private final IaUseCase iaUseCase;
-    private final ArquivoUseCase arquivoUseCase;
 
     public Orcamento cadastrar(Orcamento orcamento) {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
@@ -61,7 +61,23 @@ public class OrcamentoUseCase {
     }
 
     public void deletar(String id) {
+        log.info("Deletando orçamento. Id: {}", id);
         this.consultarPorId(id);
         gateway.deletar(id);
+        log.info("Deleção de orçamento realizado com sucesso.");
+    }
+
+    public Orcamento alterar(String idOrcamento, Orcamento novoOrcamento) {
+        log.info("Alterando orçamento. Id: {}, Orçamento: {}", idOrcamento, novoOrcamento);
+
+        Orcamento orcamento = this.consultarPorId(idOrcamento);
+
+        orcamento.setDados(novoOrcamento);
+
+        orcamento = gateway.salvar(orcamento);
+
+        log.info("Orçamento alterado com sucesso. Orçamento: {}", orcamento);
+
+        return orcamento;
     }
 }
