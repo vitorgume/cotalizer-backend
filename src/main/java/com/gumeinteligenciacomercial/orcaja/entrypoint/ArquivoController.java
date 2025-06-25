@@ -38,7 +38,7 @@ public class ArquivoController {
     }
 
     @GetMapping("/{nomeArquivo}")
-    public ResponseEntity<Resource> downloadArquivo(@PathVariable String nomeArquivo) {
+    public ResponseEntity<Resource> acessarArquivo(@PathVariable String nomeArquivo) {
         try {
             Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
             Resource resource = new UrlResource(arquivoPath.toUri());
@@ -49,6 +49,26 @@ public class ArquivoController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(resource);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/download/{nomeArquivo}")
+    public ResponseEntity<Resource> downloadArquivo(@PathVariable String nomeArquivo) {
+        try {
+            Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
+            Resource resource = new UrlResource(arquivoPath.toUri());
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(resource);
 
