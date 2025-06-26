@@ -25,7 +25,7 @@ import java.util.UUID;
 public class ArquivoUseCase {
 
     private static final String BASE_PATH = "C:/Users/vitor/orcaja";
-    private static final String BASE_API_FILE = "http://localhost:8080/arquivos/";
+    private static final String BASE_API_FILE = "http://localhost:8080/arquivos/acessar/";
     private final OrcamentoUseCase orcamentoUseCase;
 
     public Orcamento salvarArquivo(Orcamento novoOrcamento) {

@@ -1,12 +1,10 @@
-package com.gumeinteligenciacomercial.orcaja.entrypoint;
+package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ArquivoUseCase;
-import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +35,7 @@ public class ArquivoController {
         ).body(response);
     }
 
-    @GetMapping("/{nomeArquivo}")
+    @GetMapping("/acessar/{nomeArquivo}")
     public ResponseEntity<Resource> acessarArquivo(@PathVariable String nomeArquivo) {
         try {
             Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);

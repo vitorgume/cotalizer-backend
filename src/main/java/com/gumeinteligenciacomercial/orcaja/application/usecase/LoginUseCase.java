@@ -28,6 +28,7 @@ public class LoginUseCase {
         return Login.builder()
                 .token(token)
                 .email(usuario.getEmail())
+                .usuarioId(usuario.getId())
                 .build();
     }
 

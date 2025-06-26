@@ -8,6 +8,7 @@ public class LoginMapper {
         return LoginDto.builder()
                 .email(domain.getEmail())
                 .token(domain.getToken())
+                .usuarioId(domain.getUsuarioId())
                 .build();
 
     }
