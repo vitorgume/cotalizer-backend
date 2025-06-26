@@ -1,8 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquvioException;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -74,7 +73,7 @@ public class ArquivoUseCase {
 
             urlArquivo = BASE_API_FILE + nomeArquivo;
         } catch (Exception e) {
-            throw new ArquvioException("Erro ao gerar PDF", e);
+            throw new ArquivoException("Erro ao gerar PDF", e);
         }
 
         Orcamento orcamento = orcamentoUseCase.consultarPorId(novoOrcamento.getId());

@@ -15,6 +15,7 @@ public class OrcajaApplication {
 		System.setProperty("USER_BD", dotenv.get("USER_BD"));
 		System.setProperty("PASSWORD_BD", dotenv.get("PASSWORD_BD"));
 		System.setProperty("OPENIA_API_KEY", dotenv.get("OPENIA_API_KEY"));
+		System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
 
 		SpringApplication.run(OrcajaApplication.class, args);
 	}

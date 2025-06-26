@@ -1,4 +1,4 @@
-package com.gumeinteligenciacomercial.orcaja.entrypoint;
+package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("usuarios")
 @RequiredArgsConstructor
@@ -18,7 +16,7 @@ public class UsuarioController {
 
     private final UsuarioUseCase useCase;
 
-    @PostMapping
+    @PostMapping("/cadastro")
     public ResponseEntity<ResponseDto<UsuarioDto>> cadastrar(@RequestBody UsuarioDto novoUsuario) {
         UsuarioDto resultado = UsuarioMapper.paraDto(useCase.cadastrar(UsuarioMapper.paraDomain(novoUsuario)));
         ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);

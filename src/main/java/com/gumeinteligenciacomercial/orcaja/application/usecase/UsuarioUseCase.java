@@ -17,6 +17,7 @@ import java.util.UUID;
 public class UsuarioUseCase {
 
     private final UsuarioGateway gateway;
+    private final CriptografiaUseCase criptografiaUseCase;
 
     public Usuario cadastrar(Usuario usuario) {
         log.info("Cadastrando novo usuário. Usuário: {}", usuario);
@@ -27,6 +28,8 @@ public class UsuarioUseCase {
         });
 
         //Validar CPF/CNPJ para versão 1.0.0
+
+        usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 
@@ -56,5 +59,18 @@ public class UsuarioUseCase {
     public void deletar(String idUsuario) {
         this.consultarPorId(idUsuario);
         gateway.deletar(idUsuario);
+    }
+
+    public Usuario consultarPorEmail(String email) {
+        log.info("Consultando usuário pelo seu email. Email: {}", email);
+        Optional<Usuario> usuario = gateway.consultarPorEmail(email);
+
+        if(usuario.isEmpty()) {
+            throw new UsuarioNaoEncontradoException();
+        }
+
+        log.info("Usuário consultado com sucesso pelo seu email. Usuario: {}", usuario);
+
+        return usuario.get();
     }
 }
