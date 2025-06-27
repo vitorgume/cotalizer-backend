@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.VerificaoEmailDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.UsuarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

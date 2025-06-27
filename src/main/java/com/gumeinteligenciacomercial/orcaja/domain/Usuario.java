@@ -16,4 +16,12 @@ public class Usuario {
     private String cpf;
     private String cnpj;
     private String senha;
+    private StatusUsuario status;
+
+    public void setDados(Usuario usuario) {
+        this.nome = usuario.getNome();
+        this.email = usuario.getEmail();
+        this.telefone = usuario.getTelefone();
+        this.status = usuario.getStatus();
+    }
 }

@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/usuarios/cadastro", "/arquivos/acessar/**", "/arquivos/download/**").permitAll()
+                        .requestMatchers("/login", "/usuarios/cadastro", "/arquivos/acessar/**", "/arquivos/download/**", "/verificaoes/email").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
