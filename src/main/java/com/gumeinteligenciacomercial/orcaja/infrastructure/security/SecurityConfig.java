@@ -19,18 +19,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configure(http))
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // <- necessário para OAuth2 funcionar
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/usuarios/cadastro", "/arquivos/acessar/**", "/arquivos/download/**", "/verificaoes/email").permitAll()
+                        .requestMatchers("/login", "/usuarios/cadastro", "/oauth2/**", "/arquivos/acessar/**", "/arquivos/download/**", "/verificaoes/email").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .oauth2Login(oauth -> oauth
+                        .defaultSuccessUrl("/auth/google/success", true)
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

@@ -12,8 +12,6 @@ public class EmailUseCase {
     private final JavaMailSender mailSender;
 
     public void enviarCodigoVerificacao(String email, String codigo) {
-
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Seu código de verificação");

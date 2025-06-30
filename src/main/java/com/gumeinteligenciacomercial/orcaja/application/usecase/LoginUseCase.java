@@ -32,6 +32,10 @@ public class LoginUseCase {
                 .build();
     }
 
+    public String gerarTokenJwt(String email) {
+        return gateway.generateToken(email);
+    }
+
     private void validaCredencias(Usuario usuario, String email, String senha) {
         if(!usuario.getEmail().equals(email) || !criptografiaUseCase.validaSenha(senha, usuario.getSenha())) {
             throw new CredenciasIncorretasException();

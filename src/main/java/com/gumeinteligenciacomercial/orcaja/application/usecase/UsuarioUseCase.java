@@ -80,22 +80,13 @@ public class UsuarioUseCase {
 
         Usuario usuario = consultarPorId(id);
 
-        usuario.setDados(usuario);
+        usuario.setDados(novosDados);
 
         usuario = gateway.salvar(usuario);
 
         log.info("Alteração de dados do usuário concluida com sucesso. Usuario: {}", usuario);
 
         return usuario;
-    }
-
-    private void validacaoEmail(String email) {
-        String codigo = codigoValidacaoUseCase.gerarCodigo(email);
-        emailUseCase.enviarCodigoVerificacao(email, codigo);
-    }
-
-    private Optional<Usuario> consultarPorCpf(String cpf) {
-        return gateway.consultarPorCpf(cpf);
     }
 
     public VerificacaoEmail validarCodigoVerificacao(String email, String codigo) {
@@ -108,5 +99,19 @@ public class UsuarioUseCase {
         } else {
             throw new CodigoInvalidoValidacaoEmailException();
         }
+    }
+
+    public void reenviarCodigoEmail(String email) {
+        this.consultarPorEmail(email);
+        this.validacaoEmail(email);
+    }
+
+    private void validacaoEmail(String email) {
+        String codigo = codigoValidacaoUseCase.gerarCodigo(email);
+        emailUseCase.enviarCodigoVerificacao(email, codigo);
+    }
+
+    private Optional<Usuario> consultarPorCpf(String cpf) {
+        return gateway.consultarPorCpf(cpf);
     }
 }

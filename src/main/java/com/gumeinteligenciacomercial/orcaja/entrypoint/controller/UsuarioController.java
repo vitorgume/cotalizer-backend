@@ -37,6 +37,12 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/reenvio/codigo")
+    public ResponseEntity<Void> reenviarCodigo(@RequestBody UsuarioDto usuarioDto) {
+        useCase.reenviarCodigoEmail(usuarioDto.getEmail());
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable("id") String idUsuario) {
         useCase.deletar(idUsuario);
