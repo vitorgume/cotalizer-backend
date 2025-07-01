@@ -12,7 +12,7 @@ public class LoginDataProvider implements LoginGateway {
     private final JwtUtil jwtUtil;
 
     @Override
-    public String generateToken(String email) {
-        return jwtUtil.generateToken(email);
+    public String generateToken(String email, String id) {
+        return jwtUtil.generateToken(email, id);
     }
 }
