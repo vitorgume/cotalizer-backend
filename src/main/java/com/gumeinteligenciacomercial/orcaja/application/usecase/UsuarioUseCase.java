@@ -33,7 +33,9 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        this.validacaoEmail(usuario.getEmail());
+        if(usuario.getCpf() == null || usuario.getCnpj() == null) {
+            this.validacaoEmail(usuario.getEmail());
+        }
 
         usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
 

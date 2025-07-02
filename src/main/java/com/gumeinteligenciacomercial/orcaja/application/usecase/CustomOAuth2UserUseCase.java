@@ -1,5 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
+import com.gumeinteligenciacomercial.orcaja.domain.Login;
+import com.gumeinteligenciacomercial.orcaja.domain.LoginGoogle;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,17 +36,18 @@ public class CustomOAuth2UserUseCase extends DefaultOAuth2UserService {
         return user;
     }
 
-    public ResponseEntity<?> logar(OAuth2User user) {
+    public LoginGoogle logar(OAuth2User user) {
         String email = user.getAttribute("email");
 
-        // Aqui você pode salvar o usuário no banco se ainda não existir
         String jwt = loginUseCase.gerarTokenJwt(email);
 
-        // Redirecionar com o token no front-end
         URI redirectUri = URI.create("http://localhost:5173/login/sucesso?token=" + jwt);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(redirectUri);
 
-        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        return LoginGoogle.builder()
+                .headers(headers)
+                .httpStatus(HttpStatus.FOUND)
+                .build();
     }
 }

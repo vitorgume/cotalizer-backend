@@ -1,9 +1,11 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security;
 
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,20 +20,47 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Order(1) // <- define a ordem de prioridade deste filtro
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/**", "/usuarios/**", "/login", "/auth/**", "/arquivos/**", "/verificaoes/**") // <-- cobre todos os endpoints da API
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configure(http))
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // <- necessário para OAuth2 funcionar
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/usuarios/cadastro", "/oauth2/**", "/arquivos/acessar/**", "/arquivos/download/**", "/verificaoes/email").permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/usuarios/cadastro",
+                                "/verificaoes/email/**",
+                                "/auth/google/success",
+                                "/arquivos/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized");
+                        })
+                );
+        return http.build();
+    }
+
+    /**
+     * Filtro para fluxo de login via Google (OAuth2) – precisa de sessão
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/oauth2/**", "/login/oauth2/**") // <-- cobre apenas o login via Google
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("/auth/google/success", true)
+                        .defaultSuccessUrl("http://localhost:5173/login-sucesso", true)
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable()); // se quiser, pode manter habilitado aqui também
 
         return http.build();
     }
