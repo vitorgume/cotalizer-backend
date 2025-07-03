@@ -48,4 +48,11 @@ public class UsuarioController {
         useCase.deletar(idUsuario);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseDto<UsuarioDto>> alterar(@PathVariable("id") String id, @RequestBody UsuarioDto novosDados) {
+        UsuarioDto resultado = UsuarioMapper.paraDto(useCase.alterar(id, UsuarioMapper.paraDomain(novosDados)));
+        ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
+    }
 }

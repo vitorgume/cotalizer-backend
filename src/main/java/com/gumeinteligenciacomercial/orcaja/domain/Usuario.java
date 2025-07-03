@@ -23,5 +23,7 @@ public class Usuario {
         this.email = usuario.getEmail();
         this.telefone = usuario.getTelefone();
         this.status = usuario.getStatus();
+        this.cpf = usuario.getCpf();
+        this.cnpj = usuario.getCnpj();
     }
 }

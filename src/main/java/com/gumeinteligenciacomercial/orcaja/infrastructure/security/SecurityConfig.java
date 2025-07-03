@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security;
 
+import com.gumeinteligenciacomercial.orcaja.application.usecase.google.GoogleOAuth2SuccessHandler;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
 
     @Bean
     @Order(1) // <- define a ordem de prioridade deste filtro
@@ -55,12 +57,12 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/oauth2/**", "/login/oauth2/**") // <-- cobre apenas o login via Google
+                .securityMatcher("/oauth2/**", "/login/oauth2/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("http://localhost:5173/login-sucesso", true)
+                        .successHandler(googleOAuth2SuccessHandler)
                 )
-                .csrf(csrf -> csrf.disable()); // se quiser, pode manter habilitado aqui também
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
