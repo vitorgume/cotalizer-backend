@@ -6,12 +6,20 @@ import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,39 +45,14 @@ public class ArquivoUseCase {
             String nomeArquivo = gerarNomeArquivo() + ".pdf";
             String caminhoParaSalvar = Paths.get(BASE_PATH, nomeArquivo).toString();
 
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(caminhoParaSalvar));
-            document.open();
+            String html = this.gerarHtml(orcamento);
 
-            Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
-            Font normal = FontFactory.getFont(FontFactory.HELVETICA, 12);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
-            String dataFormatada = LocalDateTime.now().format(formatter);
-
-            document.add(new Paragraph("Orçamento", titulo));
-            document.add(new Paragraph("Data de geração: " + dataFormatada, normal));
-            document.add(new Paragraph(" "));
-
-            document.add(new Paragraph("Cliente: " + orcamento.getOrDefault("cliente", ""), normal));
-            document.add(new Paragraph("Data de entrega: " + orcamento.getOrDefault("dataEntrega", ""), normal));
-            document.add(new Paragraph("Desconto: " + orcamento.getOrDefault("desconto", "0") + "%", normal));
-            document.add(new Paragraph("Observações: " + orcamento.getOrDefault("observacoes", ""), normal));
-            document.add(new Paragraph(" "));
-
-            document.add(new Paragraph("Itens:", titulo));
-            List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
-            for (Map<String, Object> item : itens) {
-                document.add(new Paragraph(
-                        "- " + item.get("descricao") + " | Qtde: " + item.get("quantidade") +
-                                " | Unitário: R$ " + item.get("valorUnitario")
-                ));
+            try (OutputStream outputStream = new FileOutputStream(caminhoParaSalvar)) {
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocumentFromString(html);
+                renderer.layout();
+                renderer.createPDF(outputStream);
             }
-
-            document.add(new Paragraph(" "));
-            document.add(new Paragraph("Total: R$ " + orcamento.getOrDefault("total", "0"), titulo));
-
-            document.close();
 
             urlArquivo = BASE_API_FILE + nomeArquivo;
         } catch (Exception e) {
@@ -84,6 +67,45 @@ public class ArquivoUseCase {
 
         return orcamentoSalvo;
     }
+
+    private String gerarHtml(Map<String, Object> orcamento) throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/template_orcamento.html");
+        String htmlTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
+        String dataFormatada = LocalDateTime.now().format(formatter);
+
+        StringBuilder itensHtml = new StringBuilder();
+        List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
+
+        for (Map<String, Object> item : itens) {
+            String descricao = (String) item.getOrDefault("descricao", "");
+            Integer quantidade = Integer.parseInt(item.get("quantidade").toString());
+            Double valorUnitario = Double.parseDouble(item.get("valorUnitario").toString());
+            Double subtotal = valorUnitario * quantidade;
+
+            itensHtml.append(String.format("""
+                        <tr>
+                            <td>%s</td>
+                            <td>%d</td>
+                            <td>R$ %.2f</td>
+                            <td>R$ %.2f</td>
+                        </tr>
+                    """, descricao, quantidade, valorUnitario, subtotal));
+        }
+
+        String htmlFinal = htmlTemplate
+                .replace("${data}", dataFormatada)
+                .replace("${cliente}", (String) orcamento.getOrDefault("cliente", ""))
+                .replace("${dataEntrega}", (String) orcamento.getOrDefault("dataEntrega", ""))
+                .replace("${desconto}", orcamento.getOrDefault("desconto", "0").toString())
+                .replace("${total}", orcamento.getOrDefault("total", "0.00").toString())
+                .replace("${observacoes}", (String) orcamento.getOrDefault("observacoes", ""))
+                .replace("${itens}", itensHtml.toString());
+
+        return htmlFinal;
+    }
+
 
     private String gerarNomeArquivo() {
         String uuid = UUID.randomUUID().toString().replace("-", "");
