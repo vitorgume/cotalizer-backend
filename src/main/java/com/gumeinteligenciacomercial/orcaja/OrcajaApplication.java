@@ -11,9 +11,6 @@ public class OrcajaApplication {
 	public static void main(String[] args) {
 
 		Dotenv dotenv = Dotenv.load();
-		System.setProperty("URL_BD", dotenv.get("URL_BD"));
-		System.setProperty("USER_BD", dotenv.get("USER_BD"));
-		System.setProperty("PASSWORD_BD", dotenv.get("PASSWORD_BD"));
 		System.setProperty("OPENIA_API_KEY", dotenv.get("OPENIA_API_KEY"));
 		System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
 
