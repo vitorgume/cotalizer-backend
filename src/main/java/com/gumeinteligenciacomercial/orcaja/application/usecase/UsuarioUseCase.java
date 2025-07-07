@@ -22,6 +22,7 @@ public class UsuarioUseCase {
     private final CriptografiaUseCase criptografiaUseCase;
     private final EmailUseCase emailUseCase;
     private final CodigoValidacaoUseCase codigoValidacaoUseCase;
+    private final CodigoAlteracaoSenhaUseCase codigoAlteracaoSenhaUseCase;
 
     public Usuario cadastrar(Usuario usuario) {
         log.info("Cadastrando novo usuário. Usuário: {}", usuario);
@@ -106,6 +107,18 @@ public class UsuarioUseCase {
     public void reenviarCodigoEmail(String email) {
         this.consultarPorEmail(email);
         this.validacaoEmail(email);
+    }
+
+    public Usuario alterarSenha(String novaSenha, String idUsuario, String codigo) {
+
+        Usuario usuario = this.consultarPorId(idUsuario);
+
+        if(codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(usuario.getId(), codigo)) {
+            String novaSenhaCriptografada = criptografiaUseCase.criptografar(novaSenha);
+            usuario.setSenha(novaSenhaCriptografada);
+        }
+
+        return gateway.salvar(usuario);
     }
 
     private void validacaoEmail(String email) {

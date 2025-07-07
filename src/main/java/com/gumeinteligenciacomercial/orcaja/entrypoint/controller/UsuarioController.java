@@ -1,9 +1,10 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.AlteracaoSenhaDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.VerificaoEmailDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.UsuarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,13 @@ public class UsuarioController {
     public ResponseEntity<ResponseDto<UsuarioDto>> alterar(@PathVariable("id") String id, @RequestBody UsuarioDto novosDados) {
         UsuarioDto resultado = UsuarioMapper.paraDto(useCase.alterar(id, UsuarioMapper.paraDomain(novosDados)));
         ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/alterar/senha/{id}")
+    public ResponseEntity<ResponseDto<Usuario>> alterarSenha(@RequestBody AlteracaoSenhaDto alteracaoSenhaDto, @PathVariable("id") String idUsuario) {
+        Usuario resultado = useCase.alterarSenha(alteracaoSenhaDto.getNovaSenha(), idUsuario, alteracaoSenhaDto.getCodigo());
+        ResponseDto<Usuario> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);
     }
 }

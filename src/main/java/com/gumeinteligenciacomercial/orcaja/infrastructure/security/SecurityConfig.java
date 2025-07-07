@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/usuarios/cadastro",
                                 "/verificaoes/email/**",
                                 "/auth/google/success",
-                                "/arquivos/**"
+                                "/arquivos/**",
+                                "/usuarios/alterar/senha/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

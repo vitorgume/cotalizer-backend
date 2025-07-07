@@ -18,4 +18,12 @@ public class EmailUseCase {
         message.setText("Seu código de verificação é: " + codigo);
         mailSender.send(message);
     }
+
+    public void enviarAlteracaoDeSenha(String email, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Alteração de senha no Cotalizer");
+        message.setText("Acesse o seguinte link para alterar sua senha: " + "http://localhost:5371/alterar/senha?token=" + token);
+        mailSender.send(message);
+    }
 }
