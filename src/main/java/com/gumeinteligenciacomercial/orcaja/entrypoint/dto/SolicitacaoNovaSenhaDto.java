@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class SolicitacaoNovaSenhaDto {
-    private String idUsuario;
+    private String emailUsuario;
 }

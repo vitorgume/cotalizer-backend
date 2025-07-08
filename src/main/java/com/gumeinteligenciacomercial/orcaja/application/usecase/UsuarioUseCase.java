@@ -109,11 +109,12 @@ public class UsuarioUseCase {
         this.validacaoEmail(email);
     }
 
-    public Usuario alterarSenha(String novaSenha, String idUsuario, String codigo) {
+    public Usuario alterarSenha(String novaSenha, String codigo) {
+        String idUsuario = codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(codigo);
 
         Usuario usuario = this.consultarPorId(idUsuario);
 
-        if(codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(usuario.getId(), codigo)) {
+        if(idUsuario != null) {
             String novaSenhaCriptografada = criptografiaUseCase.criptografar(novaSenha);
             usuario.setSenha(novaSenhaCriptografada);
         }

@@ -14,12 +14,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
+
 
     @Bean
     @Order(1) // <- define a ordem de prioridade deste filtro
@@ -37,7 +40,8 @@ public class SecurityConfig {
                                 "/verificaoes/email/**",
                                 "/auth/google/success",
                                 "/arquivos/**",
-                                "/usuarios/alterar/senha/**"
+                                "/usuarios/alterar/senha",
+                                "/senhas/solicitar/nova"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

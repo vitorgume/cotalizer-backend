@@ -15,15 +15,15 @@ public class CodigoAlteracaoSenhaUseCase {
     private final long TTL_MINUTES = 30;
 
     public void adicionarAoCache(String idUsuario, String codigoAlteracaoSenha) {
-        redisTemplate.opsForValue().set(idUsuario, codigoAlteracaoSenha, TTL_MINUTES, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set("codigo:" + codigoAlteracaoSenha, idUsuario, TTL_MINUTES, TimeUnit.MINUTES);
     }
 
 
-    public boolean validaCodigoAlteracaoSenha(String idUsuario, String codigo) {
-        String codigoSalvo = redisTemplate.opsForValue().get(idUsuario);
+    public String validaCodigoAlteracaoSenha(String codigo) {
+        String idUsuario = redisTemplate.opsForValue().get("codigo:" + codigo);
 
-        if(codigoSalvo != null && codigoSalvo.equals(codigo)) {
-            return true;
+        if(idUsuario != null) {
+            return idUsuario;
         } else {
             throw new CodigoInvalidoAlteracaoSenha();
         }

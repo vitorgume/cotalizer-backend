@@ -23,7 +23,7 @@ public class EmailUseCase {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Alteração de senha no Cotalizer");
-        message.setText("Acesse o seguinte link para alterar sua senha: " + "http://localhost:5371/alterar/senha?token=" + token);
+        message.setText("Acesse o seguinte link para alterar sua senha: " + "http://localhost:5173/usuario/alterar/senha/" + token);
         mailSender.send(message);
     }
 }

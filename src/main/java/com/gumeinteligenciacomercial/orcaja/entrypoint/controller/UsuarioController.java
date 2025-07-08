@@ -57,9 +57,9 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/alterar/senha/{id}")
-    public ResponseEntity<ResponseDto<Usuario>> alterarSenha(@RequestBody AlteracaoSenhaDto alteracaoSenhaDto, @PathVariable("id") String idUsuario) {
-        Usuario resultado = useCase.alterarSenha(alteracaoSenhaDto.getNovaSenha(), idUsuario, alteracaoSenhaDto.getCodigo());
+    @PatchMapping("/alterar/senha")
+    public ResponseEntity<ResponseDto<Usuario>> alterarSenha(@RequestBody AlteracaoSenhaDto alteracaoSenhaDto) {
+        Usuario resultado = useCase.alterarSenha(alteracaoSenhaDto.getNovaSenha(), alteracaoSenhaDto.getCodigo());
         ResponseDto<Usuario> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);
     }

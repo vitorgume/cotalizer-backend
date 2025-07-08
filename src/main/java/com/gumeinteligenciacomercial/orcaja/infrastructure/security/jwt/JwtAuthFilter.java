@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,28 +20,35 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final AntPathMatcher matcher = new AntPathMatcher();
 
-    private static final List<String> ROTAS_PUBLICAS = List.of(
+    private final List<String> ROTAS_PUBLICAS = List.of(
             "/login",
             "/usuarios/cadastro",
             "/oauth2/",
             "/arquivos/acessar/",
             "/arquivos/download/",
-            "/verificaoes/email"
+            "/verificaoes/email",
+            "/senhas/solicitar/nova",
+            "/usuarios/alterar/senha"
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String path = request.getRequestURI();
+
+        // Se a rota for pública, segue direto
+        if (ROTAS_PUBLICAS.stream().anyMatch(publica -> matcher.match(publica, path))) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String path = request.getRequestURI();
+        // Agora sim, checa se existe header Authorization
+        final String authHeader = request.getHeader("Authorization");
 
-        if (ROTAS_PUBLICAS.stream().anyMatch(path::startsWith)) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }

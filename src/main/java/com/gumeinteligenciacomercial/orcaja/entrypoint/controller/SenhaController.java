@@ -18,7 +18,7 @@ public class SenhaController {
 
     @PostMapping("solicitar/nova")
     public ResponseEntity<Void> solicitarNovaSenha(@RequestBody SolicitacaoNovaSenhaDto novaSolicitacao) {
-        senhaUseCase.solicitarNovaSenha(novaSolicitacao.getIdUsuario());
+        senhaUseCase.solicitarNovaSenha(novaSolicitacao.getEmailUsuario());
         return ResponseEntity.ok().build();
     }
 
