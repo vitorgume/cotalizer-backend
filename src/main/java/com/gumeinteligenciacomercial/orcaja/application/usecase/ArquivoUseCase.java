@@ -23,9 +23,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,7 @@ public class ArquivoUseCase {
 
             urlArquivo = BASE_API_FILE + nomeArquivo;
         } catch (Exception e) {
+            log.error("Erro ao gerar pdf.", e);
             throw new ArquivoException("Erro ao gerar PDF", e);
         }
 
@@ -75,35 +78,63 @@ public class ArquivoUseCase {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
         String dataFormatada = LocalDateTime.now().format(formatter);
 
+        // Montar HTML dos campos dinâmicos (exceto itens)
+        StringBuilder camposHtml = new StringBuilder();
+        for (Map.Entry<String, Object> entry : orcamento.entrySet()) {
+            String chave = formatarChave(entry.getKey());
+            Object valor = entry.getValue();
+
+            if (entry.getKey().equalsIgnoreCase("itens") || valor instanceof List)
+                continue;
+
+            camposHtml.append("<p><strong>")
+                    .append(chave)
+                    .append(":</strong> ")
+                    .append(valor != null ? valor.toString() : "")
+                    .append("</p>");
+        }
+
+        // Montar HTML dos itens
         StringBuilder itensHtml = new StringBuilder();
+        double subtotal = 0;
         List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
 
         for (Map<String, Object> item : itens) {
-            String descricao = (String) item.getOrDefault("descricao", "");
-            Integer quantidade = Integer.parseInt(item.get("quantidade").toString());
-            Double valorUnitario = Double.parseDouble(item.get("valorUnitario").toString());
-            Double subtotal = valorUnitario * quantidade;
+            String descricao = String.valueOf(item.getOrDefault("descricao", item.getOrDefault("produto", "")));
+            int quantidade = Integer.parseInt(item.getOrDefault("quantidade", "0").toString());
+            double valorUnitario = Double.parseDouble(item.getOrDefault("valorUnitario", item.getOrDefault("valor_unit", "0")).toString());
+            double totalItem = quantidade * valorUnitario;
+            subtotal += totalItem;
 
             itensHtml.append(String.format("""
-                        <tr>
-                            <td>%s</td>
-                            <td>%d</td>
-                            <td>R$ %.2f</td>
-                            <td>R$ %.2f</td>
-                        </tr>
-                    """, descricao, quantidade, valorUnitario, subtotal));
+            <tr>
+                <td><strong>%s</strong></td>
+                <td>%d</td>
+                <td>R$ %.2f</td>
+                <td>R$ %.2f</td>
+            </tr>
+        """, descricao, quantidade, valorUnitario, totalItem));
         }
 
+        double desconto = orcamento.get("desconto") != null ? Double.parseDouble(orcamento.get("desconto").toString()) : 0.0;
+        double valorFinal = subtotal - (subtotal * desconto / 100);
+
+        // Substituir placeholders no HTML
         String htmlFinal = htmlTemplate
                 .replace("${data}", dataFormatada)
-                .replace("${cliente}", (String) orcamento.getOrDefault("cliente", ""))
-                .replace("${dataEntrega}", (String) orcamento.getOrDefault("dataEntrega", ""))
-                .replace("${desconto}", orcamento.getOrDefault("desconto", "0").toString())
-                .replace("${total}", orcamento.getOrDefault("total", "0.00").toString())
-                .replace("${observacoes}", (String) orcamento.getOrDefault("observacoes", ""))
-                .replace("${itens}", itensHtml.toString());
+                .replace("${campos}", camposHtml.toString())
+                .replace("${itens}", itensHtml.toString())
+                .replace("${subtotal}", String.format("R$ %.2f", subtotal))
+                .replace("${desconto}", String.format("R$ %.2f", subtotal * desconto / 100))
+                .replace("${total}", String.format("R$ %.2f", valorFinal));
 
         return htmlFinal;
+    }
+
+    private String formatarChave(String chave) {
+        return Arrays.stream(chave.split("_"))
+                .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+                .collect(Collectors.joining(" "));
     }
 
 
