@@ -1,12 +1,15 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlano;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +25,12 @@ public class OrcamentoUseCase {
 
     private final OrcamentoGateway gateway;
     private final IaUseCase iaUseCase;
+    private final UsuarioUseCase usuarioUseCase;
 
     public Orcamento cadastrar(Orcamento orcamento) {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
+
+        this.validarPlanoUsuario(orcamento.getUsuarioId());
 
         Map<String, Object> orcamentoFormatado = iaUseCase.gerarOrcamento(orcamento.getConteudoOriginal());
 
@@ -79,5 +85,18 @@ public class OrcamentoUseCase {
         log.info("Orçamento alterado com sucesso. Orçamento: {}", orcamento);
 
         return orcamento;
+    }
+
+    private void validarPlanoUsuario(String usuarioId) {
+        Usuario usuario = usuarioUseCase.consultarPorId(usuarioId);
+
+        if(usuario.getPlano().getCodigo() == 0) {
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
+
+            if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
+                throw new LimiteOrcamentosPlano();
+            }
+        }
     }
 }

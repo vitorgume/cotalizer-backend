@@ -4,6 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalid
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioJaCadastradoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
+import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
@@ -39,6 +40,7 @@ public class UsuarioUseCase {
         }
 
         usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+        usuario.setPlano(Plano.GRATIS);
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 

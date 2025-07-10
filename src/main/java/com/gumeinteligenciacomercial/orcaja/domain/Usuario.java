@@ -17,6 +17,7 @@ public class Usuario {
     private String cnpj;
     private String senha;
     private StatusUsuario status;
+    private Plano plano;
 
     public void setDados(Usuario usuario) {
         this.nome = usuario.getNome();
@@ -25,5 +26,6 @@ public class Usuario {
         this.status = usuario.getStatus();
         this.cpf = usuario.getCpf();
         this.cnpj = usuario.getCnpj();
+        this.plano = usuario.getPlano();
     }
 }

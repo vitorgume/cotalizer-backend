@@ -14,6 +14,7 @@ public class UsuarioMapper {
                 .telefone(domain.getTelefone())
                 .senha(domain.getSenha())
                 .status(domain.getStatus())
+                .plano(domain.getPlano())
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class UsuarioMapper {
                 .telefone(entity.getTelefone())
                 .senha(entity.getSenha())
                 .status(entity.getStatus())
+                .plano(entity.getPlano())
                 .build();
     }
 }

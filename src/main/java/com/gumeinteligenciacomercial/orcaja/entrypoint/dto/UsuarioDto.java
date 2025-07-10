@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CNPJ;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CPF;
+import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -56,4 +57,7 @@ public class UsuarioDto {
 
     @JsonProperty("status")
     private StatusUsuario status;
+
+    @JsonProperty("plano")
+    private Plano plano;
 }

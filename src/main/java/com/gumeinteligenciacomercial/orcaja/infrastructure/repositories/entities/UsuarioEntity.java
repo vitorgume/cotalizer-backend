@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
+import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,4 +23,5 @@ public class UsuarioEntity {
     private String cnpj;
     private String senha;
     private StatusUsuario status;
+    private Plano plano;
 }

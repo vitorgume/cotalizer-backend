@@ -13,6 +13,7 @@ public class UsuarioMapper {
                 .nome(domain.getNome())
                 .telefone(domain.getTelefone())
                 .status(domain.getStatus())
+                .plano(domain.getPlano())
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class UsuarioMapper {
                 .telefone(dto.getTelefone())
                 .senha(dto.getSenha())
                 .status(dto.getStatus())
+                .plano(dto.getPlano())
                 .build();
     }
 }
