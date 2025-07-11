@@ -17,6 +17,7 @@ public class OrcamentoMapper {
                 .titulo(domain.getTitulo())
                 .idUsuario(domain.getUsuarioId())
                 .urlArquivo(domain.getUrlArquivo())
+                .status(domain.getStatus())
                 .build();
     }
 
@@ -29,6 +30,7 @@ public class OrcamentoMapper {
                 .titulo(entity.getTitulo())
                 .usuarioId(entity.getIdUsuario())
                 .urlArquivo(entity.getUrlArquivo())
+                .status(entity.getStatus())
                 .build();
     }
 
