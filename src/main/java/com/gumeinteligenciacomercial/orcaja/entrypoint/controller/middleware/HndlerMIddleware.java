@@ -55,6 +55,24 @@ public class HndlerMIddleware {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseDto.comErro(erroDto));
     }
 
+    @ExceptionHandler(CodigoInvalidoAlteracaoSenha.class)
+    public ResponseEntity<ResponseDto> codigoInvalidoAlteracaoSenhaHandler(CodigoInvalidoAlteracaoSenha exception) {
+        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder().mensagens(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.comErro(erroDto));
+    }
+
+    @ExceptionHandler(CodigoInvalidoValidacaoEmailException.class)
+    public ResponseEntity<ResponseDto> codigoInvalidoValidacaoEmailHandler(CodigoInvalidoValidacaoEmailException exception) {
+        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder().mensagens(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.comErro(erroDto));
+    }
+
+    @ExceptionHandler(LimiteOrcamentosPlano.class)
+    public ResponseEntity<ResponseDto> limiteOrcamentoPlanoHandler(LimiteOrcamentosPlano exception) {
+        ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder().mensagens(List.of(exception.getMessage())).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.comErro(erroDto));
+    }
+
     @ExceptionHandler(DataProviderException.class)
     public ResponseEntity<ResponseDto> dataProviderExceptionHandelr(DataProviderException exception) {
         ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder().mensagens(List.of(exception.getMessage())).build();

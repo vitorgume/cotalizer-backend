@@ -78,7 +78,6 @@ public class ArquivoUseCase {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
         String dataFormatada = LocalDateTime.now().format(formatter);
 
-        // Montar HTML dos campos dinâmicos (exceto itens)
         StringBuilder camposHtml = new StringBuilder();
         for (Map.Entry<String, Object> entry : orcamento.entrySet()) {
             String chave = formatarChave(entry.getKey());
@@ -94,7 +93,6 @@ public class ArquivoUseCase {
                     .append("</p>");
         }
 
-        // Montar HTML dos itens
         StringBuilder itensHtml = new StringBuilder();
         double subtotal = 0;
         List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
@@ -119,7 +117,6 @@ public class ArquivoUseCase {
         double desconto = orcamento.get("desconto") != null ? Double.parseDouble(orcamento.get("desconto").toString()) : 0.0;
         double valorFinal = subtotal - (subtotal * desconto / 100);
 
-        // Substituir placeholders no HTML
         String htmlFinal = htmlTemplate
                 .replace("${data}", dataFormatada)
                 .replace("${campos}", camposHtml.toString())
