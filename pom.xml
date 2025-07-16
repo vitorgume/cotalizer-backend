@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.mercadopago</groupId>
 			<artifactId>sdk-java</artifactId>
-			<version>2.1.14</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.cdimascio</groupId>
@@ -137,13 +137,6 @@
 			<version>2.1.7</version>
 		</dependency>
 	</dependencies>
-
-<!--	<repositories>-->
-<!--		<repository>-->
-<!--			<id>jitpack.io</id>-->
-<!--			<url>https://jitpack.io</url>-->
-<!--		</repository>-->
-<!--	</repositories>-->
 
 	<build>
 		<plugins>
