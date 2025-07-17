@@ -1,13 +1,15 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
 @Setter
-public class PayerDto {
-    private String email;
-    private PayerIdentificationDto identification;
+@Builder
+public class AssinaturaResponseDto {
+    private String id;
+    private String status;
 }

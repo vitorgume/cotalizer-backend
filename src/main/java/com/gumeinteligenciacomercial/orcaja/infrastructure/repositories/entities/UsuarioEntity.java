@@ -24,4 +24,5 @@ public class UsuarioEntity {
     private String senha;
     private StatusUsuario status;
     private Plano plano;
+    private String idAssinatura;
 }

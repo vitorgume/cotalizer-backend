@@ -14,6 +14,7 @@ public class UsuarioMapper {
                 .telefone(domain.getTelefone())
                 .status(domain.getStatus())
                 .plano(domain.getPlano())
+                .idAssinatura(domain.getIdAssinatura())
                 .build();
     }
 
@@ -27,6 +28,7 @@ public class UsuarioMapper {
                 .senha(dto.getSenha())
                 .status(dto.getStatus())
                 .plano(dto.getPlano())
+                .idAssinatura(dto.getIdAssinatura())
                 .build();
     }
 }

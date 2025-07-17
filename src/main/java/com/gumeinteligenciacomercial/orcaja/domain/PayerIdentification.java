@@ -1,4 +1,4 @@
-package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
+package com.gumeinteligenciacomercial.orcaja.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PayerIdentificationDto {
+public class PayerIdentification {
     private String type;
     private String number;
 }

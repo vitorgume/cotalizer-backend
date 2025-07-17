@@ -1,8 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.application.gateway;
 
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.PaymentResponseDto;
-import com.mercadopago.client.payment.PaymentCreateRequest;
+import com.gumeinteligenciacomercial.orcaja.domain.Assinatura;
 
 public interface PagamentoGateway {
-    PaymentResponseDto enviarPagamento(PaymentCreateRequest paymentCreateRequest);
+
+    Assinatura criarAssinatura(Assinatura novaAssinatura);
 }
