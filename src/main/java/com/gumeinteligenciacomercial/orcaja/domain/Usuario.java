@@ -18,6 +18,7 @@ public class Usuario {
     private String senha;
     private StatusUsuario status;
     private Plano plano;
+    private String idCustomer;
     private String idAssinatura;
 
     public void setDados(Usuario usuario) {
@@ -28,6 +29,7 @@ public class Usuario {
         this.cpf = usuario.getCpf();
         this.cnpj = usuario.getCnpj();
         this.plano = usuario.getPlano();
+        this.idCustomer = usuario.getIdCustomer();
         this.idAssinatura = usuario.getIdAssinatura();
     }
 }

@@ -1,7 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.mapper;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 
 public class UsuarioMapper {
@@ -15,7 +14,8 @@ public class UsuarioMapper {
                 .senha(domain.getSenha())
                 .status(domain.getStatus())
                 .plano(domain.getPlano())
-                .idAssinatura(domain.getIdAssinatura())
+                .idAssinatura(domain.getIdCustomer())
+                .idCustomer(domain.getIdCustomer())
                 .build();
     }
 
@@ -29,6 +29,7 @@ public class UsuarioMapper {
                 .senha(entity.getSenha())
                 .status(entity.getStatus())
                 .plano(entity.getPlano())
+                .idCustomer(entity.getIdAssinatura())
                 .idAssinatura(entity.getIdAssinatura())
                 .build();
     }

@@ -61,6 +61,9 @@ public class UsuarioDto {
     @JsonProperty("plano")
     private Plano plano;
 
+    @JsonProperty("id_customer")
+    private String idCustomer;
+
     @JsonProperty("id_assinatura")
     private String idAssinatura;
 }
