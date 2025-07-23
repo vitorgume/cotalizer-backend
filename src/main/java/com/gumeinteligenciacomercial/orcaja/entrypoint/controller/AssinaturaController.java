@@ -5,10 +5,7 @@ import com.gumeinteligenciacomercial.orcaja.application.usecase.dto.AssinaturaDt
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("assinaturas")
@@ -19,6 +16,13 @@ public class AssinaturaController {
 
     @PostMapping
     public ResponseEntity<ResponseDto<AssinaturaDto>> criar(@RequestBody AssinaturaDto novaAssinatura) {
+        assinaturaUseCase.criarAssinatura(novaAssinatura);
+        return ResponseEntity.ok().build();
+    }
 
+    @DeleteMapping("/{idUsuario}")
+    public ResponseEntity<Void> cancelar(@PathVariable("idUsuario") String idUsuario) {
+        assinaturaUseCase.cancelar(idUsuario);
+        return ResponseEntity.noContent().build();
     }
 }
