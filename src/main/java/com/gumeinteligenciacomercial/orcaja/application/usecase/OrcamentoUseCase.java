@@ -97,6 +97,13 @@ public class OrcamentoUseCase {
             if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
                 throw new LimiteOrcamentosPlano();
             }
+        } else if (usuario.getPlano().getCodigo() == 1) {
+            Pageable pageable = PageRequest.of(0, 150);
+            Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
+
+            if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
+                throw new LimiteOrcamentosPlano();
+            }
         }
     }
 }

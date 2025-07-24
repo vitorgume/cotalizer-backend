@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Plano {
     GRATIS(0, "Plano Gratuito", 5),
-    PLUS(1, "Plano Plus", 0);
+    PLUS(1, "Plano Plus", 100);
 
     private final int codigo;
     private final String descricao;
