@@ -5,7 +5,9 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoE
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

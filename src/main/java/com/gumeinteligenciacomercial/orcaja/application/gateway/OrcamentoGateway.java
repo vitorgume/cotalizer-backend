@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.gateway;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ArquivoUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class ArquivoController {
     private final ArquivoUseCase useCase;
 
     @PostMapping
-    public ResponseEntity<ResponseDto<OrcamentoDto>> gerarArquivo(@RequestBody OrcamentoDto orcamento) {
+    public ResponseEntity<ResponseDto<OrcamentoDto>> gerarArquivoOrcamento(@RequestBody OrcamentoDto orcamento) {
         OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.salvarArquivo(OrcamentoMapper.paraDomain(orcamento)));
         ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(UriComponentsBuilder
@@ -33,6 +34,11 @@ public class ArquivoController {
                 .buildAndExpand(resultado.getId())
                 .toUri()
         ).body(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseDto<OrcamentoTradicionalDto>> gerarArquivoOrcamentoTradicional(@RequestBody OrcamentoTradicionalDto orcamentoTradiciona) {
+        OrcamentoTradicionalDto resultado = OrcamentoMapper.paraDto(useCase.)
     }
 
     @GetMapping("/acessar/{nomeArquivo}")

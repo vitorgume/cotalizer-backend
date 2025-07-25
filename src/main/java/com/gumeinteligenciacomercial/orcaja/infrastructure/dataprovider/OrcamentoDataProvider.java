@@ -2,10 +2,14 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.mapper.OrcamentoMapper;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.mapper.OrcamentoTradicionalMapper;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoTradicionalRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoEntity;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoTradicionalEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +24,7 @@ import java.util.Optional;
 public class OrcamentoDataProvider implements OrcamentoGateway {
 
     private final OrcamentoRepository repository;
+    private final OrcamentoTradicionalRepository repositoryTradicional;
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar orçamento pelo seu id.";
     private final String MENSAGEM_ERRO_LISTAR_POR_USUARIO = "Erro ao listar orçamentos pelo usuário.";
     private final String MENSAMGEM_ERRO_SALVAR = "Erro ao salvar novo orçamento.";
