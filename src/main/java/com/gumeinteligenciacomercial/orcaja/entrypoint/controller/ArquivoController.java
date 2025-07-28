@@ -5,6 +5,7 @@ import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoTradicionalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -36,9 +37,16 @@ public class ArquivoController {
         ).body(response);
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseDto<OrcamentoTradicionalDto>> gerarArquivoOrcamentoTradicional(@RequestBody OrcamentoTradicionalDto orcamentoTradiciona) {
-        OrcamentoTradicionalDto resultado = OrcamentoMapper.paraDto(useCase.)
+    @PostMapping("tradicional")
+    public ResponseEntity<ResponseDto<OrcamentoTradicionalDto>> gerarArquivoOrcamentoTradicional(@RequestBody OrcamentoTradicionalDto orcamentoTradicional) {
+        OrcamentoTradicionalDto resultado = OrcamentoTradicionalMapper.paraDto(useCase.salvarArquivoTradicional(OrcamentoTradicionalMapper.paraDomain(orcamentoTradicional)));
+        ResponseDto<OrcamentoTradicionalDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.created(UriComponentsBuilder
+                .newInstance()
+                .path("/arquivos/tradicional/{id}")
+                .buildAndExpand(resultado.getId())
+                .toUri()
+        ).body(response);
     }
 
     @GetMapping("/acessar/{nomeArquivo}")

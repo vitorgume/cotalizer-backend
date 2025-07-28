@@ -4,6 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.domain.CampoPersonalizado;
 import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,4 +19,7 @@ public class OrcamentoTradicionalDto {
     private List<ProdutoOrcamentoDto> produtos;
     private String observacoes;
     private List<CampoPersonalizadoDto> camposPersonalizados;
+    private String urlArquivo;
+    private String idUsuario;
+    private BigDecimal valorTotal;
 }

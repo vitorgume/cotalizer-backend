@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Document(collection = "orcamentos_tradicionais")
@@ -21,4 +22,7 @@ public class OrcamentoTradicionalEntity {
     private List<ProdutoOrcamentoEntity> produtos;
     private String observacoes;
     private List<CampoPersonalizadoEntity> camposPersonalizados;
+    private String urlArquivo;
+    private String idUsuario;
+    private BigDecimal valorTotal;
 }

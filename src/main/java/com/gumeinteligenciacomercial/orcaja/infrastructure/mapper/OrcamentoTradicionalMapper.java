@@ -13,6 +13,9 @@ public class OrcamentoTradicionalMapper {
                 .produtos(entity.getProdutos().stream().map(ProdutoOrcamentoMapper::paraDomain).toList())
                 .observacoes(entity.getObservacoes())
                 .camposPersonalizados(entity.getCamposPersonalizados().stream().map(CampoPersonalizadoMapper::paraDomain).toList())
+                .urlArquivo(entity.getUrlArquivo())
+                .idUsuario(entity.getIdUsuario())
+                .valorTotal(entity.getValorTotal())
                 .build();
     }
 
@@ -24,6 +27,9 @@ public class OrcamentoTradicionalMapper {
                 .produtos(domain.getProdutos().stream().map(ProdutoOrcamentoMapper::paraEntity).toList())
                 .observacoes(domain.getObservacoes())
                 .camposPersonalizados(domain.getCamposPersonalizados().stream().map(CampoPersonalizadoMapper::paraEntity).toList())
+                .urlArquivo(domain.getUrlArquivo())
+                .idUsuario(domain.getIdUsuario())
+                .valorTotal(domain.getValorTotal())
                 .build();
     }
 }

@@ -1,9 +1,14 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.domain.CampoPersonalizado;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
+import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.CampoPersonalizadoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ProdutoOrcamentoDto;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -19,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,10 +38,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ArquivoUseCase {
-
     private static final String BASE_PATH = "C:/Users/vitor/orcaja";
+
     private static final String BASE_API_FILE = "http://localhost:8080/arquivos/acessar/";
     private final OrcamentoUseCase orcamentoUseCase;
+    private final OrcamentoTradicionalUseCase orcamentoTradicionalUseCase;
 
     public Orcamento salvarArquivo(Orcamento novoOrcamento) {
         log.info("Gerenado pdf do orçamento. Orçamento: {}", novoOrcamento);
@@ -66,6 +73,38 @@ public class ArquivoUseCase {
         Orcamento orcamentoSalvo = orcamentoUseCase.alterar(orcamento.getId(), orcamento);
 
         log.info("Pdf do orçamento gerado com sucesso. Orçamento: {}", orcamentoSalvo);
+
+        return orcamentoSalvo;
+    }
+
+    public OrcamentoTradicional salvarArquivoTradicional(OrcamentoTradicional novoOrcamento) {
+        log.info("Gerenado pdf do orçamento tradicional. Orçamento: {}", novoOrcamento);
+
+        String urlArquivo;
+        try {
+            String nomeArquivo = gerarNomeArquivo() + ".pdf";
+            String caminhoParaSalvar = Paths.get(BASE_PATH, nomeArquivo).toString();
+
+            String html = this.gerarHtmlTradicional(novoOrcamento);
+
+            try (OutputStream outputStream = new FileOutputStream(caminhoParaSalvar)) {
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocumentFromString(html);
+                renderer.layout();
+                renderer.createPDF(outputStream);
+            }
+
+            urlArquivo = BASE_API_FILE + nomeArquivo;
+        } catch (Exception e) {
+            log.error("Erro ao gerar pdf.", e);
+            throw new ArquivoException("Erro ao gerar PDF", e);
+        }
+
+        OrcamentoTradicional orcamento = orcamentoTradicionalUseCase.consultarPorId(novoOrcamento.getId());
+        orcamento.setUrlArquivo(urlArquivo);
+        OrcamentoTradicional orcamentoSalvo = orcamentoTradicionalUseCase.alterar(orcamento.getId(), orcamento);
+
+        log.info("Pdf do orçamento tradicional gerado com sucesso. Orçamento: {}", orcamentoSalvo);
 
         return orcamentoSalvo;
     }
@@ -126,6 +165,84 @@ public class ArquivoUseCase {
 
         return htmlFinal;
     }
+
+    private String gerarHtmlTradicional(OrcamentoTradicional novoOrcamento) throws IOException {
+        InputStream is = getClass()
+                .getClassLoader()
+                .getResourceAsStream("templates/template_orcamento_tradicional.html");
+        if (is == null) {
+            throw new IllegalStateException("Template não encontrado: template_orcamento_tradicional.html");
+        }
+        String htmlTemplate = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
+        String dataHora = LocalDateTime.now().format(fmt);
+
+        StringBuilder camposFixos = new StringBuilder();
+        camposFixos.append("<p><strong>Cliente:</strong> ")
+                .append(novoOrcamento.getCliente()).append("</p>");
+        camposFixos.append("<p><strong>CNPJ/CPF:</strong> ")
+                .append(novoOrcamento.getCnpjCpf()).append("</p>");
+        if (novoOrcamento.getObservacoes() != null && !novoOrcamento.getObservacoes().isBlank()) {
+            camposFixos.append("<p><strong>Observações:</strong> ")
+                    .append(novoOrcamento.getObservacoes()).append("</p>");
+        }
+
+        StringBuilder camposPers = new StringBuilder();
+        if (novoOrcamento.getCamposPersonalizados() != null) {
+            for (CampoPersonalizado cp : novoOrcamento.getCamposPersonalizados()) {
+                camposPers.append("<p><strong>")
+                        .append(escapeHtml(cp.getTitulo()))
+                        .append(":</strong> ")
+                        .append(escapeHtml(cp.getValor()))
+                        .append("</p>");
+            }
+        }
+
+        StringBuilder produtosHtml = new StringBuilder();
+        double subtotal = 0;
+        if (novoOrcamento.getProdutos() != null) {
+            for (ProdutoOrcamento p : novoOrcamento.getProdutos()) {
+                String desc = escapeHtml(p.getDescricao());
+                int qtd    = p.getQuantidade();
+                BigDecimal vu  = p.getValor();
+                double totalItem = qtd * vu.doubleValue();
+                subtotal += totalItem;
+
+                produtosHtml.append(String.format("""
+                <tr>
+                  <td>%s</td>
+                  <td style="text-align:center">%d</td>
+                  <td style="text-align:right">R$ %.2f</td>
+                  <td style="text-align:right">R$ %.2f</td>
+                </tr>
+            """, desc, qtd, vu, totalItem));
+            }
+        }
+
+        String subtotalStr = String.format("R$ %.2f", subtotal);
+        String totalStr    = subtotalStr;
+
+        String htmlFinal = htmlTemplate
+                .replace("${dataHora}", dataHora)
+                .replace("${campos_fixos}", camposFixos.toString())
+                .replace("${campos_personalizados}", camposPers.toString())
+                .replace("${produtos}", produtosHtml.toString())
+                .replace("${subtotal}", subtotalStr)
+                .replace("${total}", totalStr);
+
+        return htmlFinal;
+    }
+
+    private String escapeHtml(String s) {
+        return Optional.ofNullable(s)
+                .map(str -> str.replace("&", "&amp;")
+                        .replace("<","&lt;")
+                        .replace(">","&gt;")
+                        .replace("\"","&quot;"))
+                .orElse("");
+    }
+
 
     private String formatarChave(String chave) {
         return Arrays.stream(chave.split("_"))

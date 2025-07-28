@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDate;
 
-@org.springframework.data.mongodb.core.mapping.Document(collection = "orcamentos")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "orcamentos_ia")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
