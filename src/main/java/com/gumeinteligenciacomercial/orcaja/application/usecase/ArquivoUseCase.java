@@ -78,7 +78,7 @@ public class ArquivoUseCase {
     }
 
     public OrcamentoTradicional salvarArquivoTradicional(OrcamentoTradicional novoOrcamento) {
-        log.info("Gerenado pdf do orçamento tradicional. Orçamento: {}", novoOrcamento);
+        log.info("Gerando pdf do orçamento tradicional. Orçamento: {}", novoOrcamento);
 
         String urlArquivo;
         try {
@@ -167,26 +167,13 @@ public class ArquivoUseCase {
     }
 
     private String gerarHtmlTradicional(OrcamentoTradicional novoOrcamento) throws IOException {
-        InputStream is = getClass()
-                .getClassLoader()
+        InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("templates/template_orcamento_tradicional.html");
-        if (is == null) {
-            throw new IllegalStateException("Template não encontrado: template_orcamento_tradicional.html");
-        }
+        if (is == null) throw new IllegalStateException("Template não encontrado!");
+
         String htmlTemplate = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
-        String dataHora = LocalDateTime.now().format(fmt);
-
-        StringBuilder camposFixos = new StringBuilder();
-        camposFixos.append("<p><strong>Cliente:</strong> ")
-                .append(novoOrcamento.getCliente()).append("</p>");
-        camposFixos.append("<p><strong>CNPJ/CPF:</strong> ")
-                .append(novoOrcamento.getCnpjCpf()).append("</p>");
-        if (novoOrcamento.getObservacoes() != null && !novoOrcamento.getObservacoes().isBlank()) {
-            camposFixos.append("<p><strong>Observações:</strong> ")
-                    .append(novoOrcamento.getObservacoes()).append("</p>");
-        }
+        String data     = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
 
         StringBuilder camposPers = new StringBuilder();
         if (novoOrcamento.getCamposPersonalizados() != null) {
@@ -199,49 +186,50 @@ public class ArquivoUseCase {
             }
         }
 
-        StringBuilder produtosHtml = new StringBuilder();
+        StringBuilder itensHtml = new StringBuilder();
         double subtotal = 0;
         if (novoOrcamento.getProdutos() != null) {
             for (ProdutoOrcamento p : novoOrcamento.getProdutos()) {
-                String desc = escapeHtml(p.getDescricao());
-                int qtd    = p.getQuantidade();
-                BigDecimal vu  = p.getValor();
-                double totalItem = qtd * vu.doubleValue();
-                subtotal += totalItem;
+                String desc  = escapeHtml(p.getDescricao());
+                int qtd      = p.getQuantidade();
+                double vu    = p.getValor().doubleValue();
+                double total = qtd * vu;
+                subtotal += total;
 
-                produtosHtml.append(String.format("""
+                itensHtml.append(String.format("""
                 <tr>
                   <td>%s</td>
                   <td style="text-align:center">%d</td>
                   <td style="text-align:right">R$ %.2f</td>
                   <td style="text-align:right">R$ %.2f</td>
                 </tr>
-            """, desc, qtd, vu, totalItem));
+            """, desc, qtd, vu, total));
             }
         }
 
         String subtotalStr = String.format("R$ %.2f", subtotal);
-        String totalStr    = subtotalStr;
+        String totalStr    = subtotalStr; // sem desconto aqui
 
-        String htmlFinal = htmlTemplate
-                .replace("${dataHora}", dataHora)
-                .replace("${campos_fixos}", camposFixos.toString())
+        return htmlTemplate
+                .replace("${id}",               escapeHtml(novoOrcamento.getId()))
+                .replace("${data}",             data)
+                .replace("${cliente}",          escapeHtml(novoOrcamento.getCliente()))
+                .replace("${cnpjCpf}",          escapeHtml(novoOrcamento.getCnpjCpf()))
+                .replace("${observacoes}",      escapeHtml(novoOrcamento.getObservacoes()))
                 .replace("${campos_personalizados}", camposPers.toString())
-                .replace("${produtos}", produtosHtml.toString())
-                .replace("${subtotal}", subtotalStr)
-                .replace("${total}", totalStr);
-
-        return htmlFinal;
+                .replace("${itens}",                itensHtml.toString())
+                .replace("${subtotal}",             subtotalStr)
+                .replace("${total}",                totalStr);
     }
 
     private String escapeHtml(String s) {
-        return Optional.ofNullable(s)
-                .map(str -> str.replace("&", "&amp;")
-                        .replace("<","&lt;")
-                        .replace(">","&gt;")
-                        .replace("\"","&quot;"))
-                .orElse("");
+        return s == null ? "" : s
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"","&quot;");
     }
+
 
 
     private String formatarChave(String chave) {

@@ -24,6 +24,7 @@ public class OrcamentoTradicionalDataProvider implements OrcamentoTradicionalGat
     private final String MENSAGEM_ERRO_CADASTRAR_ORCAMENTO_TRADICIONAL = "Erro ao salvar orçamento tradicional.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar orçamento tradicional pelo seu id.";
     private final String MENSAGEM_ERRO_LISTAR_POR_USUARIO = "Erro ao listar orçamentos tradicionais pelo usuário.";
+    private final String MENSAGEM_ERRO_DELETAR = "Erro ao deletar orçamento tradicional.";
 
     @Override
     public OrcamentoTradicional salvar(OrcamentoTradicional novoOrcamento) {
@@ -69,6 +70,11 @@ public class OrcamentoTradicionalDataProvider implements OrcamentoTradicionalGat
 
     @Override
     public void deletar(String id) {
-
+        try {
+            repository.deleteById(id);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_DELETAR, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_DELETAR, ex.getCause());
+        }
     }
 }
