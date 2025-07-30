@@ -1,10 +1,13 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
+import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Document(collection = "orcamentos_tradicionais")
@@ -25,4 +28,7 @@ public class OrcamentoTradicionalEntity {
     private String urlArquivo;
     private String idUsuario;
     private BigDecimal valorTotal;
+    private TipoOrcamento tipoOrcamento;
+    private StatusOrcamento status;
+    private LocalDate dataCriacao;
 }

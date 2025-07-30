@@ -6,6 +6,7 @@ import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class OrcamentoUseCase {
 
         orcamento.setOrcamentoFormatado(orcamentoFormatado);
         orcamento.setDataCriacao(LocalDate.now());
+        orcamento.setTipoOrcamento(TipoOrcamento.IA);
         Orcamento orcamentoSalvo = gateway.salvar(orcamento);
 
         log.info("Orçamento cadastrado com sucesso. Orçamento salvo: {}", orcamentoSalvo);

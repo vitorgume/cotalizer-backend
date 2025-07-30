@@ -17,6 +17,9 @@ public class OrcamentoTradicionalMapper {
                 .urlArquivo(domain.getUrlArquivo())
                 .idUsuario(domain.getIdUsuario())
                 .valorTotal(domain.getValorTotal())
+                .tipoOrcamento(domain.getTipoOrcamento())
+                .status(domain.getStatus())
+                .dataCriacao(domain.getDataCriacao())
                 .build();
     }
 
@@ -31,6 +34,9 @@ public class OrcamentoTradicionalMapper {
                 .urlArquivo(dto.getUrlArquivo())
                 .idUsuario(dto.getIdUsuario())
                 .valorTotal(dto.getValorTotal())
+                .tipoOrcamento(dto.getTipoOrcamento())
+                .status(dto.getStatus())
+                .dataCriacao(dto.getDataCriacao())
                 .build();
     }
 

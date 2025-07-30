@@ -16,6 +16,7 @@ public class OrcamentoMapper {
                 .urlArquivo(domain.getUrlArquivo())
                 .orcamentoFormatado(domain.getOrcamentoFormatado())
                 .status(domain.getStatus())
+                .tipoOrcamento(domain.getTipoOrcamento())
                 .build();
     }
 
@@ -29,6 +30,7 @@ public class OrcamentoMapper {
                 .urlArquivo(dto.getUrlArquivo())
                 .orcamentoFormatado(dto.getOrcamentoFormatado())
                 .status(dto.getStatus())
+                .tipoOrcamento(dto.getTipoOrcamento())
                 .build();
     }
 

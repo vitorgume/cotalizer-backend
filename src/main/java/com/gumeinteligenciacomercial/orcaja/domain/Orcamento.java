@@ -19,6 +19,7 @@ public class Orcamento {
     private String titulo;
     private String usuarioId;
     private StatusOrcamento status;
+    private TipoOrcamento tipoOrcamento;
 
     public void setDados(Orcamento novoOrcamento) {
         this.orcamentoFormatado = novoOrcamento.getOrcamentoFormatado();

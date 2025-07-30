@@ -3,6 +3,8 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,6 +22,9 @@ public class OrcamentoTradicional {
     private String urlArquivo;
     private String idUsuario;
     private BigDecimal valorTotal;
+    private TipoOrcamento tipoOrcamento;
+    private StatusOrcamento status;
+    private LocalDate dataCriacao;
 
     public void setDados(OrcamentoTradicional orcamentoTradicional) {
         this.cliente = orcamentoTradicional.getCliente();
@@ -30,5 +35,6 @@ public class OrcamentoTradicional {
         this.urlArquivo = orcamentoTradicional.getUrlArquivo();
         this.idUsuario = orcamentoTradicional.getIdUsuario();
         this.valorTotal = orcamentoTradicional.getValorTotal();
+        this.status = orcamentoTradicional.getStatus();
     }
 }

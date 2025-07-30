@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
 import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import lombok.*;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -24,4 +25,5 @@ public class OrcamentoEntity {
     private String titulo;
     private String idUsuario;
     private StatusOrcamento status;
+    private TipoOrcamento tipoOrcamento;
 }

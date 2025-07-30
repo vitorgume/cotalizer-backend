@@ -4,6 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoTrad
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoTradicionalGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -24,6 +26,9 @@ public class OrcamentoTradicionalUseCase {
         log.info("Cadastrando novo orçamento tradicional. Novo orçamento: {}", novoOrcamento);
 
         novoOrcamento.setValorTotal(BigDecimal.valueOf(this.calcularValorTotal(novoOrcamento)));
+        novoOrcamento.setTipoOrcamento(TipoOrcamento.TRADICIONAL);
+        novoOrcamento.setDataCriacao(LocalDate.now());
+
         OrcamentoTradicional orcamentoSalvo = gateway.salvar(novoOrcamento);
 
         log.info("Novo orçamento tradicional cadastrado com sucesso.");
@@ -49,6 +54,7 @@ public class OrcamentoTradicionalUseCase {
 
         OrcamentoTradicional orcamentoTradicional = this.consultarPorId(id);
         orcamentoTradicional.setDados(orcamento);
+        orcamentoTradicional = gateway.salvar(orcamentoTradicional);
 
         log.info("Orçamento tradicional alterado com sucesso. Orçamento: {}", orcamentoTradicional);
 
