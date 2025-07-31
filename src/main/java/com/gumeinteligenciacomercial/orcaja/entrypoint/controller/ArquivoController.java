@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ArquivoUseCase;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.LogoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.file.Path;
@@ -51,41 +53,35 @@ public class ArquivoController {
 
     @GetMapping("/acessar/{nomeArquivo}")
     public ResponseEntity<Resource> acessarArquivo(@PathVariable String nomeArquivo) {
-        try {
-            Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
-            Resource resource = new UrlResource(arquivoPath.toUri());
+        Resource resource = useCase.acessarArquivo(nomeArquivo);
 
-            if (!resource.exists()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(resource);
-
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
     }
 
     @GetMapping("/download/{nomeArquivo}")
     public ResponseEntity<Resource> downloadArquivo(@PathVariable String nomeArquivo) {
-        try {
-            Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
-            Resource resource = new UrlResource(arquivoPath.toUri());
+        Resource resource = useCase.downloadArquivo(nomeArquivo);
 
-            if (!resource.exists()) {
-                return ResponseEntity.notFound().build();
-            }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
+    }
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(resource);
+    @PostMapping("/logo")
+    public ResponseEntity<ResponseDto<LogoDto>> cadastrar(@RequestParam("logo") MultipartFile multipartFile, @RequestParam("idUsuario") String idUsuario) {
+        LogoDto resultado = LogoDto.builder().urlFoto(useCase.cadastrarLogo(idUsuario, multipartFile)).build();
+        ResponseDto<LogoDto> response = new ResponseDto<>(resultado);
 
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.created(
+                UriComponentsBuilder
+                        .newInstance()
+                        .path("/logos/{id}")
+                        .buildAndExpand(resultado.getIdUsuario())
+                        .toUri()
+        ).body(response);
     }
 }

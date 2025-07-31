@@ -66,4 +66,7 @@ public class UsuarioDto {
 
     @JsonProperty("id_assinatura")
     private String idAssinatura;
+
+    @JsonProperty("url_logo")
+    private String urlLogo;
 }

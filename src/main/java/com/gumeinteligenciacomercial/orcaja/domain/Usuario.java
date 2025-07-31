@@ -20,6 +20,7 @@ public class Usuario {
     private Plano plano;
     private String idCustomer;
     private String idAssinatura;
+    private String urlLogo;
 
     public void setDados(Usuario usuario) {
         this.nome = usuario.getNome();
@@ -31,5 +32,6 @@ public class Usuario {
         this.plano = usuario.getPlano();
         this.idCustomer = usuario.getIdCustomer();
         this.idAssinatura = usuario.getIdAssinatura();
+        this.urlLogo = usuario.getUrlLogo();
     }
 }

@@ -26,4 +26,5 @@ public class UsuarioEntity {
     private Plano plano;
     private String idCustomer;
     private String idAssinatura;
+    private String urlLogo;
 }

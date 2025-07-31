@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Orçamento Tradicional</title>
     <style>
         /* **copie todo o bloco de CSS daqui pra baixo do seu template dinâmico** */
@@ -22,7 +22,30 @@
             padding-bottom: 20px;
             margin-bottom: 20px;
         }
-        .logo { font-weight: bold; font-size: 18px; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px; /* menor que antes */
+            margin-bottom: 10px;  /* menor que antes */
+        }
+
+        .logo {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            max-height: 50px;
+            max-width: 200px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
         .invoice-info {
             text-align: right;
             font-size: 13px;
@@ -96,7 +119,14 @@
 <div class="invoice-container">
 
     <div class="header">
-        <div class="logo">YOURLOGO</div>
+        <div class="logo">
+            <img
+                    src="data:image/png;base64,${logo_base64}"
+                    alt="Logo do Usuário"
+                    width="200"
+            height="50"            
+            style="width:200px!important; height:50px!important;"/>
+        </div>
         <div class="invoice-info">
             <p><strong>Orçamento Tradicional</strong></p>
             <p>Nº: ${id}</p>
@@ -148,7 +178,8 @@
     </div>
 
     <div class="terms">
-        <p>Este orçamento é válido por até 7 dias. Os valores estão sujeitos a alteração após esse período. Para dúvidas, entre em contato.</p>
+        <p>Este orçamento é válido por até 7 dias. Os valores estão sujeitos a alteração após esse período. Para
+            dúvidas, entre em contato.</p>
     </div>
 </div>
 </body>
