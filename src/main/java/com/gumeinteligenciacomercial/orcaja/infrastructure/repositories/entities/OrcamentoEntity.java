@@ -6,6 +6,7 @@ import lombok.*;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @org.springframework.data.mongodb.core.mapping.Document(collection = "orcamentos_ia")
@@ -26,4 +27,5 @@ public class OrcamentoEntity {
     private String idUsuario;
     private StatusOrcamento status;
     private TipoOrcamento tipoOrcamento;
+    private BigDecimal valorTotal;
 }

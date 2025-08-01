@@ -16,7 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,18 +35,22 @@ public class OrcamentoUseCase {
     public Orcamento cadastrar(Orcamento orcamento) {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
 
-        this.validarPlanoUsuario(orcamento.getUsuarioId());
+        validarPlanoUsuario(orcamento.getUsuarioId());
 
         Map<String, Object> orcamentoFormatado = iaUseCase.gerarOrcamento(orcamento.getConteudoOriginal());
+
+        orcamentoFormatado = this.calculaValorTotal(orcamentoFormatado);
 
         orcamento.setOrcamentoFormatado(orcamentoFormatado);
         orcamento.setDataCriacao(LocalDate.now());
         orcamento.setTipoOrcamento(TipoOrcamento.IA);
-        Orcamento orcamentoSalvo = gateway.salvar(orcamento);
+        orcamento.setValorTotal(BigDecimal.valueOf((Long) orcamentoFormatado.get("valorTotal")));
 
+        Orcamento orcamentoSalvo = gateway.salvar(orcamento);
         log.info("Orçamento cadastrado com sucesso. Orçamento salvo: {}", orcamentoSalvo);
         return orcamentoSalvo;
     }
+
 
     public Orcamento consultarPorId(String idOrcamento) {
         log.info("Consultando Orçamento pelo seu id. Id do orçamento: {}", idOrcamento);
@@ -109,5 +115,42 @@ public class OrcamentoUseCase {
                 throw new LimiteOrcamentosPlano();
             }
         }
+    }
+
+    private Map<String, Object> calculaValorTotal(Map<String, Object> orcamentoFormatado) {
+        BigDecimal subtotal = BigDecimal.ZERO;
+        Object itensObj = orcamentoFormatado.get("itens");
+        if (itensObj instanceof List) {
+            List<?> itens = (List<?>) itensObj;
+            for (Object o : itens) {
+                if (o instanceof Map) {
+                    Map<?,?> item = (Map<?,?>) o;
+                    BigDecimal quantidade = new BigDecimal(item.get("quantidade").toString());
+                    BigDecimal valorUnitario = new BigDecimal(item.get("valorUnitario").toString());
+                    subtotal = subtotal.add(valorUnitario.multiply(quantidade));
+                }
+            }
+        }
+
+        BigDecimal descontoCalculado = BigDecimal.ZERO;
+        Object descObj = orcamentoFormatado.get("desconto");
+        if (descObj != null) {
+            String descStr = descObj.toString().trim();
+            if (descStr.endsWith("%")) {
+                String perc = descStr.substring(0, descStr.length() - 1);
+                BigDecimal frac = new BigDecimal(perc).divide(BigDecimal.valueOf(100));
+                descontoCalculado = subtotal.multiply(frac);
+            } else {
+                descontoCalculado = new BigDecimal(descStr);
+            }
+        }
+
+        BigDecimal valorTotal = subtotal.subtract(descontoCalculado);
+
+        orcamentoFormatado.put("subtotal", subtotal);
+        orcamentoFormatado.put("descontoCalculado", descontoCalculado);
+        orcamentoFormatado.put("valorTotal", valorTotal);
+
+        return orcamentoFormatado;
     }
 }

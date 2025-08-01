@@ -17,6 +17,7 @@ public class OrcamentoMapper {
                 .orcamentoFormatado(domain.getOrcamentoFormatado())
                 .status(domain.getStatus())
                 .tipoOrcamento(domain.getTipoOrcamento())
+                .valorTotal(domain.getValorTotal())
                 .build();
     }
 
@@ -31,6 +32,7 @@ public class OrcamentoMapper {
                 .orcamentoFormatado(dto.getOrcamentoFormatado())
                 .status(dto.getStatus())
                 .tipoOrcamento(dto.getTipoOrcamento())
+                .valorTotal(dto.getValorTotal())
                 .build();
     }
 

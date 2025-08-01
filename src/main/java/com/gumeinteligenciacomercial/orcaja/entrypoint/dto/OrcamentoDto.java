@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -24,4 +25,5 @@ public class OrcamentoDto {
     private String usuarioId;
     private StatusOrcamento status;
     private TipoOrcamento tipoOrcamento;
+    private BigDecimal valorTotal;
 }

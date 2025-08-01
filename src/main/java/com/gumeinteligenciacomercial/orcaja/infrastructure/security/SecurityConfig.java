@@ -55,9 +55,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Filtro para fluxo de login via Google (OAuth2) – precisa de sessão
-     */
     @Bean
     @Order(2)
     public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {

@@ -85,6 +85,12 @@ public class UsuarioUseCase {
 
         Usuario usuario = consultarPorId(id);
 
+
+        if(!novosDados.getEmail().equals(usuario.getEmail())) {
+            this.validacaoEmail(novosDados.getEmail());
+            usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+        }
+
         usuario.setDados(novosDados);
 
         usuario = gateway.salvar(usuario);

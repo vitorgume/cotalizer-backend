@@ -28,7 +28,7 @@ public class HtmlUseCase {
 
     private final UsuarioUseCase usuarioUseCase;
 
-    public String gerarHtml(Map<String, Object> orcamento) {
+    public String gerarHtml(Map<String, Object> orcamento, String idUsuario) {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/template_orcamento.html");
 
         try {
@@ -76,7 +76,17 @@ public class HtmlUseCase {
             double desconto = orcamento.get("desconto") != null ? Double.parseDouble(orcamento.get("desconto").toString()) : 0.0;
             double valorFinal = subtotal - (subtotal * desconto / 100);
 
+            Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
+
+            String logoBase64 = "";
+            String logoPath = usuario.getUrlLogo();
+            if (logoPath != null && !logoPath.isBlank()) {
+                byte[] logoBytes = Files.readAllBytes(Path.of(logoPath));
+                logoBase64 = Base64.getEncoder().encodeToString(logoBytes);
+            }
+
             String htmlFinal = htmlTemplate
+                    .replace("${logo_base64}", logoBase64)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
