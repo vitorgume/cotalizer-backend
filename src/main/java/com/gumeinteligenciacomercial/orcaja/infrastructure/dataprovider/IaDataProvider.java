@@ -32,26 +32,32 @@ public class IaDataProvider implements IaGateway {
     }
 
     @Override
-    public OpenIaResponseDto enviarMensagem(PromptDto prompt) {
-
-        return webClient
-                .post()
-                .uri("/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .bodyValue(prompt)
-                .retrieve()
-                .bodyToMono(OpenIaResponseDto.class)
-                .retryWhen(
-                        Retry.backoff(3, Duration.ofSeconds(2))
-                                .filter(throwable -> {
-                                    log.warn("Tentando enviar orçamento para IA novamente: {}", throwable.getMessage());
-                                    return true;
-                                })
-                )
-                .doOnError(e -> {
-                    log.error("Erro ao enviar prompt após tentativas.", e);
-                    throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, e.getCause());
-                })
-                .block();
+    public OpenIaResponseDto    enviarMensagem(PromptDto prompt) {
+        try {
+            return webClient
+                    .post()
+                    .uri("/chat/completions")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .bodyValue(prompt)
+                    .retrieve()
+                    .bodyToMono(OpenIaResponseDto.class)
+                    .retryWhen(
+                            Retry.backoff(3, Duration.ofSeconds(2))
+                                    .filter(throwable -> {
+                                        log.warn("Tentando enviar orçamento para IA novamente: {}", throwable.getMessage());
+                                        return true;
+                                    })
+                    ).doOnError(e -> {  // opcional, ainda cobre erros de stream
+                        log.error("Erro após tentativas", e);
+                        throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, e);
+                    })
+                    .block();
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, ex.getCause());
+        }
     }
+
+
+
 }

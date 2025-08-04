@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Setter
 @ToString
 @Builder
+@NoArgsConstructor
 public class ProdutoOrcamento {
     private String descricao;
     private BigDecimal valor;
