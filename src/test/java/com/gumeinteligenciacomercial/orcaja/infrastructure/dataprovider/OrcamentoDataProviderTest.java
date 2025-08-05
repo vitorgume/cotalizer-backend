@@ -53,7 +53,6 @@ class OrcamentoDataProviderTest {
 
     @BeforeEach
     void setUp() {
-        // mocks puros, conteúdo irrelevante para estas verificações
         entityIn  = mock(OrcamentoEntity.class);
         entityOut = mock(OrcamentoEntity.class);
         domainIn  = mock(Orcamento.class);
@@ -63,7 +62,7 @@ class OrcamentoDataProviderTest {
 
 
     @Test
-    void consultarPorId_comSucesso_deveRetornarOptionalDomain() {
+    void consultarPorIdComSucessoDeveRetornarOptionalDomain() {
         String id = "abc123";
         given(repository.findById(id)).willReturn(Optional.of(entityIn));
 
@@ -80,7 +79,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void consultarPorId_quandoNaoEncontrar_deveRetornarOptionalVazio() {
+    void consultarPorIdQuandoNaoEncontrarDeveRetornarOptionalVazio() {
         String id = "nao-existe";
         given(repository.findById(id)).willReturn(Optional.empty());
 
@@ -90,7 +89,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void consultarPorId_quandoRepositoryLancarErro_deveLancarDataProviderException() {
+    void consultarPorIdQuandoRepositoryLancarErroDeveLancarDataProviderException() {
         given(repository.findById(anyString())).willThrow(new RuntimeException("fail-consulta"));
 
         DataProviderException ex = assertThrows(
@@ -101,7 +100,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void listarPorUsuario_comSucesso_deveRetornarPageDomain() {
+    void listarPorUsuarioComSucessoDeveRetornarPageDomain() {
         String userId = "user1";
         Page<OrcamentoEntity> pageEntity = mock(Page.class);
         Page<Orcamento>       pageDomain = new PageImpl<>(List.of(domainOut));
@@ -119,7 +118,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void listarPorUsuario_quandoRepositoryLancarErro_deveLancarDataProviderException() {
+    void listarPorUsuarioQuandoRepositoryLancarErroDeveLancarDataProviderException() {
         given(repository.findByIdUsuario(anyString(), any(Pageable.class)))
                 .willThrow(new RuntimeException("fail-listar"));
 
@@ -131,7 +130,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void salvar_comSucesso_deveRetornarDomainSalvo() {
+    void salvarComSucessoDeveRetornarDomainSalvo() {
         try (MockedStatic<OrcamentoMapper> ms = mockStatic(OrcamentoMapper.class)) {
             ms.when(() -> OrcamentoMapper.paraEntity(domainIn))
                     .thenReturn(entityIn);
@@ -152,7 +151,7 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void salvar_quandoRepositoryLancarErro_deveLancarDataProviderException() {
+    void salvarQuandoRepositoryLancarErroDeveLancarDataProviderException() {
         when(repository.save(entityIn))
                 .thenThrow(new RuntimeException("fail-save"));
 
@@ -173,14 +172,14 @@ class OrcamentoDataProviderTest {
     }
 
     @Test
-    void deletar_comSucesso_deveChamarRepository() {
+    void deletarComSucessoDeveChamarRepository() {
         String id = UUID.randomUUID().toString();
         assertDoesNotThrow(() -> provider.deletar(id));
         then(repository).should().deleteById(id);
     }
 
     @Test
-    void deletar_quandoRepositoryLancarErro_deveLancarDataProviderException() {
+    void deletaQquandoRepositoryLancarErroDeveLancarDataProviderException() {
         String id = UUID.randomUUID().toString();
         willThrow(new RuntimeException("fail-del"))
                 .given(repository).deleteById(id);

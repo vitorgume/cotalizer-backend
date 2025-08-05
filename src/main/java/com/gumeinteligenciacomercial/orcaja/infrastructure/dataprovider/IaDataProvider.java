@@ -57,7 +57,4 @@ public class IaDataProvider implements IaGateway {
             throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, ex.getCause());
         }
     }
-
-
-
 }

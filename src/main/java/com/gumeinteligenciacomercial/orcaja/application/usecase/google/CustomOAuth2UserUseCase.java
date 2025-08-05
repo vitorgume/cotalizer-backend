@@ -6,29 +6,33 @@ import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserUseCase extends DefaultOAuth2UserService {
+public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UsuarioUseCase usuarioUseCase;
+    private final OAuth2UserService<OAuth2UserRequest,OAuth2User> delegate;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User user = super.loadUser(userRequest);
+        OAuth2User user = delegate.loadUser(userRequest);
 
         String email = user.getAttribute("email");
-        String nome = user.getAttribute("name");
-
+        String nome  = user.getAttribute("name");
         try {
             usuarioUseCase.consultarPorEmail(email);
         } catch (UsuarioNaoEncontradoException ex) {
-            Usuario novoUsuario = Usuario.builder().nome(nome).email(email).senha("test").build();
-
-            usuarioUseCase.cadastrar(novoUsuario);
+            Usuario novo = Usuario.builder()
+                    .nome(nome)
+                    .email(email)
+                    .senha("test")
+                    .build();
+            usuarioUseCase.cadastrar(novo);
         }
 
         return user;

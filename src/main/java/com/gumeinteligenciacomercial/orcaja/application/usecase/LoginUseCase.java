@@ -21,7 +21,7 @@ public class LoginUseCase {
         log.info("Autenticando usuário. Dados login: {}", login);
         Usuario usuario = usuarioUseCase.consultarPorEmail(login.getEmail());
         this.validaCredencias(usuario, login.getEmail(), login.getSenha());
-        String token = gateway.generateToken(login.getEmail(), login.getUsuarioId());
+        String token = gateway.generateToken(login.getEmail(), usuario.getId());
 
         log.info("Usuário autenticado com sucesso. Usuario: {}", usuario);
 

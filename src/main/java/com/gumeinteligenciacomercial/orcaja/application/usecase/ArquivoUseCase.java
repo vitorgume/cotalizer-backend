@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class ArquivoUseCase {
     private final UsuarioUseCase usuarioUseCase;
     private final ArquivoGateway gateway;
     private final HtmlUseCase htmlUseCase;
+    private static final Path BASE_DIR = Paths.get("C:/Users/vitor/orcaja");
 
     public Orcamento salvarArquivo(Orcamento novoOrcamento) {
         log.info("Gerenado pdf do orçamento. Orçamento: {}", novoOrcamento);
@@ -82,34 +84,20 @@ public class ArquivoUseCase {
 
     public Resource acessarArquivo(String nomeArquivo) {
         try {
-            Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
+            Path arquivoPath = BASE_DIR.resolve(nomeArquivo).normalize();
             Resource resource = new UrlResource(arquivoPath.toUri());
-
-            if (!resource.exists()) {
+            if (!resource.exists() || !resource.isReadable()) {
                 throw new ArquivoNaoEncontrado();
             }
-
             return resource;
-        } catch (Exception e) {
-            log.error("Erro acessar arquivo.", e);
-            throw new ArquivoException("Erro acessar arquivo.", e);
+        } catch (MalformedURLException e) {
+            log.error("Erro ao acessar arquivo: {}", nomeArquivo, e);
+            throw new ArquivoException("Erro ao acessar arquivo: " + nomeArquivo, e);
         }
     }
 
     public Resource downloadArquivo(String nomeArquivo) {
-        try {
-            Path arquivoPath = Paths.get("C:/Users/vitor/orcaja").resolve(nomeArquivo);
-            Resource resource = new UrlResource(arquivoPath.toUri());
-
-            if (!resource.exists()) {
-                throw new ArquivoNaoEncontrado();
-            }
-
-            return resource;
-        } catch (Exception e) {
-            log.error("Erro acessar arquivo.", e);
-            throw new ArquivoException("Erro acessar arquivo.", e);
-        }
+        return acessarArquivo(nomeArquivo);
     }
 }
 

@@ -45,10 +45,11 @@ class IaDataProviderTest {
 
     @BeforeEach
     void setUp() {
-        // instância com a chave e o WebClient mockado
         provider = new IaDataProvider(API_KEY, webClient);
+    }
 
-        // fluxograma normal de chamada
+    @Test
+    void enviarMensagemDeveRetornarRespostaQuandoSucesso() {
         when(webClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(URI_PATH)).thenReturn(bodySpec);
         when(bodySpec.header("Authorization", "Bearer " + API_KEY))
@@ -58,10 +59,7 @@ class IaDataProviderTest {
                 .bodyValue(promptDto);
 
         when(headersSpec.retrieve()).thenReturn(responseSpec);
-    }
 
-    @Test
-    void enviarMensagemDeveRetornarRespostaQuandoSucesso() {
         when(responseSpec.bodyToMono(OpenIaResponseDto.class))
                 .thenReturn(Mono.just(responseDto));
 
@@ -78,8 +76,15 @@ class IaDataProviderTest {
     }
 
     @Test
-    void enviarMensagem_quandoRetrieveLancarErro_deveLancarDataProviderException() {
+    void enviarMensagemQuandoRetrieveLancarErroDeveLancarDataProviderException() {
         when(headersSpec.retrieve()).thenThrow(new RuntimeException("erro remoto"));
+        when(webClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(URI_PATH)).thenReturn(bodySpec);
+        when(bodySpec.header("Authorization", "Bearer " + API_KEY))
+                .thenReturn(bodySpec);
+        doReturn(headersSpec)
+                .when(bodySpec)
+                .bodyValue(promptDto);
 
         DataProviderException ex = assertThrows(
                 DataProviderException.class,
@@ -94,5 +99,52 @@ class IaDataProviderTest {
         verify(headersSpec).retrieve();
 
         verifyNoInteractions(responseSpec);
+    }
+
+    @Test
+    void enviarMensagemQuandoPostLancarErroDeveLancarDataProviderException() {
+        when(webClient.post())
+                .thenThrow(new RuntimeException("fail-post"));
+
+        DataProviderException ex = assertThrows(
+                DataProviderException.class,
+                () -> provider.enviarMensagem(promptDto)
+        );
+        assertEquals(
+                "Erro ao enviar orçamento para IA.",
+                ex.getMessage()
+        );
+
+        verify(webClient).post();
+        verifyNoMoreInteractions(webClient, requestBodyUriSpec, bodySpec, headersSpec, responseSpec);
+    }
+
+
+    @Test
+    void enviarMensagemQuandoBodyMonoFalharDeveLancarDataProviderExceptionDoOnError() {
+        when(webClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(URI_PATH)).thenReturn(bodySpec);
+        when(bodySpec.header("Authorization", "Bearer " + API_KEY))
+                .thenReturn(bodySpec);
+        doReturn(headersSpec)
+                .when(bodySpec)
+                .bodyValue(promptDto);
+        when(headersSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.bodyToMono(OpenIaResponseDto.class))
+                .thenReturn(Mono.error(new IllegalStateException("Falha na IA")));
+
+        DataProviderException ex = assertThrows(
+                DataProviderException.class,
+                () -> provider.enviarMensagem(promptDto)
+        );
+        assertEquals("Erro ao enviar orçamento para IA.", ex.getMessage());
+
+        verify(webClient).post();
+        verify(requestBodyUriSpec).uri(URI_PATH);
+        verify(bodySpec).header("Authorization", "Bearer " + API_KEY);
+        verify(bodySpec).bodyValue(promptDto);
+        verify(headersSpec).retrieve();
+        verify(responseSpec).bodyToMono(OpenIaResponseDto.class);
     }
 }
