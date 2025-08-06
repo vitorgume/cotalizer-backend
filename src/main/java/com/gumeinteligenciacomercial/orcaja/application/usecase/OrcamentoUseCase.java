@@ -1,14 +1,12 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlano;
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlanoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
-import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +19,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -105,14 +102,14 @@ public class OrcamentoUseCase {
             Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
 
             if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
-                throw new LimiteOrcamentosPlano();
+                throw new LimiteOrcamentosPlanoException();
             }
         } else if (usuario.getPlano().getCodigo() == 1) {
             Pageable pageable = PageRequest.of(0, 150);
             Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
 
             if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
-                throw new LimiteOrcamentosPlano();
+                throw new LimiteOrcamentosPlanoException();
             }
         }
     }

@@ -85,8 +85,8 @@ public class HandlerMIddleware {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.comErro(erroDto));
     }
 
-    @ExceptionHandler(LimiteOrcamentosPlano.class)
-    public ResponseEntity<ResponseDto> limiteOrcamentoPlanoHandler(LimiteOrcamentosPlano exception) {
+    @ExceptionHandler(LimiteOrcamentosPlanoException.class)
+    public ResponseEntity<ResponseDto> limiteOrcamentoPlanoHandler(LimiteOrcamentosPlanoException exception) {
         ResponseDto.ErroDto erroDto = ResponseDto.ErroDto.builder()
                 .mensagens(mensagens(exception.getMessage()))
                 .build();

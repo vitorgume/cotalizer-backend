@@ -3,7 +3,6 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoTradicionalNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoTradicionalGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
-import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

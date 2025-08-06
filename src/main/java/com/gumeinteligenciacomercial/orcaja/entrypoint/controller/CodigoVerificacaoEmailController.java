@@ -2,7 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.VerificaoEmailDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.VerificacaoEmailDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.VerificacaoEmailMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,9 @@ public class CodigoVerificacaoEmailController {
     private final UsuarioUseCase usuarioUseCase;
 
     @PostMapping("/email")
-    public ResponseEntity<ResponseDto<VerificaoEmailDto>> verificarEmail(@RequestBody VerificaoEmailDto verificaoEmail) {
-        VerificaoEmailDto resultado = VerificacaoEmailMapper.paraDto(usuarioUseCase.validarCodigoVerificacao(verificaoEmail.getEmail(), verificaoEmail.getCodigo()));
-        ResponseDto<VerificaoEmailDto> response = new ResponseDto<>(resultado);
+    public ResponseEntity<ResponseDto<VerificacaoEmailDto>> verificarEmail(@RequestBody VerificacaoEmailDto verificaoEmail) {
+        VerificacaoEmailDto resultado = VerificacaoEmailMapper.paraDto(usuarioUseCase.validarCodigoVerificacao(verificaoEmail.getEmail(), verificaoEmail.getCodigo()));
+        ResponseDto<VerificacaoEmailDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);
     }
 }

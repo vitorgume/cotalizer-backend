@@ -1,6 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlano;
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlanoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
@@ -48,7 +48,7 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void consultarPorId_existente_retornaOrcamento() {
+    void consultarPorIdExistenteRetornaOrcamento() {
         Orcamento o = Orcamento.builder().id("X").build();
         when(gateway.consultarPorId("X")).thenReturn(Optional.of(o));
 
@@ -58,14 +58,14 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void consultarPorId_naoExiste_lancaException() {
+    void consultarPorIdNaoExisteLancaException() {
         when(gateway.consultarPorId("Z")).thenReturn(Optional.empty());
         assertThrows(OrcamentoNaoEncontradoException.class, () -> useCase.consultarPorId("Z"));
         verify(gateway).consultarPorId("Z");
     }
 
     @Test
-    void listarPorUsuario_delegaParaGateway() {
+    void listarPorUsuarioDelegaParaGateway() {
         Pageable pg = PageRequest.of(0, 10);
         Page<Orcamento> page = new PageImpl<>(List.of(Orcamento.builder().build()));
         when(gateway.listarPorUsuario(usuarioId, pg)).thenReturn(page);
@@ -76,7 +76,7 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void deletar_existente_chamaGateway() {
+    void deletarExistenteChamaGateway() {
         when(gateway.consultarPorId("A")).thenReturn(Optional.of(Orcamento.builder().id("C").build()));
 
         useCase.deletar("A");
@@ -85,7 +85,7 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void deletar_naoExiste_lancaException() {
+    void deletarNaoExisteLancaException() {
         when(gateway.consultarPorId("B")).thenReturn(Optional.empty());
         assertThrows(OrcamentoNaoEncontradoException.class, () -> useCase.deletar("B"));
         verify(gateway).consultarPorId("B");
@@ -93,7 +93,7 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void alterar_existente_atualizaEDaRetorno() {
+    void alterarExistenteAtualizaEDaRetorno() {
         Orcamento orig = Orcamento.builder().id("C").build();
         Orcamento novo = Orcamento.builder().id("C").build();
 
@@ -109,7 +109,7 @@ class OrcamentoUseCaseTest {
     }
 
     @Test
-    void cadastrar_limitePlanoFreeAtingido_lancaLimiteOrcamentosPlano() {
+    void cadastrarLimitePlanoFreeAtingidoLancaLimiteOrcamentosPlano() {
         Usuario free = Usuario.builder()
                 .id(usuarioId)
                 .plano(Plano.GRATIS)
@@ -122,18 +122,13 @@ class OrcamentoUseCaseTest {
                 Orcamento.builder().id("C").build(),
                 Orcamento.builder().id("C").build(),
                 Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
                 Orcamento.builder().id("C").build()
         ));
         when(gateway.listarPorUsuario(usuarioId, pg)).thenReturn(page2);
 
         Orcamento dummy = Orcamento.builder().usuarioId(usuarioId).build();
 
-        assertThrows(LimiteOrcamentosPlano.class, () -> useCase.cadastrar(dummy));
+        assertThrows(LimiteOrcamentosPlanoException.class, () -> useCase.cadastrar(dummy));
 
         verify(usuarioUseCase).consultarPorId(usuarioId);
         verify(gateway).listarPorUsuario(usuarioId, pg);

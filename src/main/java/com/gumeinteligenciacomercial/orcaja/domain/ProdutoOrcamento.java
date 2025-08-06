@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @ToString
 @Builder
 @NoArgsConstructor
-public class ProdutoOrcamento {
+public class    ProdutoOrcamento {
     private String descricao;
     private BigDecimal valor;
     private Integer quantidade;
