@@ -4,6 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEnc
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -12,11 +13,19 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UsuarioUseCase usuarioUseCase;
     private final OAuth2UserService<OAuth2UserRequest,OAuth2User> delegate;
+
+    public CustomOAuth2UserUseCase(
+            UsuarioUseCase usuarioUseCase,
+            @Qualifier("defaultOauth2UserService")
+            OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate
+    ) {
+        this.usuarioUseCase = usuarioUseCase;
+        this.delegate     = delegate;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

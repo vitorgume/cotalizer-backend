@@ -73,7 +73,7 @@ public class ArquivoController {
 
     @PostMapping("/logo")
     public ResponseEntity<ResponseDto<LogoDto>> cadastrar(@RequestParam("logo") MultipartFile multipartFile, @RequestParam("idUsuario") String idUsuario) {
-        LogoDto resultado = LogoDto.builder().urlFoto(useCase.cadastrarLogo(idUsuario, multipartFile)).build();
+        LogoDto resultado = LogoDto.builder().idUsuario(idUsuario).urlFoto(useCase.cadastrarLogo(idUsuario, multipartFile)).build();
         ResponseDto<LogoDto> response = new ResponseDto<>(resultado);
 
         return ResponseEntity.created(

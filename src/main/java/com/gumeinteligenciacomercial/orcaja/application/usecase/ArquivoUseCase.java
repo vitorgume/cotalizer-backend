@@ -90,10 +90,7 @@ public class ArquivoUseCase {
                 throw new ArquivoNaoEncontrado();
             }
             return resource;
-        } catch (MalformedURLException e) {
-            log.error("Erro ao acessar arquivo: {}", nomeArquivo, e);
-            throw new ArquivoException("Erro ao acessar arquivo: " + nomeArquivo, e);
-        } catch (NullPointerException e) {
+        } catch (MalformedURLException | NullPointerException e) {
             log.error("Erro ao acessar arquivo: {}", nomeArquivo, e);
             throw new ArquivoException("Erro ao acessar arquivo: " + nomeArquivo, e);
         }

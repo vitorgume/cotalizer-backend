@@ -41,7 +41,15 @@ public class OrcamentoUseCase {
         orcamento.setOrcamentoFormatado(orcamentoFormatado);
         orcamento.setDataCriacao(LocalDate.now());
         orcamento.setTipoOrcamento(TipoOrcamento.IA);
-        orcamento.setValorTotal(BigDecimal.valueOf((Long) orcamentoFormatado.get("valorTotal")));
+
+        Object raw = orcamentoFormatado.get("valorTotal");
+        BigDecimal valorTotal;
+        if (raw instanceof BigDecimal) {
+            valorTotal = (BigDecimal) raw;
+        } else {
+            valorTotal = new BigDecimal(raw.toString());
+        }
+        orcamento.setValorTotal(valorTotal);
 
         Orcamento orcamentoSalvo = gateway.salvar(orcamento);
         log.info("Orçamento cadastrado com sucesso. Orçamento salvo: {}", orcamentoSalvo);

@@ -47,7 +47,7 @@ public class IaDataProvider implements IaGateway {
                                         log.warn("Tentando enviar orçamento para IA novamente: {}", throwable.getMessage());
                                         return true;
                                     })
-                    ).doOnError(e -> {  // opcional, ainda cobre erros de stream
+                    ).doOnError(e -> {
                         log.error("Erro após tentativas", e);
                         throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, e);
                     })
