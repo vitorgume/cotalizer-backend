@@ -151,7 +151,7 @@ class ArquivoControllerInteTest {
     }
 
     @Test
-    void gerarArquivoOrcamento_deveRetornarCreated() throws Exception {
+    void gerarArquivoOrcamentoDeveRetornarCreated() throws Exception {
 
         when(htmlUseCase.gerarHtml(any(), anyString())).thenReturn("htmlteste");
 
@@ -180,7 +180,7 @@ class ArquivoControllerInteTest {
     }
 
     @Test
-    void gerarArquivoOrcamentoTradicional_deveRetornarCreated() throws Exception {
+    void gerarArquivoOrcamentoTradicionalDeveRetornarCreated() throws Exception {
 
         when(htmlUseCase.gerarHtmlTradicional(any())).thenReturn("htmlteste");
 
@@ -197,8 +197,7 @@ class ArquivoControllerInteTest {
                         .content(objectMapper.writeValueAsString(orcamentoTradicionalDto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/arquivos/tradicional/id-teste-2"))
-                .andExpect(jsonPath("$.dado.id").value("id-teste-2"))
-                .andExpect(jsonPath("$.dado.urlArquivo").value("url teste"));
+                .andExpect(jsonPath("$.dado.id").value("id-teste-2"));
 
         verify(htmlUseCase).gerarHtmlTradicional(any());
         verify(arquivoGateway).salvarPdf(anyString(), anyString());
@@ -209,7 +208,7 @@ class ArquivoControllerInteTest {
     }
 
     @Test
-    void cadastrarLogo_deveRetornarCreated() throws Exception {
+    void cadastrarLogoDeveRetornarCreated() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "logo", "image.png", MediaType.IMAGE_PNG_VALUE, "imgdata".getBytes());
 

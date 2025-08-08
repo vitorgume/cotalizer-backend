@@ -62,9 +62,18 @@ public class UsuarioUseCase {
         return usuario.get();
     }
 
-    public void deletar(String idUsuario) {
-        this.consultarPorId(idUsuario);
-        gateway.deletar(idUsuario);
+    public Usuario inativar(String idUsuario) {
+        log.info("Inativando usuario. Id usuario: {}", idUsuario);
+
+        Usuario usuario = this.consultarPorId(idUsuario);
+
+        usuario.setStatus(StatusUsuario.INATIVO);
+
+        usuario = gateway.salvar(usuario);
+
+        log.info("Inativação de usuário concluida com sucesso. Usuario: {}", usuario);
+
+        return usuario;
     }
 
     public Usuario consultarPorEmail(String email) {

@@ -163,11 +163,11 @@ class OrcamentoControllerTest {
     }
 
     @Test
-    void deveListarPorIdUsuario() throws Exception {
+    void deveListarPorIdUsuarioComSucesso() throws Exception {
 
         Mockito.when(orcamentoRepository.findByIdUsuario(anyString(), any())).thenReturn(pageOrcamentos);
 
-        mockMvc.perform(get("/orcamentos/usuario/" + orcamento.getId())
+        mockMvc.perform(get("/orcamentos/usuario/idUsuarioTeste")
                         .param("page", "0")
                         .param("size", "10")
                         .param("sort", "dataCriacao,desc")
@@ -208,5 +208,8 @@ class OrcamentoControllerTest {
 
 
         Assertions.assertEquals(orcamentoDto.getTitulo(), orcamentoCaptor.getValue().getTitulo());
+
+        Mockito.verify(orcamentoRepository).findById(anyString());
+        Mockito.verify(orcamentoRepository).save(any());
     }
 }

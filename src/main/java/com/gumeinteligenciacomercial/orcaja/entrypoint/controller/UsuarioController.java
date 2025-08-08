@@ -25,7 +25,7 @@ public class UsuarioController {
         return ResponseEntity.created(
                 UriComponentsBuilder
                         .newInstance()
-                        .path("/usuarios/{id}")
+                        .path("/usuarios/cadastro/{id}")
                         .buildAndExpand(resultado.getId())
                         .toUri())
                 .body(response);
@@ -44,10 +44,11 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable("id") String idUsuario) {
-        useCase.deletar(idUsuario);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/inativar/{id}")
+    public ResponseEntity<ResponseDto<UsuarioDto>> inativar(@PathVariable("id") String idUsuario) {
+        UsuarioDto resultado = UsuarioMapper.paraDto(useCase.inativar(idUsuario));
+        ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")

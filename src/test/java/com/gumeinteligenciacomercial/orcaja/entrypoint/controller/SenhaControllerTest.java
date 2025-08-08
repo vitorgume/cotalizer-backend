@@ -57,6 +57,7 @@ class SenhaControllerTest {
         solicitacaoNovaSenhaDto = new SolicitacaoNovaSenhaDto("emailteste@gmail.com");
         usuarioEntity = UsuarioEntity.builder()
                 .id("idteste")
+                .email("emailteste@gmail.com")
                 .build();
     }
 

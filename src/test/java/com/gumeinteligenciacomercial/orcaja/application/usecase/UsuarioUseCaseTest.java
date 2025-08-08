@@ -9,7 +9,6 @@ import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -106,21 +105,35 @@ class UsuarioUseCaseTest {
     }
 
     @Test
-    void deletarExistenteChamaGateway() {
-        when(gateway.consultarPorId("X")).thenReturn(Optional.of(Usuario.builder().build()));
-        useCase.deletar("X");
-        verify(gateway).consultarPorId("X");
-        verify(gateway).deletar("X");
+    void inativarExistenteAlteraStatusParaInativo() {
+        Usuario u = Usuario.builder().build();
+        when(gateway.consultarPorId(userId)).thenReturn(Optional.of(u));
+        Usuario saved = Usuario.builder()
+                .id(userId)
+                .status(StatusUsuario.INATIVO)
+                .build();
+        when(gateway.salvar(any(Usuario.class))).thenReturn(saved);
+
+        Usuario result = useCase.inativar(userId);
+
+        assertSame(saved, result);
+        assertEquals(StatusUsuario.INATIVO, result.getStatus());
+        verify(gateway).consultarPorId(userId);
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(gateway).salvar(captor.capture());
+        assertEquals(StatusUsuario.INATIVO, captor.getValue().getStatus());
     }
 
     @Test
-    void deletarNaoExisteLancaUsuarioNaoEncontrado() {
-        when(gateway.consultarPorId("X")).thenReturn(Optional.empty());
+    void inativarNaoExisteLancaUsuarioNaoEncontradoException() {
+        when(gateway.consultarPorId(userId)).thenReturn(Optional.empty());
+
         assertThrows(UsuarioNaoEncontradoException.class,
-                () -> useCase.deletar("X")
+                () -> useCase.inativar(userId)
         );
-        verify(gateway).consultarPorId("X");
-        verify(gateway, never()).deletar(anyString());
+
+        verify(gateway).consultarPorId(userId);
+        verify(gateway, never()).salvar(any());
     }
 
     @Test

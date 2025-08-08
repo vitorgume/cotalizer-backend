@@ -160,25 +160,6 @@ class UsuarioDataProviderTest {
     }
 
     @Test
-    void deletarComSucessoDeveChamarRepository() {
-        assertDoesNotThrow(() -> provider.deletar(TEST_ID));
-        then(repository).should().deleteById(TEST_ID);
-    }
-
-    @Test
-    void deletarQuandoRepositoryLancarErroDeveLancarDataProviderException() {
-        willThrow(new RuntimeException("fail-del"))
-                .given(repository).deleteById(TEST_ID);
-
-        DataProviderException ex = assertThrows(
-                DataProviderException.class,
-                () -> provider.deletar(TEST_ID)
-        );
-        assertEquals(ERR_DELETAR_ID, ex.getMessage());
-        then(repository).should().deleteById(TEST_ID);
-    }
-
-    @Test
     void consultarPorEmailComSucessoDeveRetornarOptionalDomain() {
         given(repository.findByEmail(TEST_EMAIL)).willReturn(Optional.of(entityIn));
         try (MockedStatic<UsuarioMapper> ms = mockStatic(UsuarioMapper.class)) {
