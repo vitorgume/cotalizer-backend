@@ -1,0 +1,140 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > UsuarioDto</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.entrypoint.dto</a>
+</div>
+
+<h1>Coverage Summary for Class: UsuarioDto (com.gumeinteligenciacomercial.orcaja.entrypoint.dto)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">UsuarioDto</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CNPJ;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CPF;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
+&nbsp;import jakarta.validation.constraints.Email;
+&nbsp;import jakarta.validation.constraints.NotBlank;
+&nbsp;import jakarta.validation.constraints.Pattern;
+&nbsp;import jakarta.validation.constraints.Size;
+&nbsp;import lombok.AllArgsConstructor;
+&nbsp;import lombok.Builder;
+&nbsp;import lombok.Getter;
+&nbsp;import lombok.Setter;
+&nbsp;
+&nbsp;@AllArgsConstructor
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@Builder
+&nbsp;public class UsuarioDto {
+&nbsp;
+&nbsp;    @JsonProperty(&quot;id&quot;)
+&nbsp;    private String id;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;O nome é obrigatório&quot;)
+&nbsp;    @JsonProperty(&quot;nome&quot;)
+&nbsp;    private String nome;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;O email é obrigatório&quot;)
+&nbsp;    @Email(message = &quot;Email inválido&quot;)
+&nbsp;    @JsonProperty(&quot;email&quot;)
+&nbsp;    private String email;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;O telefone é obrigatório&quot;)
+&nbsp;    @JsonProperty(&quot;telefone&quot;)
+&nbsp;    private String telefone;
+&nbsp;
+&nbsp;    @Pattern(
+&nbsp;            regexp = &quot;^\\d{14}$&quot;,
+&nbsp;            message = &quot;O CNPJ deve conter exatamente 14 dígitos numéricos, sem formatação&quot;
+&nbsp;    )
+&nbsp;    @JsonProperty(&quot;cpf&quot;)
+&nbsp;    @CPF
+&nbsp;    private String cpf;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;cnpj&quot;)
+&nbsp;    @CNPJ
+&nbsp;    private String cnpj;
+&nbsp;
+&nbsp;    @NotBlank(message = &quot;A senha é obrigatória&quot;)
+&nbsp;    @Size(min = 6, message = &quot;A senha deve ter no mínimo 6 caracteres&quot;)
+&nbsp;    @Pattern(regexp = &quot;^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&amp;]).+$&quot;,
+&nbsp;            message = &quot;A senha deve conter pelo menos uma letra, um número e um caractere especial.&quot;)
+&nbsp;    @JsonProperty(&quot;senha&quot;)
+&nbsp;    private String senha;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;status&quot;)
+&nbsp;    private StatusUsuario status;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;plano&quot;)
+&nbsp;    private Plano plano;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;id_customer&quot;)
+&nbsp;    private String idCustomer;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;id_assinatura&quot;)
+&nbsp;    private String idAssinatura;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;url_logo&quot;)
+&nbsp;    private String urlLogo;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

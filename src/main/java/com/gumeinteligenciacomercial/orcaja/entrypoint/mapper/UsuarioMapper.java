@@ -18,6 +18,7 @@ public class UsuarioMapper {
                 .idAssinatura(domain.getIdAssinatura())
                 .idCustomer(domain.getIdCustomer())
                 .urlLogo(domain.getUrlLogo())
+                .feedback(domain.getFeedback())
                 .build();
     }
 
@@ -35,6 +36,7 @@ public class UsuarioMapper {
                 .idCustomer(dto.getIdCustomer())
                 .idAssinatura(dto.getIdAssinatura())
                 .urlLogo(dto.getUrlLogo())
+                .feedback(dto.getFeedback())
                 .build();
     }
 }

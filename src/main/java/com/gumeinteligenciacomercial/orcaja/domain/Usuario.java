@@ -21,6 +21,7 @@ public class Usuario {
     private String idCustomer;
     private String idAssinatura;
     private String urlLogo;
+    private Boolean feedback;
 
     public void setDados(Usuario usuario) {
         this.nome = usuario.getNome();
@@ -33,5 +34,6 @@ public class Usuario {
         this.idCustomer = usuario.getIdCustomer();
         this.idAssinatura = usuario.getIdAssinatura();
         this.urlLogo = usuario.getUrlLogo();
+        this.feedback = usuario.getFeedback();
     }
 }

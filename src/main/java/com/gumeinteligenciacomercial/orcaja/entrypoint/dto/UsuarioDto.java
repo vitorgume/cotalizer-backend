@@ -69,4 +69,7 @@ public class UsuarioDto {
 
     @JsonProperty("url_logo")
     private String urlLogo;
+
+    @JsonProperty("feedback")
+    private Boolean feedback;
 }

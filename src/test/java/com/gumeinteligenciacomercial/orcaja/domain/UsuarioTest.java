@@ -17,6 +17,7 @@ class UsuarioTest {
                 .cpf("0000000000001")
                 .cnpj("3333333333331")
                 .plano(Plano.PLUS)
+                .feedback(true)
                 .build();
 
         Usuario usuario = Usuario.builder()
@@ -27,6 +28,7 @@ class UsuarioTest {
                 .cpf("0000000000000")
                 .cnpj("3333333333330")
                 .plano(Plano.GRATIS)
+                .feedback(false)
                 .build();
 
         usuario.setDados(novosDados);
@@ -38,5 +40,6 @@ class UsuarioTest {
         Assertions.assertEquals(usuario.getCpf(), novosDados.getCpf());
         Assertions.assertEquals(usuario.getCnpj(), novosDados.getCnpj());
         Assertions.assertEquals(usuario.getPlano(), novosDados.getPlano());
+        Assertions.assertTrue(usuario.getFeedback());
     }
 }

@@ -9,7 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PayerIdentification {
-    private String type;
-    private String number;
+public class Avaliacao {
+    private String idUsuario;
+    private Integer nota;
+    private String motivoNota;
+    private String sugestaoMelhoria;
 }

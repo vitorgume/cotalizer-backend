@@ -27,4 +27,5 @@ public class UsuarioEntity {
     private String idCustomer;
     private String idAssinatura;
     private String urlLogo;
+    private Boolean feedback;
 }
