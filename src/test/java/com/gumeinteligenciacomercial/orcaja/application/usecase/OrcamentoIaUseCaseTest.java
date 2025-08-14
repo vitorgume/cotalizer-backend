@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OrcamentoUseCaseTest {
+class OrcamentoIaUseCaseTest {
 
     @Mock
     private OrcamentoGateway gateway;
@@ -38,7 +38,7 @@ class OrcamentoUseCaseTest {
     private UsuarioUseCase usuarioUseCase;
 
     @InjectMocks
-    private OrcamentoUseCase useCase;
+    private OrcamentoIaUseCase useCase;
 
     private final String usuarioId = "user1";
 

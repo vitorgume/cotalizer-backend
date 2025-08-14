@@ -1,6 +1,5 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlanoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
@@ -23,16 +22,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OrcamentoUseCase {
+public class OrcamentoIaUseCase {
 
     private final OrcamentoGateway gateway;
     private final IaUseCase iaUseCase;
-    private final UsuarioUseCase usuarioUseCase;
 
     public Orcamento cadastrar(Orcamento orcamento) {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
-
-        validarPlanoUsuario(orcamento.getUsuarioId());
 
         Map<String, Object> orcamentoFormatado = iaUseCase.gerarOrcamento(orcamento.getConteudoOriginal());
 
@@ -102,26 +98,6 @@ public class OrcamentoUseCase {
         return orcamento;
     }
 
-    private void validarPlanoUsuario(String usuarioId) {
-        Usuario usuario = usuarioUseCase.consultarPorId(usuarioId);
-
-        if(usuario.getPlano().getCodigo() == 0) {
-            Pageable pageable = PageRequest.of(0, 10);
-            Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
-
-            if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
-                throw new LimiteOrcamentosPlanoException();
-            }
-        } else if (usuario.getPlano().getCodigo() == 1) {
-            Pageable pageable = PageRequest.of(0, 150);
-            Page<Orcamento> orcamentos = this.listarPorUsuario(usuarioId, pageable);
-
-            if(orcamentos.getSize() == usuario.getPlano().getLimiteOrcamentos()) {
-                throw new LimiteOrcamentosPlanoException();
-            }
-        }
-    }
-
     private Map<String, Object> calculaValorTotal(Map<String, Object> orcamentoFormatado) {
         BigDecimal subtotal = BigDecimal.ZERO;
         Object itensObj = orcamentoFormatado.get("itens");
@@ -131,7 +107,7 @@ public class OrcamentoUseCase {
                 if (o instanceof Map) {
                     Map<?,?> item = (Map<?,?>) o;
                     BigDecimal quantidade = new BigDecimal(item.get("quantidade").toString());
-                    BigDecimal valorUnitario = new BigDecimal(item.get("valorUnitario").toString());
+                    BigDecimal valorUnitario = new BigDecimal(item.get("valor_unit").toString());
                     subtotal = subtotal.add(valorUnitario.multiply(quantidade));
                 }
             }

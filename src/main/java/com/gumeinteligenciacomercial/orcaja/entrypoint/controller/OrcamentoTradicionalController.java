@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentoTradicionalUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentosUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoTradicionalMapper;
@@ -18,10 +19,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class OrcamentoTradicionalController {
 
     private final OrcamentoTradicionalUseCase useCase;
+    private final OrcamentosUseCase orcamentosUseCase;
 
     @PostMapping
     public ResponseEntity<ResponseDto<OrcamentoTradicionalDto>> criar(@RequestBody OrcamentoTradicionalDto novoOrcamentoTradicional) {
-        OrcamentoTradicionalDto resultado = OrcamentoTradicionalMapper.paraDto(useCase.cadastrar(OrcamentoTradicionalMapper.paraDomain(novoOrcamentoTradicional)));
+        OrcamentoTradicionalDto resultado = OrcamentoTradicionalMapper.paraDto(orcamentosUseCase.cadastrarOrcamentoTradicional(OrcamentoTradicionalMapper.paraDomain(novoOrcamentoTradicional)));
         ResponseDto<OrcamentoTradicionalDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(UriComponentsBuilder
                 .newInstance()

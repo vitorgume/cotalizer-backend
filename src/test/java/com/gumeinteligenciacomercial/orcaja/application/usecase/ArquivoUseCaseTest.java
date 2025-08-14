@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 class ArquivoUseCaseTest {
 
     @Mock
-    private OrcamentoUseCase orcamentoUseCase;
+    private OrcamentoIaUseCase orcamentoIaUseCase;
 
     @Mock
     private OrcamentoTradicionalUseCase orcamentoTradicionalUseCase;
@@ -75,13 +75,13 @@ class ArquivoUseCaseTest {
         when(gateway.salvarPdf(anyString(), eq("<html/>"))).thenReturn("http://host/file.pdf");
 
         Orcamento existente = Orcamento.builder().id("1").build();
-        when(orcamentoUseCase.consultarPorId("1")).thenReturn(existente);
+        when(orcamentoIaUseCase.consultarPorId("1")).thenReturn(existente);
 
         Orcamento salvo = Orcamento.builder()
                 .id("1")
                 .urlArquivo("http://host/file.pdf")
                 .build();
-        when(orcamentoUseCase.alterar("1", existente)).thenReturn(salvo);
+        when(orcamentoIaUseCase.alterar("1", existente)).thenReturn(salvo);
 
         Orcamento result = arquivoUseCase.salvarArquivo(novo);
 
@@ -91,8 +91,8 @@ class ArquivoUseCaseTest {
         String geradoHtml = htmlCaptor.getValue();
         assertEquals("<html/>", geradoHtml);
         assertTrue(nomeCaptor.getValue().startsWith("ARQ-"));
-        verify(orcamentoUseCase).consultarPorId("1");
-        verify(orcamentoUseCase).alterar(eq("1"), eq(existente));
+        verify(orcamentoIaUseCase).consultarPorId("1");
+        verify(orcamentoIaUseCase).alterar(eq("1"), eq(existente));
     }
 
     @Test

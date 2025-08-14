@@ -10,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class ArquivoUseCase {
 
-    private final OrcamentoUseCase orcamentoUseCase;
+    private final OrcamentoIaUseCase orcamentoIaUseCase;
     private final OrcamentoTradicionalUseCase orcamentoTradicionalUseCase;
     private final UsuarioUseCase usuarioUseCase;
     private final ArquivoGateway gateway;
@@ -40,9 +37,9 @@ public class ArquivoUseCase {
 
         String urlArquivo = gateway.salvarPdf(this.gerarNomeArquivo(), html);
 
-        Orcamento orcamento = orcamentoUseCase.consultarPorId(novoOrcamento.getId());
+        Orcamento orcamento = orcamentoIaUseCase.consultarPorId(novoOrcamento.getId());
         orcamento.setUrlArquivo(urlArquivo);
-        Orcamento orcamentoSalvo = orcamentoUseCase.alterar(orcamento.getId(), orcamento);
+        Orcamento orcamentoSalvo = orcamentoIaUseCase.alterar(orcamento.getId(), orcamento);
 
         log.info("Pdf do orçamento gerado com sucesso. Orçamento: {}", orcamentoSalvo);
 
