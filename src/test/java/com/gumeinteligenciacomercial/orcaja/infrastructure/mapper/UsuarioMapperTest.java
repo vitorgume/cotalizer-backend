@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class UsuarioMapperTest {
 
     private Usuario usuarioDomain;
@@ -29,7 +27,7 @@ class UsuarioMapperTest {
                 .plano(Plano.GRATIS)
                 .idCustomer("id-customer-teste")
                 .idAssinatura("id-assinatura-teste")
-                .urlLogo("url-logo-teste")
+                .keyLogo("url-logo-teste")
                 .feedback(true)
                 .build();
 
@@ -65,7 +63,7 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDomain.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioDomain.getIdCustomer(), usuarioTeste.getIdCustomer());
         Assertions.assertEquals(usuarioDomain.getIdAssinatura(), usuarioTeste.getIdAssinatura());
-        Assertions.assertEquals(usuarioDomain.getUrlLogo(), usuarioTeste.getUrlLogo());
+        Assertions.assertEquals(usuarioDomain.getKeyLogo(), usuarioTeste.getUrlLogo());
         Assertions.assertTrue(usuarioTeste.getFeedback());
     }
 
@@ -83,7 +81,7 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioEntity.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioEntity.getIdCustomer(), usuarioTeste.getIdCustomer());
         Assertions.assertEquals(usuarioEntity.getIdAssinatura(), usuarioTeste.getIdAssinatura());
-        Assertions.assertEquals(usuarioEntity.getUrlLogo(), usuarioTeste.getUrlLogo());
+        Assertions.assertEquals(usuarioEntity.getUrlLogo(), usuarioTeste.getKeyLogo());
         Assertions.assertFalse(usuarioTeste.getFeedback());
     }
 }

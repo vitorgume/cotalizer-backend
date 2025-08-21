@@ -138,7 +138,7 @@ class ArquivoUseCaseTest {
         verify(usuarioUseCase).consultarPorId(userId);
         verify(gateway).salvarLogo(userId, file);
         verify(usuarioUseCase).alterar(eq(userId), usuarioCaptor.capture());
-        assertEquals("logos/u100.png", usuarioCaptor.getValue().getUrlLogo());
+        assertEquals("logos/u100.png", usuarioCaptor.getValue().getKeyLogo());
     }
 
     @Test

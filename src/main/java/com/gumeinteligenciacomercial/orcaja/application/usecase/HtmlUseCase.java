@@ -76,17 +76,7 @@ public class HtmlUseCase {
             double desconto = orcamento.get("desconto") != null ? Double.parseDouble(orcamento.get("desconto").toString()) : 0.0;
             double valorFinal = subtotal - (subtotal * desconto / 100);
 
-            Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
-
-            String logoBase64 = "";
-            String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                byte[] logoBytes = Files.readAllBytes(Path.of(logoPath));
-                logoBase64 = Base64.getEncoder().encodeToString(logoBytes);
-            }
-
             String htmlFinal = htmlTemplate
-                    .replace("${logo_base64}", logoBase64)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
@@ -147,17 +137,7 @@ public class HtmlUseCase {
             String subtotalStr = String.format("R$ %.2f", subtotal);
             String totalStr = subtotalStr;
 
-            Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
-
-            String logoBase64 = "";
-            String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                byte[] logoBytes = Files.readAllBytes(Path.of(logoPath));
-                logoBase64 = Base64.getEncoder().encodeToString(logoBytes);
-            }
-
             return htmlTemplate
-                    .replace("${logo_base64}", logoBase64)
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))

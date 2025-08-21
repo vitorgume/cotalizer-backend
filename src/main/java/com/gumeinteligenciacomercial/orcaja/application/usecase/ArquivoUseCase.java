@@ -8,14 +8,27 @@ import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -65,14 +78,13 @@ public class ArquivoUseCase {
     public String cadastrarLogo(String idUsuario, MultipartFile multipartFile) {
         Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-        String logoPathRelativo = gateway.salvarLogo(usuario.getId(), multipartFile);
+        String key = gateway.salvarLogo(usuario.getId(), multipartFile);
 
-        usuario.setUrlLogo(logoPathRelativo);
+        usuario.setKeyLogo(key);
         usuarioUseCase.alterar(usuario.getId(), usuario);
 
-        return logoPathRelativo;
+        return key;
     }
-
 
     private String gerarNomeArquivo() {
         String uuid = UUID.randomUUID().toString().replace("-", "");

@@ -35,7 +35,7 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        if(usuario.getCpf() == null || usuario.getCnpj() == null) {
+        if(usuario.getCpf().isBlank() || usuario.getCnpj().isBlank()) {
             this.validacaoEmail(usuario.getEmail());
         }
 

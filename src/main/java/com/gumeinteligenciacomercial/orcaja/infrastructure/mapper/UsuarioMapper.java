@@ -17,7 +17,7 @@ public class UsuarioMapper {
                 .plano(domain.getPlano())
                 .idAssinatura(domain.getIdAssinatura())
                 .idCustomer(domain.getIdCustomer())
-                .urlLogo(domain.getUrlLogo())
+                .urlLogo(domain.getKeyLogo())
                 .feedback(domain.getFeedback())
                 .build();
     }
@@ -35,7 +35,7 @@ public class UsuarioMapper {
                 .plano(entity.getPlano())
                 .idCustomer(entity.getIdCustomer())
                 .idAssinatura(entity.getIdAssinatura())
-                .urlLogo(entity.getUrlLogo())
+                .keyLogo(entity.getUrlLogo())
                 .feedback(entity.getFeedback())
                 .build();
     }

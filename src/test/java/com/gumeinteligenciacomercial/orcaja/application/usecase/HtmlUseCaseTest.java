@@ -46,7 +46,7 @@ class HtmlUseCaseTest {
     void setup() throws IOException {
         usuarioSemLogo = Usuario.builder()
                 .id("user1")
-                .urlLogo(null)
+                .keyLogo(null)
                 .build();
 
         // cria arquivo temporário com conteúdo "hello" para logo
@@ -54,7 +54,7 @@ class HtmlUseCaseTest {
         Files.writeString(logoFile, "hello", StandardCharsets.UTF_8);
         usuarioComLogo = Usuario.builder()
                 .id("user2")
-                .urlLogo(logoFile.toString())
+                .keyLogo(logoFile.toString())
                 .build();
     }
 

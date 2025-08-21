@@ -20,7 +20,7 @@ public class Usuario {
     private Plano plano;
     private String idCustomer;
     private String idAssinatura;
-    private String urlLogo;
+    private String keyLogo;
     private Boolean feedback;
 
     public void setDados(Usuario usuario) {
@@ -33,7 +33,7 @@ public class Usuario {
         this.plano = usuario.getPlano();
         this.idCustomer = usuario.getIdCustomer();
         this.idAssinatura = usuario.getIdAssinatura();
-        this.urlLogo = usuario.getUrlLogo();
+        this.keyLogo = usuario.getKeyLogo();
         this.feedback = usuario.getFeedback();
     }
 }
