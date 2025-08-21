@@ -21,7 +21,7 @@ public class LoginUseCase {
         log.info("Autenticando usuário. Dados login: {}", login);
         Usuario usuario = usuarioUseCase.consultarPorEmail(login.getEmail());
         this.validaCredencias(usuario, login.getEmail(), login.getSenha());
-        String token = gateway.generateToken(login.getEmail());
+        String token = gateway.generateToken(login.getEmail(), usuario.getId());
 
         log.info("Usuário autenticado com sucesso. Usuario: {}", usuario);
 
@@ -30,6 +30,12 @@ public class LoginUseCase {
                 .email(usuario.getEmail())
                 .usuarioId(usuario.getId())
                 .build();
+    }
+
+    public String gerarTokenJwt(String email) {
+        Usuario usuario = usuarioUseCase.consultarPorEmail(email);
+
+        return gateway.generateToken(email, usuario.getId());
     }
 
     private void validaCredencias(Usuario usuario, String email, String senha) {

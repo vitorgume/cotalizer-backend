@@ -1,0 +1,158 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GoogleOAuth2SuccessHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.application.usecase.google</a>
+</div>
+
+<h1>Coverage Summary for Class: GoogleOAuth2SuccessHandler (com.gumeinteligenciacomercial.orcaja.application.usecase.google)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GoogleOAuth2SuccessHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (3/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.LoginUseCase;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+&nbsp;import jakarta.servlet.ServletException;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.servlet.http.HttpServletResponse;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.security.core.Authentication;
+&nbsp;import org.springframework.security.oauth2.core.user.OAuth2User;
+&nbsp;import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;
+&nbsp;@Component
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler {
+&nbsp;
+&nbsp;    private final LoginUseCase loginUseCase;
+&nbsp;    private final UsuarioUseCase usuarioUseCase;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+<b class="fc">&nbsp;        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();</b>
+<b class="fc">&nbsp;        String email = oAuth2User.getAttribute(&quot;email&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        Usuario usuario = usuarioUseCase.consultarPorEmail(email);</b>
+&nbsp;
+<b class="fc">&nbsp;        String token = loginUseCase.gerarTokenJwt(email);</b>
+&nbsp;        String redirectUrl;
+&nbsp;
+<b class="pc">&nbsp;        if (usuario.getCnpj() != null || usuario.getCpf() != null) {</b>
+<b class="fc">&nbsp;            redirectUrl = &quot;http://localhost:5173/menu?token=&quot; + token;</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            redirectUrl = &quot;http://localhost:5173/login/sucesso?token=&quot; + token;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        response.sendRedirect(redirectUrl);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

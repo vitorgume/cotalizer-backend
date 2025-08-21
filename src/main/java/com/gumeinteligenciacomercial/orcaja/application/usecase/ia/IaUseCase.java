@@ -53,7 +53,7 @@ public class IaUseCase {
                 .messages(List.of(mensagemSystem, mensagemUser))
                 .build();
 
-        log.info("Prompt criado com sucesso. Prompt: {}", promptUser);
+        log.info("Prompt criado com sucesso.");
 
         return promptUser;
     }

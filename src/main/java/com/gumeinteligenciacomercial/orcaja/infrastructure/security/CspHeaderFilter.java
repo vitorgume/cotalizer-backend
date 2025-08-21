@@ -10,6 +10,11 @@ import java.io.IOException;
 public class CspHeaderFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
+        if (!(servletResponse instanceof HttpServletResponse)) {
+            return;
+        }
+
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self';");
         filterChain.doFilter(servletRequest, servletResponse);

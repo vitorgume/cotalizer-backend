@@ -16,4 +16,24 @@ public class Usuario {
     private String cpf;
     private String cnpj;
     private String senha;
+    private StatusUsuario status;
+    private Plano plano;
+    private String idCustomer;
+    private String idAssinatura;
+    private String urlLogo;
+    private Boolean feedback;
+
+    public void setDados(Usuario usuario) {
+        this.nome = usuario.getNome();
+        this.email = usuario.getEmail();
+        this.telefone = usuario.getTelefone();
+        this.status = usuario.getStatus();
+        this.cpf = usuario.getCpf();
+        this.cnpj = usuario.getCnpj();
+        this.plano = usuario.getPlano();
+        this.idCustomer = usuario.getIdCustomer();
+        this.idAssinatura = usuario.getIdAssinatura();
+        this.urlLogo = usuario.getUrlLogo();
+        this.feedback = usuario.getFeedback();
+    }
 }

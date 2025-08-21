@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Orçamento</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #ffffff;
+            padding: 20px;
+            font-size: 14px;
+            color: #212529;
+        }
+
+        .invoice-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .invoice-info {
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .invoice-info p {
+            margin-bottom: 4px;
+        }
+
+        .client-section {
+            margin-bottom: 30px;
+        }
+
+        .client-section h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .client-section p {
+            margin-bottom: 4px;
+        }
+
+        .info-section {
+            margin-bottom: 30px;
+        }
+
+        .info-section p {
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th {
+            text-align: left;
+            font-size: 12px;
+            padding: 12px 8px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: top;
+        }
+
+        td:last-child,
+        th:last-child {
+            text-align: right;
+        }
+
+        .totals {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .totals-box {
+            width: 300px;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .totals-row.final {
+            background: #212529;
+            color: #fff;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .terms {
+            font-size: 12px;
+            margin-top: 40px;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+            padding-top: 20px;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 40px;
+            font-size: 14px;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+
+    <div class="header">
+        <img
+                src="data:image/png;base64,${logo_base64}"
+                alt="Logo do Usuário"
+                height="80"
+                style="height:80px!important; width:auto!important;" />
+
+        <div class="invoice-info">
+            <p><strong>Orçamento</strong></p>
+            <p>Nº: 0001</p>
+            <p>Data: ${data}</p>
+        </div>
+    </div>
+
+    <div class="client-section">
+        <h3>Cliente</h3>
+        ${campos}
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Item Descrição</th>
+            <th>Qtd</th>
+            <th>Valor Unitário</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${itens}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div class="totals-box">
+            <div class="totals-row">
+                <span>Sub Total</span>
+                <span>${subtotal}</span>
+            </div>
+            <div class="totals-row">
+                <span>Desconto</span>
+                <span>${desconto}</span>
+            </div>
+            <div class="totals-row final">
+                <span>Total</span>
+                <span>${total}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="terms">
+        <p>Este orçamento é válido por até 7 dias. Os valores estão sujeitos a alteração após esse período. Para dúvidas ou condições de pagamento, entre em contato conosco.</p>
+    </div>
+</div>
+</body>
+</html>

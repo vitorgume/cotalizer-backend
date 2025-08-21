@@ -1,9 +1,13 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security;
 
+import com.gumeinteligenciacomercial.orcaja.application.usecase.google.GoogleOAuth2SuccessHandler;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,26 +15,62 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
+@Profile("!test")
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
+
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+    @Order(1) // <- define a ordem de prioridade deste filtro
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/**", "/usuarios/**", "/login", "/auth/**", "/arquivos/**", "/verificaoes/**") // <-- cobre todos os endpoints da API
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configure(http))
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/usuarios/cadastro", "/arquivos/acessar/**", "/arquivos/download/**").permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/usuarios/cadastro",
+                                "/verificaoes/email/**",
+                                "/auth/google/success",
+                                "/arquivos/**",
+                                "/usuarios/alterar/senha",
+                                "/senhas/solicitar/nova"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized");
+                        })
+                );
+        return http.build();
     }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/oauth2/**", "/login/oauth2/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .oauth2Login(oauth -> oauth
+                        .successHandler(googleOAuth2SuccessHandler)
+                )
+                .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

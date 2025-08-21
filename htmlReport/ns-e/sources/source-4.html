@@ -1,0 +1,164 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > IaDataProvider</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider</a>
+</div>
+
+<h1>Coverage Summary for Class: IaDataProvider (com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">IaDataProvider</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (23/23)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.gateway.IaGateway;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.OpenIaResponseDto;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.PromptDto;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.beans.factory.annotation.Value;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;import org.springframework.web.reactive.function.client.WebClient;
+&nbsp;import reactor.util.retry.Retry;
+&nbsp;
+&nbsp;import java.time.Duration;
+&nbsp;
+&nbsp;@Component
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;public class IaDataProvider implements IaGateway {
+&nbsp;
+&nbsp;    @Value(&quot;${openia.api.key}&quot;)
+&nbsp;    private final String apiKey;
+&nbsp;
+&nbsp;    private final WebClient webClient;
+&nbsp;
+<b class="fc">&nbsp;    private final String MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA = &quot;Erro ao enviar orçamento para IA.&quot;;</b>
+&nbsp;
+&nbsp;    public IaDataProvider(
+&nbsp;            @Value(&quot;${openia.api.key}&quot;) String apiKey,
+&nbsp;            WebClient webClient
+<b class="fc">&nbsp;    ) {</b>
+<b class="fc">&nbsp;        this.apiKey = apiKey;</b>
+<b class="fc">&nbsp;        this.webClient = webClient;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public OpenIaResponseDto    enviarMensagem(PromptDto prompt) {
+&nbsp;        try {
+<b class="fc">&nbsp;            return webClient</b>
+<b class="fc">&nbsp;                    .post()</b>
+<b class="fc">&nbsp;                    .uri(&quot;/chat/completions&quot;)</b>
+<b class="fc">&nbsp;                    .header(&quot;Authorization&quot;, &quot;Bearer &quot; + apiKey)</b>
+<b class="fc">&nbsp;                    .bodyValue(prompt)</b>
+<b class="fc">&nbsp;                    .retrieve()</b>
+<b class="fc">&nbsp;                    .bodyToMono(OpenIaResponseDto.class)</b>
+<b class="fc">&nbsp;                    .retryWhen(</b>
+<b class="fc">&nbsp;                            Retry.backoff(3, Duration.ofSeconds(2))</b>
+<b class="fc">&nbsp;                                    .filter(throwable -&gt; {</b>
+<b class="fc">&nbsp;                                        log.warn(&quot;Tentando enviar orçamento para IA novamente: {}&quot;, throwable.getMessage());</b>
+<b class="fc">&nbsp;                                        return true;</b>
+&nbsp;                                    })
+<b class="fc">&nbsp;                    ).doOnError(e -&gt; {</b>
+<b class="fc">&nbsp;                        log.error(&quot;Erro após tentativas&quot;, e);</b>
+<b class="fc">&nbsp;                        throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, e);</b>
+&nbsp;                    })
+<b class="fc">&nbsp;                    .block();</b>
+&nbsp;        } catch (Exception ex) {
+<b class="fc">&nbsp;            log.error(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, ex);</b>
+<b class="fc">&nbsp;            throw new DataProviderException(MENSAGEM_ERRO_ENVIAR_ORCAMENTO_IA, ex.getCause());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

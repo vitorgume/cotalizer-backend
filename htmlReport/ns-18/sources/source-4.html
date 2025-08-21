@@ -1,0 +1,102 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > OrcamentoTradicionalEntity</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities</a>
+</div>
+
+<h1>Coverage Summary for Class: OrcamentoTradicionalEntity (com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">OrcamentoTradicionalEntity</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
+&nbsp;import lombok.*;
+&nbsp;import org.springframework.data.mongodb.core.mapping.Document;
+&nbsp;import org.springframework.data.mongodb.core.mapping.MongoId;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Document(collection = &quot;orcamentos_tradicionais&quot;)
+&nbsp;@AllArgsConstructor
+&nbsp;@NoArgsConstructor
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@Builder
+&nbsp;public class OrcamentoTradicionalEntity {
+&nbsp;
+&nbsp;    @MongoId
+&nbsp;    private String id;
+&nbsp;    private String cliente;
+&nbsp;    private String cnpjCpf;
+&nbsp;    private List&lt;ProdutoOrcamentoEntity&gt; produtos;
+&nbsp;    private String observacoes;
+&nbsp;    private List&lt;CampoPersonalizadoEntity&gt; camposPersonalizados;
+&nbsp;    private String urlArquivo;
+&nbsp;    private String idUsuario;
+&nbsp;    private BigDecimal valorTotal;
+&nbsp;    private TipoOrcamento tipoOrcamento;
+&nbsp;    private StatusOrcamento status;
+&nbsp;    private LocalDate dataCriacao;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

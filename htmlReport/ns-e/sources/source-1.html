@@ -1,0 +1,185 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ArquivoDataProvider</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider</a>
+</div>
+
+<h1>Coverage Summary for Class: ArquivoDataProvider (com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ArquivoDataProvider</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (24/24)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.gateway.ArquivoGateway;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;import org.springframework.util.StringUtils;
+&nbsp;import org.springframework.web.multipart.MultipartFile;
+&nbsp;import org.xhtmlrenderer.pdf.ITextRenderer;
+&nbsp;
+&nbsp;import java.io.FileOutputStream;
+&nbsp;import java.io.OutputStream;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Path;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.util.Objects;
+&nbsp;
+&nbsp;@Component
+<b class="fc">&nbsp;@Slf4j</b>
+<b class="fc">&nbsp;public class ArquivoDataProvider implements ArquivoGateway {</b>
+&nbsp;
+&nbsp;    private static final String BASE_PATH = &quot;C:/Users/vitor/orcaja&quot;;
+&nbsp;    private static final String BASE_API_FILE = &quot;http://localhost:8080/arquivos/acessar/&quot;;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public String salvarPdf(String nomeArquivo, String html) {
+&nbsp;        try {
+<b class="fc">&nbsp;            String nomeArquivoCompleto = nomeArquivo + &quot;.pdf&quot;;</b>
+<b class="fc">&nbsp;            String caminhoParaSalvar = Paths.get(BASE_PATH, nomeArquivoCompleto).toString();</b>
+&nbsp;
+<b class="fc">&nbsp;            try (OutputStream outputStream = new FileOutputStream(caminhoParaSalvar)) {</b>
+<b class="fc">&nbsp;                ITextRenderer renderer = new ITextRenderer();</b>
+<b class="fc">&nbsp;                renderer.setDocumentFromString(html);</b>
+<b class="fc">&nbsp;                renderer.layout();</b>
+<b class="fc">&nbsp;                renderer.createPDF(outputStream);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            return BASE_API_FILE + nomeArquivoCompleto;</b>
+&nbsp;        } catch (Exception e) {
+<b class="fc">&nbsp;            log.error(&quot;Erro ao gerar pdf.&quot;, e);</b>
+<b class="fc">&nbsp;            throw new DataProviderException(&quot;Erro ao gerar PDF&quot;, e.getCause());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public String salvarLogo(String idUsuario, MultipartFile multipartFile) {
+&nbsp;        try {
+<b class="fc">&nbsp;            Path userDir = Paths.get(BASE_PATH, idUsuario);</b>
+<b class="fc">&nbsp;            if (!Files.exists(userDir)) {</b>
+<b class="fc">&nbsp;                Files.createDirectories(userDir);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));</b>
+<b class="fc">&nbsp;            String filename = originalFilename.endsWith(&quot;.png&quot;)</b>
+<b class="fc">&nbsp;                    ? originalFilename</b>
+<b class="fc">&nbsp;                    : originalFilename + &quot;.png&quot;;</b>
+&nbsp;
+<b class="fc">&nbsp;            Path targetPath = userDir.resolve(filename);</b>
+&nbsp;
+<b class="fc">&nbsp;            multipartFile.transferTo(targetPath.toFile());</b>
+&nbsp;
+<b class="fc">&nbsp;            return userDir.resolve(filename).toString();</b>
+&nbsp;        } catch (Exception ex) {
+<b class="fc">&nbsp;            log.error(&quot;Erro ao salvar logo&quot;, ex);</b>
+<b class="fc">&nbsp;            throw new DataProviderException(&quot;Erro ao salvar logo&quot;, ex.getCause());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

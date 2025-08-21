@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -18,10 +19,14 @@ public class Orcamento {
     private LocalDate dataCriacao;
     private String titulo;
     private String usuarioId;
+    private StatusOrcamento status;
+    private TipoOrcamento tipoOrcamento;
+    private BigDecimal valorTotal;
 
     public void setDados(Orcamento novoOrcamento) {
         this.orcamentoFormatado = novoOrcamento.getOrcamentoFormatado();
         this.titulo = novoOrcamento.getTitulo();
         this.urlArquivo = novoOrcamento.getUrlArquivo();
+        this.status = novoOrcamento.getStatus();
     }
 }

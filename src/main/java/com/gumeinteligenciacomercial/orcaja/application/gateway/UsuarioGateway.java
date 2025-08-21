@@ -12,7 +12,5 @@ public interface UsuarioGateway {
 
     Optional<Usuario> consultarPorCpf(String cpf);
 
-    void deletar(String idUsuario);
-
     Optional<Usuario> consultarPorEmail(String email);
 }
