@@ -1,6 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
-import com.gumeinteligenciacomercial.orcaja.application.usecase.LoginUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import jakarta.servlet.ServletException;
@@ -18,7 +18,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final LoginUseCase loginUseCase;
+    private final AuthTokenGateway tokenService;
     private final UsuarioUseCase usuarioUseCase;
 
     @Override
@@ -28,7 +28,7 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         Usuario usuario = usuarioUseCase.consultarPorEmail(email);
 
-        String token = loginUseCase.gerarTokenJwt(email);
+        String token = tokenService.generateAccessToken(email, usuario.getId(), null);
         String redirectUrl;
 
         if (usuario.getCnpj() != null || usuario.getCpf() != null) {
