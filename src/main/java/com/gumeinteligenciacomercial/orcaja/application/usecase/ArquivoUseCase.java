@@ -1,7 +1,5 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoNaoEncontrado;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.ArquivoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
@@ -9,13 +7,9 @@ import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -28,7 +22,6 @@ public class ArquivoUseCase {
     private final UsuarioUseCase usuarioUseCase;
     private final ArquivoGateway gateway;
     private final HtmlUseCase htmlUseCase;
-    private static final Path BASE_DIR = Paths.get("C:/Users/vitor/orcaja");
 
     public Orcamento salvarArquivo(Orcamento novoOrcamento) {
         log.info("Gerenado pdf do orçamento. Orçamento: {}", novoOrcamento);
@@ -79,22 +72,20 @@ public class ArquivoUseCase {
         return "ARQ-" + uuid.substring(0, 5);
     }
 
-    public Resource acessarArquivo(String nomeArquivo) {
-        try {
-            Path arquivoPath = BASE_DIR.resolve(nomeArquivo).normalize();
-            Resource resource = new UrlResource(arquivoPath.toUri());
-            if (!resource.exists() || !resource.isReadable()) {
-                throw new ArquivoNaoEncontrado();
-            }
-            return resource;
-        } catch (MalformedURLException | NullPointerException e) {
-            log.error("Erro ao acessar arquivo: {}", nomeArquivo, e);
-            throw new ArquivoException("Erro ao acessar arquivo: " + nomeArquivo, e);
-        }
+    public Resource acessarArquivo(String keyOuNomeArquivo) {
+        return gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
     }
 
-    public Resource downloadArquivo(String nomeArquivo) {
-        return acessarArquivo(nomeArquivo);
+    public Resource downloadArquivo(String keyOuNomeArquivo) {
+        return gateway.carregarArquivo(keyOuNomeArquivo);
     }
+
+    private static String sanitizeKey(String key) {
+        String k = key.strip();
+        if (k.startsWith("/")) k = k.substring(1);
+        if (k.endsWith(".")) k = k.substring(0, k.length()-1);
+        return k;
+    }
+
 }
 

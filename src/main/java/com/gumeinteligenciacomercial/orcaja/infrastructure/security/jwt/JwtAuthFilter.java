@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.TokenInvalidoException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,8 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
         final String path = request.getRequestURI();
 
@@ -85,7 +85,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (JwtException | IllegalArgumentException e) {
-            // token inválido/expirado -> não autentica e segue a cadeia
+            throw new TokenInvalidoException();
         }
 
         chain.doFilter(request, response);

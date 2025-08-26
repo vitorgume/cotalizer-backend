@@ -35,3 +35,5 @@ build/
 .env
 
 ./htmlReport
+
+/src/main/resources/application-dev.properties
