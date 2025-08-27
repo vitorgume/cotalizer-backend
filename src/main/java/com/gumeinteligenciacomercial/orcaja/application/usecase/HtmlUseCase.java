@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -78,15 +80,24 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoBase64 = "";
+            String logoSrc = "";
             String logoPath = usuario.getUrlLogo();
             if (logoPath != null && !logoPath.isBlank()) {
-                byte[] logoBytes = Files.readAllBytes(Path.of(logoPath));
-                logoBase64 = Base64.getEncoder().encodeToString(logoBytes);
+                String lp = logoPath.trim();
+                if (lp.startsWith("http://") || lp.startsWith("https://")
+                        || lp.startsWith("data:") || lp.startsWith("file:")) {
+                    logoSrc = lp;
+                } else {
+                    try {
+                        logoSrc = Paths.get(lp).toUri().toString();
+                    } catch (InvalidPathException ex) {
+                        log.warn("Caminho de logo inválido: {}", lp, ex);
+                        logoSrc = "";
+                    }
+                }
             }
-
             String htmlFinal = htmlTemplate
-                    .replace("${logo_base64}", logoBase64)
+                    .replace("${logoSrc}", logoSrc)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
@@ -107,7 +118,7 @@ public class HtmlUseCase {
                 .getResourceAsStream("templates/template_orcamento_tradicional.html");
         if (is == null) throw new IllegalStateException("Template não encontrado!");
 
-        try {
+        try (is) {
             String htmlTemplate = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             String data = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
@@ -149,15 +160,25 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
 
-            String logoBase64 = "";
+            String logoSrc = "";
             String logoPath = usuario.getUrlLogo();
             if (logoPath != null && !logoPath.isBlank()) {
-                byte[] logoBytes = Files.readAllBytes(Path.of(logoPath));
-                logoBase64 = Base64.getEncoder().encodeToString(logoBytes);
+                String lp = logoPath.trim();
+                if (lp.startsWith("http://") || lp.startsWith("https://")
+                        || lp.startsWith("data:") || lp.startsWith("file:")) {
+                    logoSrc = lp;
+                } else {
+                    try {
+                        logoSrc = Paths.get(lp).toUri().toString();
+                    } catch (InvalidPathException ex) {
+                        log.warn("Caminho de logo inválido: {}", lp, ex);
+                        logoSrc = "";
+                    }
+                }
             }
 
             return htmlTemplate
-                    .replace("${logo_base64}", logoBase64)
+                    .replace("${logo_src}", logoSrc)                // <<< novo placeholder
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))
@@ -173,12 +194,13 @@ public class HtmlUseCase {
         }
     }
 
+
     private String escapeHtml(String s) {
         return s == null ? "" : s
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
-                .replace("\"","&quot;");
+                .replace("\"", "&quot;");
     }
 
     private String formatarChave(String chave) {

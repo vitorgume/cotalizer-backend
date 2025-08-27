@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
-class ArquivoControllerInteTest {
+class ArquivoApiControllerInteTest {
 
     @Autowired
     private MockMvc mockMvc;

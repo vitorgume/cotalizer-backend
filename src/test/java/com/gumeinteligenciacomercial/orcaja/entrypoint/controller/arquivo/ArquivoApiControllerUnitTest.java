@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
-public class ArquivoControllerUnitTest {
+public class ArquivoApiControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
