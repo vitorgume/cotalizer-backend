@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "spring.task.scheduling.enabled=false",
                 "openia.api.key=TEST_OPENAI_KEY",
                 "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=SECRET_KEY_TEST"
+                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)

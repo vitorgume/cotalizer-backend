@@ -1,16 +1,23 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt;
 
+import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.TokenInvalidoException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,125 +29,185 @@ import static org.mockito.Mockito.*;
 class JwtAuthFilterTest {
 
     @Mock
-    private JwtUtil jwtUtil;
+    AuthTokenGateway tokenGateway;
+
+    @InjectMocks
+    JwtAuthFilter filter;
 
     @Mock
-    private HttpServletRequest request;
-
+    HttpServletRequest request;
     @Mock
-    private HttpServletResponse response;
-
+    HttpServletResponse response;
     @Mock
-    private FilterChain filterChain;
-
-    private JwtAuthFilter filter;
+    FilterChain chain;
 
     @BeforeEach
     void setup() {
-        filter = new JwtAuthFilter(jwtUtil);
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    void rotasPublicasDeveSeguirSemValidarToken() throws ServletException, IOException {
-        List<String> publicas = List.of(
-                "/login",
-                "/usuarios/cadastro",
-                "/oauth2/",
-                "/arquivos/acessar/",
-                "/arquivos/download/",
-                "/verificaoes/email",
-                "/senhas/solicitar/nova",
-                "/usuarios/alterar/senha"
-        );
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
-        for (String rota : publicas) {
-            reset(filterChain);
-            when(request.getRequestURI()).thenReturn(rota);
-
-            filter.doFilterInternal(request, response, filterChain);
-
-            // deve chamar exatamente uma vez, sem mexer no SecurityContext
-            verify(filterChain, times(1)).doFilter(request, response);
-            assertNull(SecurityContextHolder.getContext().getAuthentication());
+    private void arr(String method, String path, String authHeader) {
+        when(request.getMethod()).thenReturn(method);
+        when(request.getRequestURI()).thenReturn(path);
+        if (authHeader != null) {
+            when(request.getHeader("Authorization")).thenReturn(authHeader);
         }
     }
 
     @Test
-    void quandoNaoTiverHeaderAuthorizationDeveSeguirSemAutenticacao() throws ServletException, IOException {
-        when(request.getRequestURI()).thenReturn("/api/protegido");
-        when(request.getHeader("Authorization")).thenReturn(null);
+    void deveIgnorarOptions() throws ServletException, IOException {
+        arr("OPTIONS", "/qualquer", null);
 
-        filter.doFilterInternal(request, response, filterChain);
+        filter.doFilter(request, response, chain);
 
-        verify(filterChain).doFilter(request, response);
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    void quandoHeaderNaoComecarComBearerDeveSeguirSemAutenticacao() throws ServletException, IOException {
-        when(request.getRequestURI()).thenReturn("/api/protegido");
-        when(request.getHeader("Authorization")).thenReturn("Token abc.def.ghi");
+    void deveIgnorarRotasPublicas_exato() throws Exception {
+        arr("GET", "/auth/login", null);
 
-        filter.doFilterInternal(request, response, filterChain);
+        filter.doFilter(request, response, chain);
 
-        verify(filterChain).doFilter(request, response);
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    void quandoTokenInvalidoDeveSeguirSemAutenticacao() throws ServletException, IOException {
-        String fakeJwt = "Bearer tok.inval.id";
-        when(request.getRequestURI()).thenReturn("/api/protegido");
-        when(request.getHeader("Authorization")).thenReturn(fakeJwt);
+    void deveIgnorarRotasPublicas_wildcard() throws Exception {
+        arr("GET", "/verificaoes/email/abc123", null); // bate no padrão "/verificaoes/email/**"
 
-        when(jwtUtil.extractUsername("tok.inval.id")).thenReturn("user@example.com");
-        when(jwtUtil.isTokenValid("tok.inval.id")).thenReturn(false);
+        filter.doFilter(request, response, chain);
 
-        filter.doFilterInternal(request, response, filterChain);
-
-        verify(jwtUtil).extractUsername("tok.inval.id");
-        verify(jwtUtil).isTokenValid("tok.inval.id");
-        verify(filterChain).doFilter(request, response);
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    void quandoTokenValidoDevePreencherSecurityContext() throws ServletException, IOException {
-        String fakeJwt = "Bearer abc.def.ghi";
-        when(request.getRequestURI()).thenReturn("/api/protegido");
-        when(request.getHeader("Authorization")).thenReturn(fakeJwt);
+    void jaAutenticado_noContexto_deveApenasSeguir() throws Exception {
+        Authentication pre = new UsernamePasswordAuthenticationToken("pre", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(pre);
 
-        when(jwtUtil.extractUsername("abc.def.ghi")).thenReturn("user@example.com");
-        when(jwtUtil.isTokenValid("abc.def.ghi")).thenReturn(true);
+        arr("GET", "/api/privada", null);
 
-        filter.doFilterInternal(request, response, filterChain);
+        filter.doFilter(request, response, chain);
 
-        verify(jwtUtil).extractUsername("abc.def.ghi");
-        verify(jwtUtil).isTokenValid("abc.def.ghi");
-        verify(filterChain).doFilter(request, response);
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway); // não reprocessa
+        assertSame(pre, SecurityContextHolder.getContext().getAuthentication());
+    }
 
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        assertNotNull(auth, "Deve ter setado Authentication no SecurityContext");
-        assertInstanceOf(UsernamePasswordAuthenticationToken.class, auth);
-        assertEquals("user@example.com", auth.getPrincipal());
-        assertNull(auth.getCredentials());
+    @Test
+    void semAuthorizationHeader_deveSeguir() throws Exception {
+        arr("GET", "/api/privada", null);
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway);
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void authorizationNaoBearer_deveSeguir() throws Exception {
+        arr("GET", "/api/privada", "Basic abc123");
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+        verifyNoInteractions(tokenGateway);
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void accessValido_semRoles_deveAutenticarSemAuthorities() throws Exception {
+        arr("GET", "/api/privada", "Bearer abc.def");
+
+        when(tokenGateway.parse("abc.def"))
+                .thenReturn(new AuthTokenGateway.ParsedToken("alice@example.com", "u-1", "access", null));
+
+        filter.doFilter(request, response, chain);
+
+        // parse chamado com o JWT correto (substring depois de "Bearer ")
+        verify(tokenGateway).parse("abc.def");
+        verify(chain).doFilter(request, response);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(auth);
+        assertEquals("alice@example.com", auth.getPrincipal());
         assertTrue(auth.getAuthorities().isEmpty());
     }
 
     @Test
-    void quandoExtractUsernameRetornarNullDeveSeguirSemAutenticacao() throws ServletException, IOException {
-        String fakeJwt = "Bearer xyz.abc.123";
-        when(request.getRequestURI()).thenReturn("/api/protegido");
-        when(request.getHeader("Authorization")).thenReturn(fakeJwt);
+    void accessValido_comRoles_deveAutenticarComAuthorities() throws Exception {
+        arr("GET", "/api/privada", "Bearer token.jwt");
 
-        when(jwtUtil.extractUsername("xyz.abc.123")).thenReturn(null);
+        when(tokenGateway.parse("token.jwt"))
+                .thenReturn(new AuthTokenGateway.ParsedToken("bob@example.com", "u-2", "access", List.of("ADMIN", "USER")));
 
-        filter.doFilterInternal(request, response, filterChain);
+        filter.doFilter(request, response, chain);
 
-        verify(jwtUtil).extractUsername("xyz.abc.123");
-        verify(jwtUtil, never()).isTokenValid(any());
-        verify(filterChain).doFilter(request, response);
+        verify(tokenGateway).parse("token.jwt");
+        verify(chain).doFilter(request, response);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(auth);
+        assertEquals("bob@example.com", auth.getPrincipal());
+        assertTrue(auth.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN")));
+        assertTrue(auth.getAuthorities().contains(new SimpleGrantedAuthority("USER")));
+    }
+
+    @Test
+    void tokenTipoRefresh_naoDeveAutenticar() throws Exception {
+        arr("GET", "/api/privada", "Bearer xyz.123");
+
+        when(tokenGateway.parse("xyz.123"))
+                .thenReturn(new AuthTokenGateway.ParsedToken("carol@example.com", "u-3", "refresh", List.of("USER")));
+
+        filter.doFilter(request, response, chain);
+
+        verify(tokenGateway).parse("xyz.123");
+        verify(chain).doFilter(request, response);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void parseLancaJwtException_deveLancarTokenInvalidoException() throws Exception {
+        arr("GET", "/api/privada", "Bearer bad.jwt");
+
+        when(tokenGateway.parse("bad.jwt"))
+                .thenThrow(new JwtException("invalid"));
+
+        assertThrows(TokenInvalidoException.class,
+                () -> filter.doFilter(request, response, chain));
+
+        verify(tokenGateway).parse("bad.jwt");
+        verify(chain, never()).doFilter(request, response);
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void parseLancaIllegalArgumentException_deveLancarTokenInvalidoException() throws Exception {
+        arr("GET", "/api/privada", "Bearer bad2.jwt");
+
+        when(tokenGateway.parse("bad2.jwt"))
+                .thenThrow(new IllegalArgumentException("bad arg"));
+
+        assertThrows(TokenInvalidoException.class,
+                () -> filter.doFilter(request, response, chain));
+
+        verify(tokenGateway).parse("bad2.jwt");
+        verify(chain, never()).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }

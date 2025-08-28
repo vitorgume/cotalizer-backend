@@ -3,120 +3,183 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.AbortableInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.lang.reflect.Field;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class ArquivoDataProviderTest {
 
-    private ArquivoDataProvider provider;
+    @Mock
+    S3Client s3;
+
+    ArquivoDataProvider provider;
 
     @BeforeEach
-    void setUp() {
-        provider = new ArquivoDataProvider();
+    void setUp() throws Exception {
+        provider = new ArquivoDataProvider(
+                "bucket-x",
+                "us-east-1",
+                Optional.empty(),
+                "https://pub.example.com"
+        );
+        setPrivateField(provider, "s3", s3);
     }
 
     @Test
-    void salvarPdfDeveRetornarUrlEInvocarRenderer() throws Exception {
-        String nome = "meuArquivo";
-        String html = "<html><body>Teste</body></html>";
+    void salvarPdfDeveSubirNoS3ERetornarUrlPublica() {
+        when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenReturn(PutObjectResponse.builder().eTag("abc").build());
 
-        try (MockedConstruction<ITextRenderer> rendMocks =
-                     mockConstruction(ITextRenderer.class);
-             MockedConstruction<FileOutputStream> fosMocks =
-                     mockConstruction(FileOutputStream.class)) {
+        String out = provider.salvarPdf("ARQ-abc12",
+                "<html><body><p>Olá</p></body></html>");
 
-            String url = provider.salvarPdf(nome, html);
+        assertEquals("https://pub.example.com/pdf/ARQ-abc12.pdf", out);
 
-            assertEquals(
-                    "http://localhost:8080/arquivos/acessar/" + nome + ".pdf",
-                    url
-            );
+        ArgumentCaptor<PutObjectRequest> reqCap = ArgumentCaptor.forClass(PutObjectRequest.class);
+        verify(s3).putObject(reqCap.capture(), any(RequestBody.class));
 
-            ITextRenderer renderer = rendMocks.constructed().get(0);
-            verify(renderer).setDocumentFromString(html);
-            verify(renderer).layout();
-            verify(renderer).createPDF(any(OutputStream.class));
-        }
+        PutObjectRequest req = reqCap.getValue();
+        assertEquals("bucket-x", req.bucket());
+        assertEquals("pdf/ARQ-abc12.pdf", req.key());
+        assertEquals("application/pdf", req.contentType());
+        assertEquals(ObjectCannedACL.PRIVATE, req.acl());
     }
 
     @Test
-    void salvarPdfQuandoRendererLancarErroDeveLancarDataProviderException() {
-        String nome = "arquivoErro";
-        String html = "<html></html>";
+    void salvarPdfDeveLancarDataProviderExceptionQuandoPutObjectFalha() {
+        when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenThrow(new RuntimeException("boom"));
 
-        try (MockedConstruction<ITextRenderer> rendMocks =
-                     mockConstruction(ITextRenderer.class, (mock, ctx) -> {
-                         doThrow(new RuntimeException("fail")).when(mock).layout();
-                     });
-             MockedConstruction<FileOutputStream> fosMocks =
-                     mockConstruction(FileOutputStream.class)) {
+        DataProviderException ex = assertThrows(DataProviderException.class, () ->
+                provider.salvarPdf("ARQ-x", "<html/>"));
 
-            DataProviderException ex = assertThrows(
-                    DataProviderException.class,
-                    () -> provider.salvarPdf(nome, html)
-            );
-            assertEquals("Erro ao gerar PDF", ex.getMessage());
-        }
-    }
-
-
-    @Test
-    void salvarLogoDeveCriarDiretorioETransferirArquivo() throws Exception {
-        String userId = "usr123";
-        MultipartFile multipart = mock(MultipartFile.class);
-
-        when(multipart.getOriginalFilename()).thenReturn("logoTeste");
-        when(multipart.getOriginalFilename())
-                .thenReturn("logoTeste.png");
-
-        Path userDir = Paths.get("C:/Users/vitor/orcaja", userId);
-        Path esperado = userDir.resolve("logoTeste.png");
-
-        try (MockedStatic<Files> files = mockStatic(Files.class)) {
-            files.when(() -> Files.exists(userDir)).thenReturn(false);
-            files.when(() -> Files.createDirectories(userDir))
-                    .thenReturn(userDir);
-
-            String resultado = provider.salvarLogo(userId, multipart);
-
-            assertEquals(esperado.toString(), resultado);
-            verify(multipart).transferTo(esperado.toFile());
-        }
+        assertEquals("Erro ao salvar pdf.", ex.getMessage());
+        verify(s3).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
 
     @Test
-    void salvarLogoQuandoTransferToLancarErroDeveLancarDataProviderException() throws Exception {
-        String userId = "usrErr";
-        MultipartFile multipart = mock(MultipartFile.class);
+    void salvarLogoDeveUsarExtDoArquivoEContentTypeInformado() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn("logo.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{1,2,3}));
+        when(file.getSize()).thenReturn(3L);
 
-        when(multipart.getOriginalFilename()).thenReturn("img");
-        Path userDir = Paths.get("C:/Users/vitor/orcaja", userId);
-        Path destino = userDir.resolve("img.png");
+        when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenReturn(PutObjectResponse.builder().build());
 
-        try (MockedStatic<Files> files = mockStatic(Files.class)) {
-            files.when(() -> Files.exists(userDir)).thenReturn(true);
+        String out = provider.salvarLogo("user-1", file);
+        assertEquals("https://pub.example.com/tenants/user-1/branding/logo.jpg", out);
 
-            doThrow(new IOException("disk error"))
-                    .when(multipart).transferTo(destino.toFile());
+        ArgumentCaptor<PutObjectRequest> cap = ArgumentCaptor.forClass(PutObjectRequest.class);
+        verify(s3).putObject(cap.capture(), any(RequestBody.class));
 
-            DataProviderException ex = assertThrows(
-                    DataProviderException.class,
-                    () -> provider.salvarLogo(userId, multipart)
-            );
-            assertEquals("Erro ao salvar logo", ex.getMessage());
-        }
+        PutObjectRequest req = cap.getValue();
+        assertEquals("bucket-x", req.bucket());
+        assertEquals("tenants/user-1/branding/logo.jpg", req.key());
+        assertEquals("image/jpeg", req.contentType());
+        assertEquals(ObjectCannedACL.PRIVATE, req.acl());
+    }
+
+    @Test
+    void salvarLogoDeveAssumirPngQuandoExtDesconhecidaOuNulaEDefinirContentTypeImagePng() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn(null);
+        when(file.getContentType()).thenReturn(null);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(file.getSize()).thenReturn(0L);
+
+        when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenReturn(PutObjectResponse.builder().build());
+
+        String out = provider.salvarLogo("u2", file);
+        assertEquals("https://pub.example.com/tenants/u2/branding/logo.png", out);
+
+        ArgumentCaptor<PutObjectRequest> cap = ArgumentCaptor.forClass(PutObjectRequest.class);
+        verify(s3).putObject(cap.capture(), any(RequestBody.class));
+
+        PutObjectRequest req = cap.getValue();
+        assertEquals("tenants/u2/branding/logo.png", req.key());
+        assertEquals("image/png", req.contentType());
+    }
+
+    @Test
+    void salvarLogoDeveLancarDataProviderExceptionQuandoPutObjectFalha() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn("logo.webp");
+        when(file.getContentType()).thenReturn(null);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[1]));
+        when(file.getSize()).thenReturn(1L);
+
+        when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                .thenThrow(new RuntimeException("falha-logo"));
+
+        DataProviderException ex = assertThrows(DataProviderException.class,
+                () -> provider.salvarLogo("u3", file));
+        assertEquals("Erro ao salvar logo", ex.getMessage());
+
+        verify(s3).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    }
+
+    @Test
+    void carregarArquivoDeveRetornarResourceComFilenameContentLengthEDescription() throws IOException {
+        String key = "dir/file.dat";
+
+        GetObjectResponse resp = GetObjectResponse.builder()
+                .contentLength(42L)
+                .build();
+        ResponseInputStream<GetObjectResponse> ris = new ResponseInputStream<>(
+                resp,
+                AbortableInputStream.create(new ByteArrayInputStream(new byte[]{1,2,3}))
+        );
+
+        when(s3.getObject(any(GetObjectRequest.class))).thenReturn(ris);
+
+        Resource r = provider.carregarArquivo(key);
+        assertNotNull(r);
+        assertEquals("file.dat", r.getFilename());
+        assertEquals(42L, r.contentLength());
+        assertEquals("S3 bucket-x/dir/file.dat", r.getDescription());
+
+        ArgumentCaptor<GetObjectRequest> cap = ArgumentCaptor.forClass(GetObjectRequest.class);
+        verify(s3).getObject(cap.capture());
+        assertEquals("bucket-x", cap.getValue().bucket());
+        assertEquals(key, cap.getValue().key());
+    }
+
+    @Test
+    void carregarArquivoDeveLancarDataProviderExceptionQuandoGetObjectFalha() {
+        when(s3.getObject(any(GetObjectRequest.class)))
+                .thenThrow(new RuntimeException("falha-get"));
+
+        DataProviderException ex = assertThrows(DataProviderException.class,
+                () -> provider.carregarArquivo("x/y/z.pdf"));
+        assertEquals("Erro ao carregar arquivo.", ex.getMessage());
+
+        verify(s3).getObject(any(GetObjectRequest.class));
+    }
+
+    private static void setPrivateField(Object target, String fieldName, Object value) throws Exception {
+        Field f = target.getClass().getDeclaredField(fieldName);
+        f.setAccessible(true);
+        f.set(target, value);
     }
 }

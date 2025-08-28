@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "spring.task.scheduling.enabled=false",
                 "openia.api.key=TEST_OPENAI_KEY",
                 "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=SECRET_KEY_TEST"
+                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
@@ -118,12 +118,12 @@ class OrcamentoControllerTest {
 
         Map<String, Object> item1 = new HashMap<>();
         item1.put("quantidade", 2);
-        item1.put("valorUnitario", new BigDecimal("50.00"));  // 2 × 50 = 100
+        item1.put("valor_unit", new BigDecimal("50.00"));  // 2 × 50 = 100
         itens.add(item1);
 
         Map<String, Object> item2 = new HashMap<>();
         item2.put("quantidade", 3);
-        item2.put("valorUnitario", new BigDecimal("20.00"));  // 3 × 20 = 60
+        item2.put("valor_unit", new BigDecimal("20.00"));  // 3 × 20 = 60
         itens.add(item2);
 
         Map<String, Object> orcamentoIA = new HashMap<>();

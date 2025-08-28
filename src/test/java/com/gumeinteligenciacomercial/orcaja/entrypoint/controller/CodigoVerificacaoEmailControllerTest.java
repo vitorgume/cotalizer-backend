@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,7 +33,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "spring.task.scheduling.enabled=false",
                 "openia.api.key=TEST_OPENAI_KEY",
                 "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=SECRET_KEY_TEST"
+                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615",
+                "cotalizer.email.avaliacao=EMAIL_TESTE",
+                "app.storage.s3.bucket=s3_teste",
+                "app.storage.s3.region=teste",
+                "app.files.public-base-url=teste"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
@@ -50,6 +55,9 @@ class CodigoVerificacaoEmailControllerTest {
 
     @MockitoBean
     private UsuarioRepository usuarioRepository;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
 
     private VerificacaoEmailDto verificacaoEmailDto;
     private UsuarioEntity usuario;

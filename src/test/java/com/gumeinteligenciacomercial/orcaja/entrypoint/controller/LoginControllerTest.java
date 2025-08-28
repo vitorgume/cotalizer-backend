@@ -1,90 +1,183 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gumeinteligenciacomercial.orcaja.application.gateway.LoginGateway;
-import com.gumeinteligenciacomercial.orcaja.application.usecase.CriptografiaUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.LoginUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.RefreshSessionUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.AuthResult;
+import com.gumeinteligenciacomercial.orcaja.domain.RefreshResult;
+import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.LoginDto;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
-import org.junit.jupiter.api.BeforeEach;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.LoginMapper;
+import jakarta.servlet.http.Cookie;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
+import java.time.Duration;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(
         properties = {
                 "spring.task.scheduling.enabled=false",
                 "openia.api.key=TEST_OPENAI_KEY",
                 "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=SECRET_KEY_TEST"
+                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615",
+                "cotalizer.email.avaliacao=EMAIL_TESTE",
+                "app.storage.s3.bucket=s3_teste",
+                "app.storage.s3.region=teste",
+                "app.files.public-base-url=teste"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class LoginControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @MockitoBean
-    private UsuarioRepository usuarioRepository;
+    LoginUseCase loginUseCase;
 
     @MockitoBean
-    private LoginGateway loginGateway;
+    RefreshSessionUseCase refreshSessionUseCase;
 
     @MockitoBean
-    private CriptografiaUseCase criptografiaUseCase;
+    UsuarioUseCase usuarioUseCase;
 
-    private LoginDto loginDto;
-    private UsuarioEntity usuario;
+    @MockitoBean
+    JavaMailSender javaMailSender;
 
-    @BeforeEach
-    void setUp() {
-        loginDto = LoginDto.builder()
-                .email("emailteste@gmail.com")
-                .senha("senhateste123")
-                .build();
+    private static final String REFRESH_COOKIE = "__Host-refresh";
 
-        usuario = UsuarioEntity.builder()
-                .id("id-teste")
-                .email("emailteste@gmail.com")
-                .senha("senhateste123")
-                .build();
+    @Test
+    void login_deveRetornar200_SetRefreshCookie_eBodyComTokenEUsuarioId() throws Exception {
+        // Arrange
+        var reqJson = objectMapper.writeValueAsString(
+                Map.of("email", "alice@example.com", "senha", "123456")
+        );
+
+        var usuario = mock(Usuario.class);
+        when(usuario.getId()).thenReturn("u-1");
+
+        var authResult = mock(AuthResult.class);
+        when(authResult.getUsuario()).thenReturn(usuario);
+        when(authResult.getAccessToken()).thenReturn("ACCESS_123");
+        when(authResult.getRefreshToken()).thenReturn("REFRESH_456");
+
+        // qualquer domínio vindo do mapper serve; retornaremos null para nem depender do tipo
+        try (MockedStatic<LoginMapper> mocked = mockStatic(LoginMapper.class)) {
+            mocked.when(() -> LoginMapper.paraDomain(any(LoginDto.class))).thenReturn(null);
+
+            given(loginUseCase.autenticar(any())).willReturn(authResult);
+
+            // Act & Assert
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(reqJson))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    // body: ResponseDto<LoginDto> -> $.dado.*
+                    .andExpect(jsonPath("$.dado.usuarioId").value("u-1"))
+                    .andExpect(jsonPath("$.dado.token").value("ACCESS_123"))
+                    // cookie: "__Host-refresh=REFRESH_456; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=2592000"
+                    .andExpect(header().string(HttpHeaders.SET_COOKIE,
+                            Matchers.allOf(
+                                    Matchers.containsString(REFRESH_COOKIE + "=REFRESH_456"),
+                                    Matchers.containsString("HttpOnly"),
+                                    Matchers.containsString("Secure"),
+                                    Matchers.containsString("SameSite=None"),
+                                    Matchers.containsString("Path=/"),
+                                    Matchers.containsString("Max-Age=" + Duration.ofDays(30).toSeconds())
+                            )));
+
+            verify(loginUseCase).autenticar(any());
+        }
     }
 
     @Test
-    void deveLogarComSucesso() throws Exception {
+    void refresh_semCookie_deveRetornar401() throws Exception {
+        mockMvc.perform(post("/auth/refresh"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(refreshSessionUseCase);
+    }
 
-        Mockito.when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuario));
-        Mockito.when(criptografiaUseCase.validaSenha(anyString(), anyString())).thenReturn(true);
-        Mockito.when(loginGateway.generateToken(anyString(), anyString())).thenReturn("token-teste");
+    @Test
+    void refresh_cookieVazio_deveRetornar401() throws Exception {
+        mockMvc.perform(post("/auth/refresh").header(HttpHeaders.COOKIE, REFRESH_COOKIE + "="))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(refreshSessionUseCase);
+    }
 
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDto)))
+    @Test
+    void refresh_ok_deveSetarNovoCookie_eRetornarNovoAccessToken() throws Exception {
+        // Arrange
+        var oldRefresh = "OLD_RT";
+        var newRefresh = "NEW_RT";
+        var newAccess = "NEW_AT";
+
+        var rr = mock(RefreshResult.class);
+        when(rr.getNewAccessToken()).thenReturn(newAccess);
+        when(rr.getNewRefreshToken()).thenReturn(newRefresh);
+
+        given(refreshSessionUseCase.renovar(oldRefresh)).willReturn(rr);
+
+        // Act & Assert
+        mockMvc.perform(post("/auth/refresh")
+                        .cookie(new Cookie("__Host-refresh", oldRefresh)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.dado.email").value(loginDto.getEmail()))
-                .andExpect(jsonPath("$.dado.senha").isEmpty())
-                .andExpect(jsonPath("$.dado.token").value("token-teste"))
-                .andExpect(jsonPath("$.dado.usuarioId").value(usuario.getId()));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(Matchers.containsString(newAccess)))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE,
+                        Matchers.allOf(
+                                Matchers.containsString("__Host-refresh=" + newRefresh),
+                                Matchers.containsString("HttpOnly"),
+                                Matchers.containsString("Secure"),
+                                Matchers.containsString("SameSite=None"),
+                                Matchers.containsString("Path=/"),
+                                Matchers.containsString("Max-Age=" + Duration.ofDays(30).toSeconds())
+                        )));
 
-        Mockito.verify(usuarioRepository).findByEmail(anyString());
-        Mockito.verify(criptografiaUseCase).validaSenha(anyString(), anyString());
-        Mockito.verify(loginGateway).generateToken(anyString(), anyString());
+        verify(refreshSessionUseCase).renovar(oldRefresh);
+    }
+
+    @Test
+    void me_semAuth_deveRetornar401() throws Exception {
+        mockMvc.perform(get("/auth/me"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(usuarioUseCase);
+    }
+
+    @Test
+    void logout_deveLimparRefreshCookie_eRetornar204() throws Exception {
+        mockMvc.perform(post("/auth/logout"))
+                .andExpect(status().isNoContent())
+                .andExpect(header().string(HttpHeaders.SET_COOKIE,
+                        Matchers.allOf(
+                                Matchers.containsString(REFRESH_COOKIE + "="),
+                                Matchers.containsString("Max-Age=0"),
+                                Matchers.containsString("Path=/"),
+                                Matchers.containsString("SameSite=None"),
+                                Matchers.containsString("Secure"),
+                                Matchers.containsString("HttpOnly")
+                        )));
     }
 }

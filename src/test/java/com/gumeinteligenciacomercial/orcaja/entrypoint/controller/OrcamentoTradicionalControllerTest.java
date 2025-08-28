@@ -2,16 +2,16 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
+import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.CampoPersonalizadoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ProdutoOrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoTradicionalRepository;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.CampoPersonalizadoEntity;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoEntity;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoTradicionalEntity;
-import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.ProdutoOrcamentoEntity;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "spring.task.scheduling.enabled=false",
                 "openia.api.key=TEST_OPENAI_KEY",
                 "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=SECRET_KEY_TEST"
+                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
@@ -58,6 +59,12 @@ class OrcamentoTradicionalControllerTest {
 
     @MockitoBean
     private OrcamentoTradicionalRepository orcamentoTradicionalRepository;
+
+    @MockitoBean
+    private UsuarioRepository usuarioRepository;
+
+    @MockitoBean
+    private OrcamentoRepository orcamentoRepository;
 
     @Captor
     ArgumentCaptor<OrcamentoTradicionalEntity> orcamentoTradicionalCaptor;
@@ -149,6 +156,9 @@ class OrcamentoTradicionalControllerTest {
     void deveCriarOrcamentoComSucesso() throws Exception {
         orcamentoTradicionalDto.setId(null);
         Mockito.when(orcamentoTradicionalRepository.save(orcamentoTradicionalCaptor.capture())).thenReturn(orcamentoTradicional);
+        Mockito.when(usuarioRepository.findById(any())).thenReturn(Optional.of(UsuarioEntity.builder().id(UUID.randomUUID().toString()).plano(Plano.PLUS).build()));
+        Mockito.when(orcamentoTradicionalRepository.findByIdUsuario(anyString(), any())).thenReturn(pageOrcamentos);
+        Mockito.when(orcamentoRepository.findByIdUsuario(anyString(), any())).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(post("/orcamentos/tradicionais")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -64,14 +64,19 @@ public class ArquivoDataProvider implements ArquivoGateway {
         String key = "pdf/" + nomeArquivo + ".pdf";
         byte[] pdfBytes = renderHtmlToPdf(html);
 
-        var putReq = software.amazon.awssdk.services.s3.model.PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .contentType("application/pdf")
-                .acl(software.amazon.awssdk.services.s3.model.ObjectCannedACL.PRIVATE)
-                .build();
+        try {
+            var putReq = software.amazon.awssdk.services.s3.model.PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType("application/pdf")
+                    .acl(software.amazon.awssdk.services.s3.model.ObjectCannedACL.PRIVATE)
+                    .build();
 
-        s3.putObject(putReq, software.amazon.awssdk.core.sync.RequestBody.fromBytes(pdfBytes));
+            s3.putObject(putReq, software.amazon.awssdk.core.sync.RequestBody.fromBytes(pdfBytes));
+        } catch (Exception ex) {
+            log.error("Erro ao salvar pdf.", ex);
+            throw new DataProviderException("Erro ao salvar pdf.", ex.getCause());
+        }
 
         return publicBaseUrl + key;
     }
@@ -90,8 +95,9 @@ public class ArquivoDataProvider implements ArquivoGateway {
                     .build();
 
             s3.putObject(putReq, software.amazon.awssdk.core.sync.RequestBody.fromInputStream(in, multipartFile.getSize()));
-        } catch (java.io.IOException e) {
-            throw new DataProviderException("Erro ao salvar logo", e);
+        } catch (Exception ex) {
+            log.error("Erro ao salvar logo", ex);
+            throw new DataProviderException("Erro ao salvar logo", ex.getCause());
         }
 
         return publicBaseUrl + key;

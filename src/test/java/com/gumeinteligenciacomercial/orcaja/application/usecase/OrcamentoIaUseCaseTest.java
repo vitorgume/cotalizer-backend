@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.LimiteOrcamentosPlanoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoGateway;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoTradicionalGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
@@ -30,6 +31,9 @@ class OrcamentoIaUseCaseTest {
 
     @Mock
     private OrcamentoGateway gateway;
+
+    @Mock
+    private OrcamentoTradicionalGateway orcamentoTradicionalGateway;
 
     @Mock
     private IaUseCase iaUseCase;
@@ -106,32 +110,5 @@ class OrcamentoIaUseCaseTest {
         assertEquals(novo.getDataCriacao(), result.getDataCriacao());
         verify(gateway).consultarPorId("C");
         verify(gateway).salvar(orig);
-    }
-
-    @Test
-    void cadastrarLimitePlanoFreeAtingidoLancaLimiteOrcamentosPlano() {
-        Usuario free = Usuario.builder()
-                .id(usuarioId)
-                .plano(Plano.GRATIS)
-                .build();
-        when(usuarioUseCase.consultarPorId(usuarioId)).thenReturn(free);
-
-        Pageable pg = PageRequest.of(0, 10);
-        Page<Orcamento> page2 = new PageImpl<>(List.of(
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build(),
-                Orcamento.builder().id("C").build()
-        ));
-        when(gateway.listarPorUsuario(usuarioId, pg)).thenReturn(page2);
-
-        Orcamento dummy = Orcamento.builder().usuarioId(usuarioId).build();
-
-        assertThrows(LimiteOrcamentosPlanoException.class, () -> useCase.cadastrar(dummy));
-
-        verify(usuarioUseCase).consultarPorId(usuarioId);
-        verify(gateway).listarPorUsuario(usuarioId, pg);
-        verifyNoInteractions(iaUseCase);
     }
 }

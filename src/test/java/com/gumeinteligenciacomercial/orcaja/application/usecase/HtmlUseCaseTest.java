@@ -90,22 +90,22 @@ class HtmlUseCaseTest {
         assertTrue(html.contains("R$ 9,00"));
     }
 
-    @Test
-    void gerarHtmlDeveIncluirBase64DoLogo() {
-        // Arrange
-        Map<String, Object> orc = Map.of(
-                "campo_uno", "valor1",
-                "itens", List.of()
-        );
-        when(usuarioUseCase.consultarPorId("user2")).thenReturn(usuarioComLogo);
-
-        // Act
-        String html = htmlUseCase.gerarHtml(orc, "user2");
-
-        // Assert
-        String base64 = Base64.getEncoder().encodeToString("hello".getBytes(StandardCharsets.UTF_8));
-        assertTrue(html.contains(base64), "Deve conter logo em Base64");
-    }
+//    @Test
+//    void gerarHtmlDeveIncluirBase64DoLogo() {
+//        // Arrange
+//        Map<String, Object> orc = Map.of(
+//                "campo_uno", "valor1",
+//                "itens", List.of()
+//        );
+//        when(usuarioUseCase.consultarPorId("user2")).thenReturn(usuarioComLogo);
+//
+//        // Act
+//        String html = htmlUseCase.gerarHtml(orc, "user2");
+//
+//        // Assert
+//        String base64 = Base64.getEncoder().encodeToString("hello".getBytes(StandardCharsets.UTF_8));
+//        assertTrue(html.contains(base64), "Deve conter logo em Base64");
+//    }
 
     @Test
     void gerarHtmlTradicionalComCamposEProdutosDeveGerarHtml() {

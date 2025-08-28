@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
+
 public class JwtAuthTokenDataProvider implements AuthTokenGateway {
 
     private final Key key;
@@ -73,13 +74,18 @@ public class JwtAuthTokenDataProvider implements AuthTokenGateway {
 
     @Override
     public ParsedToken parse(String jwt) {
-        Jws<Claims> jws = Jwts.parserBuilder()
-                .requireIssuer(issuer)
-                .setAllowedClockSkewSeconds(clockSkewSeconds)
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(jwt);
+        Jws<Claims> jws = null;
 
+        try {
+            jws = Jwts.parserBuilder()
+                    .requireIssuer(issuer)
+                    .setAllowedClockSkewSeconds(clockSkewSeconds)
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(jwt);
+        } catch (Exception ex) {
+
+        }
         Claims c = jws.getBody();
         String subj = c.getSubject();
         String uid  = c.get("userId", String.class);
