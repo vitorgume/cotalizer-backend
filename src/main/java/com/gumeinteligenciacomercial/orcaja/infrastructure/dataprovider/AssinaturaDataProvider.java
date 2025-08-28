@@ -21,19 +21,24 @@ public class AssinaturaDataProvider implements AssinaturaGateway {
     @Value("${security.api.key}")
     private final String API_ASSINATURAS_KEY;
 
+    @Value("${api.assinatura.url}")
+    private final String API_ASSINATURA_URL;
+
     public AssinaturaDataProvider(
             WebClient webClient,
-            @Value("${security.api.key}") String API_ASSINATURAS_KEY
+            @Value("${security.api.key}") String API_ASSINATURAS_KEY,
+            @Value("${api.assinatura.url}") String API_ASSINATURA_URL
     ) {
         this.webClient = webClient;
         this.API_ASSINATURAS_KEY = API_ASSINATURAS_KEY;
+        this.API_ASSINATURA_URL = API_ASSINATURA_URL;
     }
 
     @Override
     public void enviarNovaAssinatura(AssinaturaDto novaAssinatura) {
         try {
             webClient.post()
-                    .uri("http://localhost:8081/assinaturas")
+                    .uri(API_ASSINATURA_URL)
                     .header("x-api-key", API_ASSINATURAS_KEY)
                     .bodyValue(novaAssinatura)
                     .retrieve()
@@ -50,7 +55,7 @@ public class AssinaturaDataProvider implements AssinaturaGateway {
     public void enviarCancelamento(String idUsuario) {
         try {
             webClient.delete()
-                    .uri("http://localhost:8081/assinaturas/" + idUsuario)
+                    .uri(API_ASSINATURA_URL + idUsuario)
                     .header("x-api-key", API_ASSINATURAS_KEY)
                     .retrieve()
                     .bodyToMono(Map.class)
