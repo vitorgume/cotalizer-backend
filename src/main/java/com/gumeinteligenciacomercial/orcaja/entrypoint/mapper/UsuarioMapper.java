@@ -9,9 +9,16 @@ public class UsuarioMapper {
         return UsuarioDto.builder()
                 .id(domain.getId())
                 .cpf(domain.getCpf())
+                .cnpj(domain.getCnpj())
                 .email(domain.getEmail())
                 .nome(domain.getNome())
                 .telefone(domain.getTelefone())
+                .status(domain.getStatus())
+                .plano(domain.getPlano())
+                .idAssinatura(domain.getIdAssinatura())
+                .idCustomer(domain.getIdCustomer())
+                .urlLogo(domain.getUrlLogo())
+                .feedback(domain.getFeedback())
                 .build();
     }
 
@@ -19,10 +26,17 @@ public class UsuarioMapper {
         return Usuario.builder()
                 .id(dto.getId())
                 .cpf(dto.getCpf())
+                .cnpj(dto.getCnpj())
                 .email(dto.getEmail())
                 .nome(dto.getNome())
                 .telefone(dto.getTelefone())
                 .senha(dto.getSenha())
+                .status(dto.getStatus())
+                .plano(dto.getPlano())
+                .idCustomer(dto.getIdCustomer())
+                .idAssinatura(dto.getIdAssinatura())
+                .urlLogo(dto.getUrlLogo())
+                .feedback(dto.getFeedback())
                 .build();
     }
 }

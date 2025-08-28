@@ -1,35 +1,29 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
-import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentoUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentoIaUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.OrcamentosUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.OrcamentoMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("orcamentos")
 @RequiredArgsConstructor
 public class OrcamentoController {
 
-    private final OrcamentoUseCase useCase;
+    private final OrcamentoIaUseCase useCase;
+    private final OrcamentosUseCase orcamentosUseCase;
 
     @PostMapping
     public ResponseEntity<ResponseDto<OrcamentoDto>> gerar(@RequestBody OrcamentoDto novoOrcamento) {
-        OrcamentoDto resultado = OrcamentoMapper.paraDto(useCase.cadastrar(OrcamentoMapper.paraDomain(novoOrcamento)));
+        OrcamentoDto resultado = OrcamentoMapper.paraDto(orcamentosUseCase.cadastrarOrcamentoIa(OrcamentoMapper.paraDomain(novoOrcamento)));
         ResponseDto<OrcamentoDto> response = new ResponseDto<>(resultado);
         return ResponseEntity.created(
                 UriComponentsBuilder

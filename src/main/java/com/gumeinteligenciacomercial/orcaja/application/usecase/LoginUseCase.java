@@ -1,7 +1,9 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.CredenciasIncorretasException;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.LoginGateway;
+import com.gumeinteligenciacomercial.orcaja.domain.AuthResult;
 import com.gumeinteligenciacomercial.orcaja.domain.Login;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
@@ -14,26 +16,24 @@ import org.springframework.stereotype.Service;
 public class LoginUseCase {
 
     private final UsuarioUseCase usuarioUseCase;
-    private final LoginGateway gateway;
+    private final AuthTokenGateway tokenGateway;
     private final CriptografiaUseCase criptografiaUseCase;
 
-    public Login autenticar(Login login) {
-        log.info("Autenticando usuário. Dados login: {}", login);
+    public AuthResult autenticar(Login login) {
+        log.info("Autenticando usuário: {}", login.getEmail());
         Usuario usuario = usuarioUseCase.consultarPorEmail(login.getEmail());
-        this.validaCredencias(usuario, login.getEmail(), login.getSenha());
-        String token = gateway.generateToken(login.getEmail());
+        validaCredencias(usuario, login.getEmail(), login.getSenha());
 
-        log.info("Usuário autenticado com sucesso. Usuario: {}", usuario);
+        String access  = tokenGateway.generateAccessToken(usuario.getEmail(), usuario.getId(), null);
+        String refresh = tokenGateway.generateRefreshToken(usuario.getEmail(), usuario.getId());
 
-        return Login.builder()
-                .token(token)
-                .email(usuario.getEmail())
-                .usuarioId(usuario.getId())
-                .build();
+        log.info("Usuário autenticado. id={}", usuario.getId());
+        return new AuthResult(usuario, access, refresh);
     }
 
     private void validaCredencias(Usuario usuario, String email, String senha) {
-        if(!usuario.getEmail().equals(email) || !criptografiaUseCase.validaSenha(senha, usuario.getSenha())) {
+        if (usuario == null || !usuario.getEmail().equals(email) ||
+                !criptografiaUseCase.validaSenha(senha, usuario.getSenha())) {
             throw new CredenciasIncorretasException();
         }
     }

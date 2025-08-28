@@ -13,6 +13,11 @@ public class OrcajaApplication {
 		Dotenv dotenv = Dotenv.load();
 		System.setProperty("OPENIA_API_KEY", dotenv.get("OPENIA_API_KEY"));
 		System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
+		System.setProperty("SENHA_APP_GOOGLE", dotenv.get("SENHA_APP_GOOGLE"));
+		System.setProperty("EMAIL_GOOGLE", dotenv.get("EMAIL_GOOGLE"));
+		System.setProperty("GOOGLE_OAUTH_CLIENT_ID", dotenv.get("GOOGLE_OAUTH_CLIENT_ID"));
+		System.setProperty("GOOGLE_OAUTH_CLIENT_SECRET", dotenv.get("GOOGLE_OAUTH_CLIENT_SECRET"));
+		System.setProperty("SECURITY_API_KEY", dotenv.get("SECURITY_API_KEY"));
 
 		SpringApplication.run(OrcajaApplication.class, args);
 	}

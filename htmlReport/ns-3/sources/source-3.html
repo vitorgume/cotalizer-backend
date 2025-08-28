@@ -1,0 +1,147 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CodigoAlteracaoSenhaUseCase</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.application.usecase</a>
+</div>
+
+<h1>Coverage Summary for Class: CodigoAlteracaoSenhaUseCase (com.gumeinteligenciacomercial.orcaja.application.usecase)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CodigoAlteracaoSenhaUseCase</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.application.usecase;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalidoAlteracaoSenha;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.data.redis.core.RedisTemplate;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.util.concurrent.TimeUnit;
+&nbsp;
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class CodigoAlteracaoSenhaUseCase {
+&nbsp;
+&nbsp;    private final RedisTemplate&lt;String, String&gt; redisTemplate;
+&nbsp;    private final long TTL_MINUTES = 30;
+&nbsp;
+&nbsp;    public void adicionarAoCache(String idUsuario, String codigoAlteracaoSenha) {
+<b class="fc">&nbsp;        redisTemplate.opsForValue().set(&quot;codigo:&quot; + codigoAlteracaoSenha, idUsuario, TTL_MINUTES, TimeUnit.MINUTES);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    public String validaCodigoAlteracaoSenha(String codigo) {
+<b class="fc">&nbsp;        String idUsuario = redisTemplate.opsForValue().get(&quot;codigo:&quot; + codigo);</b>
+&nbsp;
+<b class="fc">&nbsp;        if(idUsuario != null) {</b>
+<b class="fc">&nbsp;            return idUsuario;</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            throw new CodigoInvalidoAlteracaoSenha();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

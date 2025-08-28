@@ -1,0 +1,266 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > UsuarioUseCase</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.application.usecase</a>
+</div>
+
+<h1>Coverage Summary for Class: UsuarioUseCase (com.gumeinteligenciacomercial.orcaja.application.usecase)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UsuarioUseCase</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78,6%
+  </span>
+  <span class="absValue">
+    (11/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    98,2%
+  </span>
+  <span class="absValue">
+    (56/57)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.application.usecase;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalidoValidacaoEmailException;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioJaCadastradoException;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;public class UsuarioUseCase {
+&nbsp;
+&nbsp;    private final UsuarioGateway gateway;
+&nbsp;    private final CriptografiaUseCase criptografiaUseCase;
+&nbsp;    private final EmailUseCase emailUseCase;
+&nbsp;    private final CodigoValidacaoUseCase codigoValidacaoUseCase;
+&nbsp;    private final CodigoAlteracaoSenhaUseCase codigoAlteracaoSenhaUseCase;
+&nbsp;
+&nbsp;    public Usuario cadastrar(Usuario usuario) {
+<b class="fc">&nbsp;        log.info(&quot;Cadastrando novo usuário. Usuário: {}&quot;, usuario);</b>
+<b class="fc">&nbsp;        Optional&lt;Usuario&gt; usuarioExistente = this.consultarPorCpf(usuario.getCpf());</b>
+&nbsp;
+<b class="fc">&nbsp;        usuarioExistente.ifPresent(us -&gt; {</b>
+<b class="fc">&nbsp;            throw new UsuarioJaCadastradoException();</b>
+&nbsp;        });
+&nbsp;
+<b class="fc">&nbsp;        usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));</b>
+&nbsp;
+<b class="pc">&nbsp;        if(usuario.getCpf() == null || usuario.getCnpj() == null) {</b>
+<b class="nc">&nbsp;            this.validacaoEmail(usuario.getEmail());</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);</b>
+<b class="fc">&nbsp;        usuario.setPlano(Plano.GRATIS);</b>
+&nbsp;
+<b class="fc">&nbsp;        Usuario usuarioSalvo = gateway.salvar(usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        log.info(&quot;Usuário salvo com sucesso. Usuário: {}&quot;, usuarioSalvo);</b>
+&nbsp;
+<b class="fc">&nbsp;        return usuarioSalvo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Usuario consultarPorId(String idUsuario) {
+<b class="fc">&nbsp;        log.info(&quot;Consultando usuário pelo seu id. Id do usuário: {}&quot;, idUsuario);</b>
+<b class="fc">&nbsp;        Optional&lt;Usuario&gt; usuario = gateway.consultarPorId(idUsuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        if(usuario.isEmpty()) {</b>
+<b class="fc">&nbsp;            throw new UsuarioNaoEncontradoException();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        log.info(&quot;Usuário consultado com sucesso pelo seu id. Usuário: {}&quot;, usuario.get());</b>
+&nbsp;
+<b class="fc">&nbsp;        return usuario.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Usuario inativar(String idUsuario) {
+<b class="fc">&nbsp;        log.info(&quot;Inativando usuario. Id usuario: {}&quot;, idUsuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        Usuario usuario = this.consultarPorId(idUsuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        usuario.setStatus(StatusUsuario.INATIVO);</b>
+&nbsp;
+<b class="fc">&nbsp;        usuario = gateway.salvar(usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        log.info(&quot;Inativação de usuário concluida com sucesso. Usuario: {}&quot;, usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        return usuario;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Usuario consultarPorEmail(String email) {
+<b class="fc">&nbsp;        log.info(&quot;Consultando usuário pelo seu email. Email: {}&quot;, email);</b>
+<b class="fc">&nbsp;        Optional&lt;Usuario&gt; usuario = gateway.consultarPorEmail(email);</b>
+&nbsp;
+<b class="fc">&nbsp;        if(usuario.isEmpty()) {</b>
+<b class="fc">&nbsp;            throw new UsuarioNaoEncontradoException();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        log.info(&quot;Usuário consultado com sucesso pelo seu email. Usuario: {}&quot;, usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        return usuario.get();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Usuario alterar(String id, Usuario novosDados) {
+<b class="fc">&nbsp;        log.info(&quot;Alterando dados do usuário. Id: {}, Novos dados: {}&quot;, id, novosDados);</b>
+&nbsp;
+<b class="fc">&nbsp;        Usuario usuario = consultarPorId(id);</b>
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;        if(!novosDados.getEmail().equals(usuario.getEmail())) {</b>
+<b class="fc">&nbsp;            this.validacaoEmail(novosDados.getEmail());</b>
+<b class="fc">&nbsp;            usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        usuario.setDados(novosDados);</b>
+&nbsp;
+<b class="fc">&nbsp;        usuario = gateway.salvar(usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        log.info(&quot;Alteração de dados do usuário concluida com sucesso. Usuario: {}&quot;, usuario);</b>
+&nbsp;
+<b class="fc">&nbsp;        return usuario;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public VerificacaoEmail validarCodigoVerificacao(String email, String codigo) {
+&nbsp;
+<b class="fc">&nbsp;        if(codigoValidacaoUseCase.validar(email, codigo)) {</b>
+<b class="fc">&nbsp;            Usuario usuario = this.consultarPorEmail(email);</b>
+<b class="fc">&nbsp;            usuario.setStatus(StatusUsuario.ATIVO);</b>
+<b class="fc">&nbsp;            alterar(usuario.getId(), usuario);</b>
+<b class="fc">&nbsp;            return VerificacaoEmail.builder().email(email).build();</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            throw new CodigoInvalidoValidacaoEmailException();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public void reenviarCodigoEmail(String email) {
+<b class="fc">&nbsp;        this.consultarPorEmail(email);</b>
+<b class="fc">&nbsp;        this.validacaoEmail(email);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Usuario alterarSenha(String novaSenha, String codigo) {
+<b class="fc">&nbsp;        String idUsuario = codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(codigo);</b>
+&nbsp;
+<b class="fc">&nbsp;        Usuario usuario = this.consultarPorId(idUsuario);</b>
+&nbsp;
+<b class="pc">&nbsp;        if(idUsuario != null) {</b>
+<b class="fc">&nbsp;            String novaSenhaCriptografada = criptografiaUseCase.criptografar(novaSenha);</b>
+<b class="fc">&nbsp;            usuario.setSenha(novaSenhaCriptografada);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return gateway.salvar(usuario);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void validacaoEmail(String email) {
+<b class="fc">&nbsp;        String codigo = codigoValidacaoUseCase.gerarCodigo(email);</b>
+<b class="fc">&nbsp;        emailUseCase.enviarCodigoVerificacao(email, codigo);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Optional&lt;Usuario&gt; consultarPorCpf(String cpf) {
+<b class="fc">&nbsp;        return gateway.consultarPorCpf(cpf);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > OrcamentoTradicionalDto</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.gumeinteligenciacomercial.orcaja.entrypoint.dto</a>
+</div>
+
+<h1>Coverage Summary for Class: OrcamentoTradicionalDto (com.gumeinteligenciacomercial.orcaja.entrypoint.dto)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">OrcamentoTradicionalDto</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
+&nbsp;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+&nbsp;import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
+&nbsp;import lombok.*;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.time.LocalDate;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@AllArgsConstructor
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@ToString
+&nbsp;@Builder
+&nbsp;public class OrcamentoTradicionalDto {
+&nbsp;    private String id;
+&nbsp;    private String cliente;
+&nbsp;    private String cnpjCpf;
+&nbsp;    private List&lt;ProdutoOrcamentoDto&gt; produtos;
+&nbsp;    private String observacoes;
+&nbsp;    private List&lt;CampoPersonalizadoDto&gt; camposPersonalizados;
+&nbsp;    private String urlArquivo;
+&nbsp;    private String idUsuario;
+&nbsp;    private BigDecimal valorTotal;
+&nbsp;    private TipoOrcamento tipoOrcamento;
+&nbsp;    private StatusOrcamento status;
+&nbsp;    private LocalDate dataCriacao;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-08-08 10:44</div>
+</div>
+</body>
+</html>

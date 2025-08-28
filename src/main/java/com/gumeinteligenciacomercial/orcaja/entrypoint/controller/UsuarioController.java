@@ -1,6 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.AlteracaoSenhaDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ResponseDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.mapper.UsuarioMapper;
@@ -23,7 +25,7 @@ public class UsuarioController {
         return ResponseEntity.created(
                 UriComponentsBuilder
                         .newInstance()
-                        .path("/usuarios/{id}")
+                        .path("/usuarios/cadastro/{id}")
                         .buildAndExpand(resultado.getId())
                         .toUri())
                 .body(response);
@@ -36,9 +38,30 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable("id") String idUsuario) {
-        useCase.deletar(idUsuario);
+    @PostMapping("/reenvio/codigo")
+    public ResponseEntity<Void> reenviarCodigo(@RequestBody UsuarioDto usuarioDto) {
+        useCase.reenviarCodigoEmail(usuarioDto.getEmail());
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/inativar/{id}")
+    public ResponseEntity<ResponseDto<UsuarioDto>> inativar(@PathVariable("id") String idUsuario) {
+        UsuarioDto resultado = UsuarioMapper.paraDto(useCase.inativar(idUsuario));
+        ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseDto<UsuarioDto>> alterar(@PathVariable("id") String id, @RequestBody UsuarioDto novosDados) {
+        UsuarioDto resultado = UsuarioMapper.paraDto(useCase.alterar(id, UsuarioMapper.paraDomain(novosDados)));
+        ResponseDto<UsuarioDto> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/alterar/senha")
+    public ResponseEntity<ResponseDto<Usuario>> alterarSenha(@RequestBody AlteracaoSenhaDto alteracaoSenhaDto) {
+        Usuario resultado = useCase.alterarSenha(alteracaoSenhaDto.getNovaSenha(), alteracaoSenhaDto.getCodigo());
+        ResponseDto<Usuario> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
     }
 }
