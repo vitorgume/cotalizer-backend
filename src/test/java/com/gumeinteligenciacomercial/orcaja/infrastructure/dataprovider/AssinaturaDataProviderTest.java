@@ -58,7 +58,7 @@ class AssinaturaDataProviderTest {
 
     @BeforeEach
     void setUp() {
-        provider = new AssinaturaDataProvider(webClient, API_KEY);
+        provider = new AssinaturaDataProvider(webClient, API_KEY, URL_BASE);
     }
 
     @Test
