@@ -164,13 +164,13 @@ public class SecurityConfig {
 
     @Bean
     public CookieCsrfTokenRepository csrfTokenRepository(
-            @Value("${app.security.csrf.secure:false}") boolean secure
+            @Value("${app.security.csrf.secure}") boolean secure
     ) {
         var repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
         repo.setCookieCustomizer(c -> c
                 .path("/")
                 .httpOnly(false)
-                .secure(secure)   // true em produção HTTPS
+                .secure(secure)
                 .sameSite("Lax")
         );
         return repo;
