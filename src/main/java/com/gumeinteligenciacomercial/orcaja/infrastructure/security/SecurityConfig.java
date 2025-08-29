@@ -171,7 +171,7 @@ public class SecurityConfig {
                 .path("/")
                 .httpOnly(false)
                 .secure(secure)
-                .sameSite("Lax")
+                .sameSite("None")
         );
         return repo;
     }
