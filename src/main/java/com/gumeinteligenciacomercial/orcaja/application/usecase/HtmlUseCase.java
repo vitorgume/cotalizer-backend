@@ -10,11 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -145,11 +150,20 @@ public class HtmlUseCase {
             String totalStr = subtotalStr;
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
+            String logoPath = usuario.getUrlLogo(); // ex: "/arquivos/acessar/tenants/.../logo.png"
+            String backendBase = System.getenv().getOrDefault("APP_BASE_URL", "https://cotalizer-backend.onrender.com");
+            String logoUrlAbs = null;
 
-            String logoUrl = usuario.getUrlLogo();
+            if (logoPath != null && !logoPath.isBlank()) {
+                logoUrlAbs = logoPath.startsWith("http")
+                        ? logoPath
+                        : backendBase.replaceAll("/$", "") + (logoPath.startsWith("/") ? logoPath : "/" + logoPath);
+            }
+
+            String logoSrc = (logoUrlAbs != null) ? toDataUri(logoUrlAbs) : "";  // "data:image/png;base64,...."
 
             return htmlTemplate
-                    .replace("${logo_src}", logoUrl)
+                    .replace("${logo_src}", logoSrc)
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))
@@ -178,5 +192,30 @@ public class HtmlUseCase {
         return Arrays.stream(chave.split("_"))
                 .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
                 .collect(Collectors.joining(" "));
+    }
+
+    private String toDataUri(String absoluteUrl) {
+        try {
+            var client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build();
+
+            var req = HttpRequest.newBuilder(URI.create(absoluteUrl))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            var res = client.send(req, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (res.statusCode() >= 200 && res.statusCode() < 300) {
+                var ct = res.headers().firstValue("Content-Type").orElse("image/png");
+                var b64 = Base64.getEncoder().encodeToString(res.body());
+                return "data:" + ct + ";base64," + b64;
+            }
+        } catch (Exception e) {
+            // logue e siga sem logo
+            log.warn("Falha ao embutir logo em base64", e);
+        }
+        return null;
     }
 }
