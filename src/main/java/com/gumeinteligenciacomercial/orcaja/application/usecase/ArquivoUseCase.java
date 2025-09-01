@@ -73,7 +73,10 @@ public class ArquivoUseCase {
     }
 
     public Resource acessarArquivo(String keyOuNomeArquivo) {
-        return gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
+        log.info("Acessando arquivo. Nome: {}", keyOuNomeArquivo);
+        Resource resource = gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
+        log.info("Arquivo acessado com sucesso. Resource: {}", resource);
+        return resource;
     }
 
     public Resource downloadArquivo(String keyOuNomeArquivo) {
