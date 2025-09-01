@@ -22,10 +22,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +85,8 @@ public class HtmlUseCase {
             String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";
 
             String htmlFinal = htmlTemplate
-                    .replace("${logoSrc}", logoSrc)
+                    .replace("${logo_src}", logoSrc)
+                    .replace("${id}", escapeHtml(UUID.randomUUID().toString()))
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
