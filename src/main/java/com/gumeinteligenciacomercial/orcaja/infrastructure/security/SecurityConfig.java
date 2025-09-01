@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "default-src 'self'; img-src 'self' data: https:; media-src 'self' https:; object-src 'none'; " +
-                                        "frame-ancestors 'self' http://localhost:5173 http://127.0.0.1:5173"
+                                        "frame-ancestors 'self' https://cotalizer-frontend.onrender.com"
                         ))
                 )
                 .authorizeHttpRequests(a -> a

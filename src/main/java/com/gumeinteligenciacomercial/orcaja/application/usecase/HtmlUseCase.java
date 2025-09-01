@@ -85,10 +85,10 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoUrl = usuario.getUrlLogo();
+            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";
 
             String htmlFinal = htmlTemplate
-                    .replace("${logoSrc}", logoUrl)
+                    .replace("${logoSrc}", logoSrc)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
