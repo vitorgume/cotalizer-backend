@@ -60,7 +60,7 @@ public class ArquivoUseCase {
 
         String logoPathRelativo = gateway.salvarLogo(usuario.getId(), multipartFile);
 
-        usuario.setUrlLogo(logoPathRelativo);
+        usuario.setUrlLogo("https://cotalizer-backend.onrender.com" + logoPathRelativo);
         usuarioUseCase.alterar(usuario.getId(), usuario);
 
         return logoPathRelativo;

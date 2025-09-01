@@ -97,7 +97,7 @@ public class HtmlUseCase {
                 }
             }
             String htmlFinal = htmlTemplate
-                    .replace("${logoSrc}", logoSrc)
+                    .replace("${logoSrc}", "https://cotalizer-backend.onrender.com" + logoSrc)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
@@ -178,7 +178,7 @@ public class HtmlUseCase {
             }
 
             return htmlTemplate
-                    .replace("${logo_src}", logoSrc)                // <<< novo placeholder
+                    .replace("${logo_src}", "https://cotalizer-backend.onrender.com" + logoSrc)                // <<< novo placeholder
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))
