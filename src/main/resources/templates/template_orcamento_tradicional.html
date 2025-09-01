@@ -14,14 +14,6 @@
             color: #212529;
         }
         .invoice-container { width: 100%; margin: 0; padding: 0; }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
 
         .header {
             display: flex;
@@ -31,6 +23,29 @@
             padding-bottom: 10px;
             margin-bottom: 10px;
         }
+
+        .header-table {
+    width: 100%;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 10px;
+    border-collapse: collapse;
+  }
+  .logo-cell {
+    width: 180px;           /* largura máxima destinada à logo */
+    vertical-align: top;
+    padding: 0 8px 8px 0;
+  }
+  .logo-cell img {
+    display: block;
+    max-width: 180px;       /* garante que não estoure */
+    max-height: 64px;       /* altura desejada */
+  }
+  .info-cell {
+    text-align: right;
+    font-size: 13px;
+    vertical-align: top;
+    padding-bottom: 8px;
+  }
 
         .logo {
             flex: 0 0 auto;
@@ -131,17 +146,18 @@
 <body>
 <div class="invoice-container">
 
-    <div class="header">
-        <div class="logo-box">
-            <img src="${logo_src}" alt="Logo"/>
-        </div>
-
-        <div class="invoice-info">
-            <p><strong>Orçamento Tradicional</strong></p>
-            <p>Nº: ${id}</p>
-            <p>Data: ${data}</p>
-        </div>
-    </div>
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <img src="${logo_src}" alt="Logo">
+            </td>
+            <td class="info-cell">
+                <p><strong>Orçamento Tradicional</strong></p>
+                <p>Nº: ${id}</p>
+                <p>Data: ${data}</p>
+            </td>
+        </tr>
+    </table>
 
     <div class="client-section">
         <h3>Dados do Cliente</h3>
