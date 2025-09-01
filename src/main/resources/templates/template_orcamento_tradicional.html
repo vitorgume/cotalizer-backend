@@ -15,30 +15,31 @@
         }
         .invoice-container { width: 100%; margin: 0; padding: 0; }
 
-        .header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid #e9ecef;
-  padding-bottom:10px;
-  margin-bottom:10px;
-}
+        .header-table {
+            width: 100%;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 10px;
+           }
 
-/* Tamanho *alvo* da área da logo */
-.logo-box{
-  width:180px;           /* ajuste se quiser mais largo/estreito */
-  height:64px;           /* altura da área reservada */
-  display:flex;
-  align-items:center;
-}
+        .logo-cell {
+            width: 180px;         /* largura reservada à logo */
+            height: 64px;         /* altura alvo do bloco */
+            vertical-align: middle;
+        }
 
-/* A imagem nunca passa das bordas da caixa */
-.logo-box img{
-  display:block;
-  max-width:100%;
-  max-height:100%;
-}
+        .logo-cell img {
+            display: block;
+            max-width: 180px;     /* nunca ultrapassar o bloco */
+            max-height: 64px;
+            width: auto;
+            height: auto;
+        }
 
+        .info-cell {
+            text-align: right;
+            vertical-align: middle;
+            font-size: 13px;
+        }
 
         .invoice-info {
             text-align: right;
@@ -112,17 +113,18 @@
 <body>
 <div class="invoice-container">
 
-    <div class="header">
-        <div class="logo-box">
-            <img src="${logo_src}" alt="Logo" />
-        </div>
-
-        <div class="invoice-info">
-            <p><strong>Orçamento Tradicional</strong></p>
-            <p>Nº: ${id}</p>
-            <p>Data: ${data}</p>
-        </div>
-    </div>
+    <table class="header-table" role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="logo-cell">
+                <img src="${logo_src}" alt="Logo" />
+            </td>
+            <td class="info-cell">
+                <p><strong>Orçamento Tradicional</strong></p>
+                <p>Nº: ${id}</p>
+                <p>Data: ${data}</p>
+            </td>
+        </tr>
+    </table>
 
     <div class="client-section">
         <h3>Dados do Cliente</h3>
