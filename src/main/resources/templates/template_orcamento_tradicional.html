@@ -16,40 +16,29 @@
         .invoice-container { width: 100%; margin: 0; padding: 0; }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #e9ecef;
+  padding-bottom:10px;
+  margin-bottom:10px;
+}
 
-        .logo {
-            flex: 0 0 auto;
-            display: flex;
-            align-items: center;
-        }
+/* Tamanho *alvo* da área da logo */
+.logo-box{
+  width:180px;           /* ajuste se quiser mais largo/estreito */
+  height:64px;           /* altura da área reservada */
+  display:flex;
+  align-items:center;
+}
 
-        .logo img {
-            height: 80px !important;
-            width: auto   !important;
-        }
+/* A imagem nunca passa das bordas da caixa */
+.logo-box img{
+  display:block;
+  max-width:100%;
+  max-height:100%;
+}
 
-        /* Caixa “limitadora” da logo */
-        .logo-box {
-            width: 180px;   /* ajuste como preferir */
-            height: 64px;   /* altura alvo da logo */
-            display: flex;
-            align-items: center;
-        }
-
-        /* Regra da imagem da logo:
-        - max-100% nos dois e display:block é o combo mais compatível com PDF */
-        .logo-box img {
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-        }
 
         .invoice-info {
             text-align: right;
@@ -124,7 +113,9 @@
 <div class="invoice-container">
 
     <div class="header">
-        <img src="${logo_src}" alt="Logo" style="max-height:64px" />
+        <div class="logo-box">
+            <img src="${logo_src}" alt="Logo">
+        </div>
 
         <div class="invoice-info">
             <p><strong>Orçamento Tradicional</strong></p>
