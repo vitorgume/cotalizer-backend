@@ -8,12 +8,19 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+import java.net.URI;
 import java.util.Optional;
 
 @Component
@@ -29,28 +36,49 @@ public class ArquivoDataProvider implements ArquivoGateway {
             @Value("${app.storage.s3.bucket}") String bucket,
             @Value("${app.storage.s3.region}") String region,
             @Value("${app.storage.s3.endpoint:}") Optional<String> endpoint,
+            // credenciais (podem vir das ENVs)
+            @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
+            @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
+            @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
-        var cfg = software.amazon.awssdk.services.s3.S3Configuration.builder()
-                .pathStyleAccessEnabled(true)
+        var s3Cfg = S3Configuration.builder()
+                // path-style só quando usa endpoint S3-compatível (MinIO, etc.)
+                .pathStyleAccessEnabled(endpoint.filter(e -> !e.isBlank()).isPresent())
                 .build();
 
-        var s3Builder = software.amazon.awssdk.services.s3.S3Client.builder()
-                .region(software.amazon.awssdk.regions.Region.of(region))
-                .serviceConfiguration(cfg);
+        // Definição de credenciais
+        AwsCredentialsProvider credsProvider;
+        boolean hasStaticCreds = accessKey.filter(k -> !k.isBlank()).isPresent()
+                && secretKey.filter(s -> !s.isBlank()).isPresent();
 
-        var presignerBuilder = software.amazon.awssdk.services.s3.presigner.S3Presigner.builder()
-                .region(software.amazon.awssdk.regions.Region.of(region));
+        if (hasStaticCreds) {
+            var basic = sessionToken.filter(t -> !t.isBlank()).isPresent()
+                    ? software.amazon.awssdk.auth.credentials.AwsSessionCredentials.create(
+                    accessKey.get(), secretKey.get(), sessionToken.get())
+                    : AwsBasicCredentials.create(accessKey.get(), secretKey.get());
+            credsProvider = StaticCredentialsProvider.create(basic);
+        } else if (endpoint.filter(e -> !e.isBlank()).isPresent()) {
+            // endpoint custom (MinIO) quase sempre precisa credenciais explícitas
+            throw new IllegalStateException("Defina access-key/secret-key para endpoint S3 custom.");
+        } else {
+            // AWS real: deixa o DefaultCredentialsProvider (ENVs padrão, profile, role/IMDS)
+            credsProvider = DefaultCredentialsProvider.create();
+        }
 
+        var s3Builder = S3Client.builder()
+                .region(Region.of(region))
+                .serviceConfiguration(s3Cfg)
+                .credentialsProvider(credsProvider);
+
+        var presignerBuilder = S3Presigner.builder()
+                .region(Region.of(region))
+                .credentialsProvider(credsProvider);
 
         endpoint.filter(e -> !e.isBlank()).ifPresent(url -> {
-            var ep = java.net.URI.create(url);
-            s3Builder.endpointOverride(ep)
-                    .credentialsProvider(software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
-                            software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create("test", "test")));
-            presignerBuilder.endpointOverride(ep)
-                    .credentialsProvider(software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
-                            software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create("test", "test")));
+            var ep = URI.create(url);
+            s3Builder.endpointOverride(ep);
+            presignerBuilder.endpointOverride(ep);
         });
 
         this.s3 = s3Builder.build();
@@ -58,6 +86,7 @@ public class ArquivoDataProvider implements ArquivoGateway {
         this.bucket = bucket;
         this.publicBaseUrl = publicBaseUrl.endsWith("/") ? publicBaseUrl : publicBaseUrl + "/";
     }
+
 
     @Override
     public String salvarPdf(String nomeArquivo, String html) {
@@ -117,12 +146,21 @@ public class ArquivoDataProvider implements ArquivoGateway {
             final long len = in.response().contentLength() != null ? in.response().contentLength() : -1L;
 
             return new InputStreamResource(in) {
-                @Override public long contentLength() { return len; } // <- evita consumir o stream
-                @Override public String getFilename() {
+                @Override
+                public long contentLength() {
+                    return len;
+                } // <- evita consumir o stream
+
+                @Override
+                public String getFilename() {
                     int i = keyOuNomeArquivo.lastIndexOf('/');
                     return i >= 0 ? keyOuNomeArquivo.substring(i + 1) : keyOuNomeArquivo;
                 }
-                @Override public String getDescription() { return "S3 " + bucket + "/" + keyOuNomeArquivo; }
+
+                @Override
+                public String getDescription() {
+                    return "S3 " + bucket + "/" + keyOuNomeArquivo;
+                }
             };
         } catch (Exception ex) {
             log.error("Erro ao carregar arquivo.", ex);
@@ -136,7 +174,10 @@ public class ArquivoDataProvider implements ArquivoGateway {
         int i = filename.lastIndexOf('.');
         if (i < 0) return "png";
         String ext = filename.substring(i + 1).toLowerCase();
-        return switch (ext) { case "png","jpg","jpeg","svg","webp" -> ext; default -> "png"; };
+        return switch (ext) {
+            case "png", "jpg", "jpeg", "svg", "webp" -> ext;
+            default -> "png";
+        };
     }
 
     private static byte[] renderHtmlToPdf(String html) {
