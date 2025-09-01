@@ -80,9 +80,7 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            final String backendBaseUrl = "https://cotalizer-backend.onrender.com";
-            String logoPath = usuario.getUrlLogo();
-            String logoUrl = resolveLogoUrl(logoPath, backendBaseUrl);
+            String logoUrl = usuario.getUrlLogo();
 
             String htmlFinal = htmlTemplate
                     .replace("${logoSrc}", logoUrl)
@@ -148,9 +146,7 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
 
-            final String backendBaseUrl = "https://cotalizer-backend.onrender.com";
-            String logoPath = usuario.getUrlLogo();
-            String logoUrl = resolveLogoUrl(logoPath, backendBaseUrl);
+            String logoUrl = usuario.getUrlLogo();
 
             return htmlTemplate
                     .replace("${logo_src}", logoUrl)
@@ -183,27 +179,4 @@ public class HtmlUseCase {
                 .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
                 .collect(Collectors.joining(" "));
     }
-
-    private static boolean isAbsoluteUrl(String s) {
-        String u = s.toLowerCase();
-        return u.startsWith("http://") || u.startsWith("https://") || u.startsWith("data:");
-    }
-
-    private String resolveLogoUrl(String logoPath, String backendBaseUrl) {
-        if (logoPath == null || logoPath.isBlank()) return "";
-        String lp = logoPath.trim();
-
-        if (isAbsoluteUrl(lp)) {
-            return lp; // já é uma URL completa
-        }
-        // caminho relativo servido pelo backend (ex.: "/arquivos/acessar/...")
-        if (lp.startsWith("/")) {
-            // garante uma única barra na junção
-            return backendBaseUrl.endsWith("/") ? backendBaseUrl.substring(0, backendBaseUrl.length() - 1) + lp
-                    : backendBaseUrl + lp;
-        }
-        // fallback: trate como relativo sem barra
-        return backendBaseUrl.endsWith("/") ? backendBaseUrl + lp : backendBaseUrl + "/" + lp;
-    }
-
 }
