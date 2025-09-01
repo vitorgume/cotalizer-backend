@@ -150,17 +150,8 @@ public class HtmlUseCase {
             String totalStr = subtotalStr;
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
-            String logoPath = usuario.getUrlLogo(); // ex: "/arquivos/acessar/tenants/.../logo.png"
-            String backendBase = System.getenv().getOrDefault("APP_BASE_URL", "https://cotalizer-backend.onrender.com");
-            String logoUrlAbs = null;
 
-            if (logoPath != null && !logoPath.isBlank()) {
-                logoUrlAbs = logoPath.startsWith("http")
-                        ? logoPath
-                        : backendBase.replaceAll("/$", "") + (logoPath.startsWith("/") ? logoPath : "/" + logoPath);
-            }
-
-            String logoSrc = (logoUrlAbs != null) ? toDataUri(logoUrlAbs) : "";  // "data:image/png;base64,...."
+            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";  // "data:image/png;base64,...."
 
             return htmlTemplate
                     .replace("${logo_src}", logoSrc)
