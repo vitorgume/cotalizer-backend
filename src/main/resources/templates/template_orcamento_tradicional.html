@@ -146,18 +146,15 @@
 <body>
 <div class="invoice-container">
 
-    <table class="header-table">
-        <tr>
-            <td class="logo-cell">
-                <img src="${logo_src}" alt="Logo" style="max-height:64px"/>
-            </td>
-            <td class="info-cell">
-                <p><strong>Orçamento Tradicional</strong></p>
-                <p>Nº: ${id}</p>
-                <p>Data: ${data}</p>
-            </td>
-        </tr>
-    </table>
+    <div class="header">
+        <img src="${logo_src}" alt="Logo" style="max-height:64px" />
+
+        <div class="invoice-info">
+            <p><strong>Orçamento Tradicional</strong></p>
+            <p>Nº: ${id}</p>
+            <p>Data: ${data}</p>
+        </div>
+    </div>
 
     <div class="client-section">
         <h3>Dados do Cliente</h3>
