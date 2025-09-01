@@ -80,24 +80,12 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoSrc = "";
+            final String backendBaseUrl = "https://cotalizer-backend.onrender.com";
             String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                String lp = logoPath.trim();
-                if (lp.startsWith("http://") || lp.startsWith("https://")
-                        || lp.startsWith("data:") || lp.startsWith("file:")) {
-                    logoSrc = lp;
-                } else {
-                    try {
-                        logoSrc = Paths.get(lp).toUri().toString();
-                    } catch (InvalidPathException ex) {
-                        log.warn("Caminho de logo inválido: {}", lp, ex);
-                        logoSrc = "";
-                    }
-                }
-            }
+            String logoUrl = resolveLogoUrl(logoPath, backendBaseUrl);
+
             String htmlFinal = htmlTemplate
-                    .replace("${logoSrc}", "https://cotalizer-backend.onrender.com" + logoSrc)
+                    .replace("${logoSrc}", logoUrl)
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
@@ -160,25 +148,12 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
 
-            String logoSrc = "";
+            final String backendBaseUrl = "https://cotalizer-backend.onrender.com";
             String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                String lp = logoPath.trim();
-                if (lp.startsWith("http://") || lp.startsWith("https://")
-                        || lp.startsWith("data:") || lp.startsWith("file:")) {
-                    logoSrc = lp;
-                } else {
-                    try {
-                        logoSrc = Paths.get(lp).toUri().toString();
-                    } catch (InvalidPathException ex) {
-                        log.warn("Caminho de logo inválido: {}", lp, ex);
-                        logoSrc = "";
-                    }
-                }
-            }
+            String logoUrl = resolveLogoUrl(logoPath, backendBaseUrl);
 
             return htmlTemplate
-                    .replace("${logo_src}", "https://cotalizer-backend.onrender.com" + logoSrc)                // <<< novo placeholder
+                    .replace("${logo_src}", logoUrl)
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))
@@ -207,6 +182,28 @@ public class HtmlUseCase {
         return Arrays.stream(chave.split("_"))
                 .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
                 .collect(Collectors.joining(" "));
+    }
+
+    private static boolean isAbsoluteUrl(String s) {
+        String u = s.toLowerCase();
+        return u.startsWith("http://") || u.startsWith("https://") || u.startsWith("data:");
+    }
+
+    private String resolveLogoUrl(String logoPath, String backendBaseUrl) {
+        if (logoPath == null || logoPath.isBlank()) return "";
+        String lp = logoPath.trim();
+
+        if (isAbsoluteUrl(lp)) {
+            return lp; // já é uma URL completa
+        }
+        // caminho relativo servido pelo backend (ex.: "/arquivos/acessar/...")
+        if (lp.startsWith("/")) {
+            // garante uma única barra na junção
+            return backendBaseUrl.endsWith("/") ? backendBaseUrl.substring(0, backendBaseUrl.length() - 1) + lp
+                    : backendBaseUrl + lp;
+        }
+        // fallback: trate como relativo sem barra
+        return backendBaseUrl.endsWith("/") ? backendBaseUrl + lp : backendBaseUrl + "/" + lp;
     }
 
 }
