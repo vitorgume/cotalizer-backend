@@ -189,7 +189,8 @@ public class ArquivoDataProvider implements ArquivoGateway {
             renderer.finishPDF();
             return baos.toByteArray();
         } catch (Exception e) {
-            throw new com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException("Erro ao gerar PDF", e);
+            log.error("Erro ao gerar PDF", e);
+            throw new DataProviderException("Erro ao gerar PDF", e);
         }
     }
 
