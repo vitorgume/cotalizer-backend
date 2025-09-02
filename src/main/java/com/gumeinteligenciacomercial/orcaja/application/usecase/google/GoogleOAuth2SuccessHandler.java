@@ -32,9 +32,9 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String redirectUrl;
 
         if (usuario.getCnpj() != null || usuario.getCpf() != null) {
-            redirectUrl = "http://localhost:5173/menu?token=" + token;
+            redirectUrl = "https://cotalizer-frontend.onrender.com/menu?token=" + token;
         } else {
-            redirectUrl = "http://localhost:5173/login/sucesso?token=" + token;
+            redirectUrl = "https://cotalizer-frontend.onrender.com/login/sucesso?token=" + token;
         }
 
         response.sendRedirect(redirectUrl);

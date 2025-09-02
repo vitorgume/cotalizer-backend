@@ -35,11 +35,12 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        if(usuario.getCpf().isBlank() || usuario.getCnpj().isBlank()) {
-            this.validacaoEmail(usuario.getEmail());
-        }
+//        if(usuario.getCpf().isBlank() || usuario.getCnpj().isBlank()) {
+//            this.validacaoEmail(usuario.getEmail());
+//        }
 
-        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+//        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+        usuario.setStatus(StatusUsuario.ATIVO);
         usuario.setPlano(Plano.GRATIS);
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
