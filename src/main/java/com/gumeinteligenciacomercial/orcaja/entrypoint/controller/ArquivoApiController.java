@@ -61,4 +61,16 @@ public class ArquivoApiController {
                         .toUri()
         ).body(response);
     }
+
+    @DeleteMapping("/arquivo/{*nomeArquivo}")
+    public ResponseEntity<Void> deletarArquivo(@PathVariable("nomeArquivo")  String nomeArquivo) {
+        useCase.deletaArquivo(nomeArquivo);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/logo/{*nomeLogo}")
+    public ResponseEntity<Void> deletarLogo(@PathVariable("nomeLogo") String nomeLogo) {
+        useCase.deletarLogo(nomeLogo);
+        return ResponseEntity.noContent().build();
+    }
 }

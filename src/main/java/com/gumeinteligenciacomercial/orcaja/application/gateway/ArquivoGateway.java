@@ -9,5 +9,9 @@ public interface ArquivoGateway {
     String salvarLogo(String idUsuario, MultipartFile multipartFile);
 
     Resource carregarArquivo(String keyOuNomeArquivo);
+
+    void deletarArquivo(String nomeArquivo);
+
+    void deletarLogo(String nomeLogo);
 }
 

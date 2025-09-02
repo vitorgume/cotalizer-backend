@@ -8,12 +8,15 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -117,7 +120,7 @@ public class ArquivoDataProvider implements ArquivoGateway {
             final long len = in.response().contentLength() != null ? in.response().contentLength() : -1L;
 
             return new InputStreamResource(in) {
-                @Override public long contentLength() { return len; } // <- evita consumir o stream
+                @Override public long contentLength() { return len; }
                 @Override public String getFilename() {
                     int i = keyOuNomeArquivo.lastIndexOf('/');
                     return i >= 0 ? keyOuNomeArquivo.substring(i + 1) : keyOuNomeArquivo;
@@ -130,6 +133,105 @@ public class ArquivoDataProvider implements ArquivoGateway {
         }
 
     }
+
+    @Override
+    public void deletarArquivo(String nomeArquivo) {
+        String key = normalizeKey(nomeArquivo);
+        if (key.isBlank()) return;
+
+        try {
+            s3.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build());
+            log.info("Objeto removido do S3: {}/{}", bucket, key);
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404 || "NoSuchKey".equalsIgnoreCase(e.awsErrorDetails().errorCode())) {
+                log.warn("Objeto não encontrado para remover: {}/{}", bucket, key);
+                return;
+            }
+            log.error("Erro ao deletar objeto S3: {}/{}", bucket, key, e);
+            throw new DataProviderException("Erro ao deletar arquivo no S3.", e);
+        } catch (SdkClientException | AwsServiceException e) {
+            log.error("Falha cliente/AWS ao deletar objeto: {}/{}", bucket, key, e);
+            throw new DataProviderException("Erro ao deletar arquivo no S3.", e);
+        }
+    }
+
+    @Override
+    public void deletarLogo(String nomeLogo) {
+        String keyOrPrefix = normalizeKey(nomeLogo);
+        if (keyOrPrefix.isBlank()) return;
+
+        if (!hasExtension(keyOrPrefix)) {
+            deleteByPrefix(keyOrPrefix);
+        } else {
+            deletarArquivo(keyOrPrefix);
+        }
+    }
+
+    /* ===================== helpers ===================== */
+
+    private String normalizeKey(String nomeOuUrl) {
+        if (nomeOuUrl == null) return "";
+        String n = nomeOuUrl.trim();
+
+        String pub = publicBaseUrl;
+        if (n.startsWith(pub)) {
+            n = n.substring(pub.length());
+        } else if (n.startsWith("http://") || n.startsWith("https://")) {
+            int i = n.indexOf("/arquivos/acessar/");
+            if (i >= 0) n = n.substring(i + "/arquivos/acessar/".length());
+        }
+
+        if (n.startsWith("/")) n = n.substring(1);
+        return n;
+    }
+
+    private boolean hasExtension(String key) {
+        int slash = key.lastIndexOf('/');
+        int dot = key.lastIndexOf('.');
+        return dot > slash;
+    }
+
+    private void deleteByPrefix(String prefix) {
+        String p = prefix;
+
+        if (p.startsWith("/")) p = p.substring(1);
+
+        String token = null;
+        do {
+            var listReq = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(p)
+                    .continuationToken(token)
+                    .build();
+
+            var listResp = s3.listObjectsV2(listReq);
+            var contents = listResp.contents();
+
+            if (contents == null || contents.isEmpty()) {
+                log.info("Nenhum objeto com prefixo '{}' para remover.", p);
+                break;
+            }
+
+            List<ObjectIdentifier> toDelete = new ArrayList<>(contents.size());
+            for (var obj : contents) {
+                toDelete.add(ObjectIdentifier.builder().key(obj.key()).build());
+            }
+
+            var delReq = DeleteObjectsRequest.builder()
+                    .bucket(bucket)
+                    .delete(Delete.builder().objects(toDelete).build())
+                    .build();
+
+            s3.deleteObjects(delReq);
+            log.info("Removidos {} objetos com prefixo '{}' no bucket {}.", toDelete.size(), p, bucket);
+
+            token = listResp.isTruncated() ? listResp.nextContinuationToken() : null;
+        } while (token != null);
+    }
+
 
     private static String getExtOrPng(String filename) {
         if (filename == null) return "png";

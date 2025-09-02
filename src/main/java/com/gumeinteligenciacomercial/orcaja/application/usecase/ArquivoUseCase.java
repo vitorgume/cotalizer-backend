@@ -66,18 +66,25 @@ public class ArquivoUseCase {
         return logoPathRelativo;
     }
 
-
-    private String gerarNomeArquivo() {
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        return "ARQ-" + uuid.substring(0, 5);
-    }
-
     public Resource acessarArquivo(String keyOuNomeArquivo) {
         return gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
     }
 
     public Resource downloadArquivo(String keyOuNomeArquivo) {
         return gateway.carregarArquivo(keyOuNomeArquivo);
+    }
+
+    public void deletaArquivo(String nomeArquivo) {
+        gateway.deletarArquivo(nomeArquivo);
+    }
+
+    public void deletarLogo(String nomeLogo) {
+        gateway.deletarLogo(nomeLogo);
+    }
+
+    private String gerarNomeArquivo() {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return "ARQ-" + uuid.substring(0, 5);
     }
 
     private static String sanitizeKey(String key) {
