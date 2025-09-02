@@ -60,14 +60,17 @@ public class ArquivoUseCase {
 
         String logoPathRelativo = gateway.salvarLogo(usuario.getId(), multipartFile);
 
-        usuario.setUrlLogo(logoPathRelativo);
+        usuario.setUrlLogo("https://cotalizer-backend.onrender.com" + logoPathRelativo);
         usuarioUseCase.alterar(usuario.getId(), usuario);
 
         return logoPathRelativo;
     }
 
     public Resource acessarArquivo(String keyOuNomeArquivo) {
-        return gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
+        log.info("Acessando arquivo. Nome: {}", keyOuNomeArquivo);
+        Resource resource = gateway.carregarArquivo(sanitizeKey(keyOuNomeArquivo));
+        log.info("Arquivo acessado com sucesso. Resource: {}", resource);
+        return resource;
     }
 
     public Resource downloadArquivo(String keyOuNomeArquivo) {

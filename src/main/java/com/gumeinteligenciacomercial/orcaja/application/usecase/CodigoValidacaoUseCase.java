@@ -2,7 +2,9 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalidoValidacaoEmailException;
 import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +13,25 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CodigoValidacaoUseCase {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final long TTL_MINUTES = 10;
 
     public String gerarCodigo(String email) {
+        log.info("Gernado código para validação de email. Email: {}", email);
         String codigo = gerarCodigoVerificacao();
 
-        redisTemplate.opsForValue().set(email, codigo, TTL_MINUTES, TimeUnit.MINUTES);
+        try {
+            redisTemplate.opsForValue().set(email, codigo, TTL_MINUTES, TimeUnit.MINUTES);
+        } catch (Exception ex) {
+            log.error("Erro ao salvar código no redis.", ex);
+            throw new DataProviderException("Erro ao salvar código no redis.", ex.getCause());
+        }
 
+
+        log.info("Código gerado com sucesso. Código: {}", codigo);
         return codigo;
     }
 

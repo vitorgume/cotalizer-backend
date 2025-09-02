@@ -10,17 +10,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,24 +82,11 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoSrc = "";
-            String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                String lp = logoPath.trim();
-                if (lp.startsWith("http://") || lp.startsWith("https://")
-                        || lp.startsWith("data:") || lp.startsWith("file:")) {
-                    logoSrc = lp;
-                } else {
-                    try {
-                        logoSrc = Paths.get(lp).toUri().toString();
-                    } catch (InvalidPathException ex) {
-                        log.warn("Caminho de logo inválido: {}", lp, ex);
-                        logoSrc = "";
-                    }
-                }
-            }
+            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";
+
             String htmlFinal = htmlTemplate
-                    .replace("${logoSrc}", logoSrc)
+                    .replace("${logo_src}", logoSrc)
+                    .replace("${id}", escapeHtml(UUID.randomUUID().toString()))
                     .replace("${data}", dataFormatada)
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
@@ -160,25 +149,10 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
 
-            String logoSrc = "";
-            String logoPath = usuario.getUrlLogo();
-            if (logoPath != null && !logoPath.isBlank()) {
-                String lp = logoPath.trim();
-                if (lp.startsWith("http://") || lp.startsWith("https://")
-                        || lp.startsWith("data:") || lp.startsWith("file:")) {
-                    logoSrc = lp;
-                } else {
-                    try {
-                        logoSrc = Paths.get(lp).toUri().toString();
-                    } catch (InvalidPathException ex) {
-                        log.warn("Caminho de logo inválido: {}", lp, ex);
-                        logoSrc = "";
-                    }
-                }
-            }
+            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";  // "data:image/png;base64,...."
 
             return htmlTemplate
-                    .replace("${logo_src}", logoSrc)                // <<< novo placeholder
+                    .replace("${logo_src}", logoSrc)
                     .replace("${id}", escapeHtml(novoOrcamento.getId()))
                     .replace("${data}", data)
                     .replace("${cliente}", escapeHtml(novoOrcamento.getCliente()))
@@ -209,4 +183,28 @@ public class HtmlUseCase {
                 .collect(Collectors.joining(" "));
     }
 
+    private String toDataUri(String absoluteUrl) {
+        try {
+            var client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build();
+
+            var req = HttpRequest.newBuilder(URI.create(absoluteUrl))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            var res = client.send(req, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (res.statusCode() >= 200 && res.statusCode() < 300) {
+                var ct = res.headers().firstValue("Content-Type").orElse("image/png");
+                var b64 = Base64.getEncoder().encodeToString(res.body());
+                return "data:" + ct + ";base64," + b64;
+            }
+        } catch (Exception e) {
+            // logue e siga sem logo
+            log.warn("Falha ao embutir logo em base64", e);
+        }
+        return null;
+    }
 }
