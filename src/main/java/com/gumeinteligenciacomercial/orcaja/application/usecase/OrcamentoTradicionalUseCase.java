@@ -22,6 +22,7 @@ import java.util.Optional;
 public class OrcamentoTradicionalUseCase {
 
     private final OrcamentoTradicionalGateway gateway;
+    private final UsuarioUseCase usuarioUseCase;
 
     public OrcamentoTradicional cadastrar(OrcamentoTradicional novoOrcamento) {
         log.info("Cadastrando novo orçamento tradicional. Novo orçamento: {}", novoOrcamento);
@@ -31,6 +32,12 @@ public class OrcamentoTradicionalUseCase {
         novoOrcamento.setDataCriacao(LocalDate.now());
 
         OrcamentoTradicional orcamentoSalvo = gateway.salvar(novoOrcamento);
+
+        Usuario usuario = usuarioUseCase.consultarPorId(orcamentoSalvo.getIdUsuario());
+
+        usuario.somarOrcamentos();
+
+        usuarioUseCase.alterar(usuario.getId(), usuario);
 
         log.info("Novo orçamento tradicional cadastrado com sucesso.");
         return orcamentoSalvo;

@@ -26,6 +26,7 @@ public class OrcamentoIaUseCase {
 
     private final OrcamentoGateway gateway;
     private final IaUseCase iaUseCase;
+    private final UsuarioUseCase usuarioUseCase;
 
     public Orcamento cadastrar(Orcamento orcamento) {
         log.info("Cadastrando novo orçamento. Orçamento: {}", orcamento);
@@ -48,6 +49,13 @@ public class OrcamentoIaUseCase {
         orcamento.setValorTotal(valorTotal);
 
         Orcamento orcamentoSalvo = gateway.salvar(orcamento);
+
+        Usuario usuario = usuarioUseCase.consultarPorId(orcamentoSalvo.getUsuarioId());
+
+        usuario.somarOrcamentos();
+
+        usuarioUseCase.alterar(usuario.getId(), usuario);
+
         log.info("Orçamento cadastrado com sucesso. Orçamento salvo: {}", orcamentoSalvo);
         return orcamentoSalvo;
     }

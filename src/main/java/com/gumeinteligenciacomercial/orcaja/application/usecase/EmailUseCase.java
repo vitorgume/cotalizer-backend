@@ -16,12 +16,17 @@ public class EmailUseCase {
     @Value("${cotalizer.email.avaliacao}")
     private final String EMAIL_AVALIACAO;
 
+    @Value("${cotalizer.url.alteracao-email}")
+    private final String URL_ALTERACAO_EMAIL;
+
     public EmailUseCase(
             JavaMailSender mailSender,
-            @Value("${cotalizer.email.avaliacao}") String EMAIL_AVALIACAO
+            @Value("${cotalizer.email.avaliacao}") String EMAIL_AVALIACAO,
+            @Value("${cotalizer.url.alteracao-email}") String URL_ALTERACAO_EMAIL
     ) {
         this.mailSender = mailSender;
         this.EMAIL_AVALIACAO = EMAIL_AVALIACAO;
+        this.URL_ALTERACAO_EMAIL = URL_ALTERACAO_EMAIL;
     }
 
     public void enviarCodigoVerificacao(String email, String codigo) {
@@ -36,7 +41,7 @@ public class EmailUseCase {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Alteração de senha no Cotalizer");
-        message.setText("Acesse o seguinte link para alterar sua senha: " + "http://localhost:5173/usuario/alterar/senha/" + token);
+        message.setText("Acesse o seguinte link para alterar sua senha: " + URL_ALTERACAO_EMAIL + token);
         mailSender.send(message);
     }
 

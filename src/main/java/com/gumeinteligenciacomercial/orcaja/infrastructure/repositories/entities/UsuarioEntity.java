@@ -6,6 +6,8 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "usuraios")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,4 +30,6 @@ public class UsuarioEntity {
     private String idAssinatura;
     private String urlLogo;
     private Boolean feedback;
+    private Integer quantidadeOrcamentos;
+    private LocalDateTime dataCriacao;
 }

@@ -10,8 +10,11 @@ import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +45,8 @@ public class UsuarioUseCase {
 //        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
         usuario.setStatus(StatusUsuario.ATIVO);
         usuario.setPlano(Plano.GRATIS);
+        usuario.setQuantidadeOrcamentos(0);
+        usuario.setDataCriacao(LocalDateTime.now());
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 
@@ -139,6 +144,21 @@ public class UsuarioUseCase {
 
         return gateway.salvar(usuario);
     }
+
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void ajustarQuantidadeOrcamentoMensal() {
+        List<Usuario> usuarios = this.listar();
+
+        usuarios.forEach(usuario -> {
+            usuario.setQuantidadeOrcamentos(0);
+            this.alterar(usuario.getId(), usuario);
+        });
+    }
+
+    private List<Usuario> listar() {
+        return gateway.listar();
+    }
+
 
     private void validacaoEmail(String email) {
         String codigo = codigoValidacaoUseCase.gerarCodigo(email);

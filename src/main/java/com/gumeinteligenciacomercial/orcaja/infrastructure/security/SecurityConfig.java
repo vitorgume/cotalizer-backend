@@ -44,7 +44,8 @@ public class SecurityConfig {
     @Order(0)
     public SecurityFilterChain filesChain(
             HttpSecurity http,
-            @Qualifier("corsConfigurationSource") CorsConfigurationSource cors
+            @Qualifier("corsConfigurationSource") CorsConfigurationSource cors,
+            @Value("${app.fileschain-frontend-url}") String filesChainFrontendUrl
     ) throws Exception {
 
         http
@@ -58,7 +59,7 @@ public class SecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "default-src 'self'; img-src 'self' data: https:; media-src 'self' https:; object-src 'none'; " +
-                                        "frame-ancestors 'self' https://cotalizer-frontend.onrender.com"
+                                        "frame-ancestors 'self' " + filesChainFrontendUrl
                         ))
                 )
                 .authorizeHttpRequests(a -> a
@@ -164,14 +165,15 @@ public class SecurityConfig {
 
     @Bean
     public CookieCsrfTokenRepository csrfTokenRepository(
-            @Value("${app.security.csrf.secure}") boolean secure
+            @Value("${app.security.csrf.secure}") boolean secure,
+            @Value("${app.security.csrf.sameSite}") String sameSite
     ) {
         var repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
         repo.setCookieCustomizer(c -> c
                 .path("/")
                 .httpOnly(false)
                 .secure(secure)
-                .sameSite("None")
+                .sameSite(sameSite)
         );
         return repo;
     }

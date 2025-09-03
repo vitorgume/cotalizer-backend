@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ public class UsuarioDataProvider implements UsuarioGateway {
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar usuário pelo seu id.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_CPF = "Erro ao consultar usuário pelo seu cpf.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_EMAIL = "Erro ao consultar usuário pelo seu email.";
+    private final String MENSAGEM_ERRO_LISTAR_USUARIOS = "Erro ao listar usuários.";
 
     @Override
     public Usuario salvar(Usuario usuario) {
@@ -78,5 +80,19 @@ public class UsuarioDataProvider implements UsuarioGateway {
         }
 
         return usuarioEntity.map(UsuarioMapper::paraDomain);
+    }
+
+    @Override
+    public List<Usuario> listar() {
+        List<UsuarioEntity> usuarios;
+
+        try {
+            usuarios = repository.findAll();
+        } catch (Exception ex) {
+            log.info(MENSAGEM_ERRO_LISTAR_USUARIOS, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_LISTAR_USUARIOS, ex.getCause());
+        }
+
+        return usuarios.stream().map(UsuarioMapper::paraDomain).toList();
     }
 }

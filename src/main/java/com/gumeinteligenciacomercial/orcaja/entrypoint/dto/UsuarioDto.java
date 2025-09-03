@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -72,4 +74,10 @@ public class UsuarioDto {
 
     @JsonProperty("feedback")
     private Boolean feedback;
+
+    @JsonProperty("quantidade_orcamentos")
+    private Integer quantidadeOrcamentos;
+
+    @JsonProperty("data_criacao")
+    private LocalDateTime dataCriacao;
 }

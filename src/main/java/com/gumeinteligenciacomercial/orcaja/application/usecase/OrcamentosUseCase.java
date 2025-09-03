@@ -34,17 +34,8 @@ public class OrcamentosUseCase {
     }
 
     private void validarPlanoUsuario(Usuario usuario) {
-        Page<Orcamento> orcamentosIas = orcamentoIaUseCase.listarPorUsuario(usuario.getId(), PageRequest.of(0, 10));
-        Page<OrcamentoTradicional> orcamentoTradicionais = orcamentoTradicionalUseCase.listarPorUsuario(usuario.getId(), PageRequest.of(0, 10));
-
-        if(usuario.getPlano().getCodigo() == 0) {
-            if((orcamentosIas.getNumberOfElements() + orcamentoTradicionais.getNumberOfElements()) == usuario.getPlano().getLimiteOrcamentos() ) {
-                throw new LimiteOrcamentosPlanoException();
-            }
-        } else if (usuario.getPlano().getCodigo() == 1) {
-            if((orcamentosIas.getNumberOfElements() + orcamentoTradicionais.getNumberOfElements()) == usuario.getPlano().getLimiteOrcamentos()) {
-                throw new LimiteOrcamentosPlanoException();
-            }
+        if(usuario.getQuantidadeOrcamentos() == usuario.getPlano().getLimiteOrcamentos()) {
+            throw new LimiteOrcamentosPlanoException();
         }
     }
 }

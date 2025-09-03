@@ -24,13 +24,27 @@ public class IaUseCase {
     public Map<String, Object> gerarOrcamento(String conteudoOriginal) {
         log.info("Gerando orçamento com a IA. Conteudo: {}", conteudoOriginal);
 
-        PromptDto prompt = this.promptBuilder(conteudoOriginal);
-        OpenIaResponseDto responseIa = gateway.enviarMensagem(prompt);
-        Map<String, Object> objetoFormatado = JsonMapper.parseJsonToMap(responseIa.getChoices().getFirst().getMessage().getContent());
+        Map<String, Object> objetoFormatado = enviarParaIa(conteudoOriginal, 0);
 
         log.info("Orçamento gerado com sucesso. Orçamento: {}", objetoFormatado);
 
         return objetoFormatado;
+    }
+
+    private Map<String, Object> enviarParaIa(String conteudo, int limite) {
+        try {
+            PromptDto prompt = this.promptBuilder(conteudo);
+            OpenIaResponseDto responseIa = gateway.enviarMensagem(prompt);
+            return JsonMapper.parseJsonToMap(
+                    responseIa.getChoices().getFirst().getMessage().getContent()
+            );
+        } catch (Exception ex) {
+            if (limite < 3) {
+                return enviarParaIa(conteudo, limite + 1);
+            } else {
+                throw new RuntimeException("Erro ao gerar orçamento com a IA", ex);
+            }
+        }
     }
 
     private PromptDto promptBuilder(String conteudoOriginal) {

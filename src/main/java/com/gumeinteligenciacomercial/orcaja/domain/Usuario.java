@@ -2,6 +2,8 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @AllArgsConstructor
 @Getter
@@ -22,6 +24,8 @@ public class Usuario {
     private String idAssinatura;
     private String urlLogo;
     private Boolean feedback;
+    private Integer quantidadeOrcamentos;
+    private LocalDateTime dataCriacao;
 
     public void setDados(Usuario usuario) {
         this.nome = usuario.getNome();
@@ -35,5 +39,10 @@ public class Usuario {
         this.idAssinatura = usuario.getIdAssinatura();
         this.urlLogo = usuario.getUrlLogo();
         this.feedback = usuario.getFeedback();
+        this.quantidadeOrcamentos = usuario.getQuantidadeOrcamentos();
+    }
+
+    public void somarOrcamentos() {
+        setQuantidadeOrcamentos(this.quantidadeOrcamentos + 1);
     }
 }

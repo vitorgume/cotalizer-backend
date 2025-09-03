@@ -202,7 +202,6 @@ public class HtmlUseCase {
                 return "data:" + ct + ";base64," + b64;
             }
         } catch (Exception e) {
-            // logue e siga sem logo
             log.warn("Falha ao embutir logo em base64", e);
         }
         return null;

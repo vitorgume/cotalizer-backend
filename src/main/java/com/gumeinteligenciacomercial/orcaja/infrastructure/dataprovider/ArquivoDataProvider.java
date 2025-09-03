@@ -174,7 +174,7 @@ public class ArquivoDataProvider implements ArquivoGateway {
         try {
             s3.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucket)
-                    .key(key)
+                    .key("pdf/" + key)
                     .build());
             log.info("Objeto removido do S3: {}/{}", bucket, key);
         } catch (S3Exception e) {

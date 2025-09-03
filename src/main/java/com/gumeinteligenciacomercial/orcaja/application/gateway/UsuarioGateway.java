@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.application.gateway;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,4 +14,6 @@ public interface UsuarioGateway {
     Optional<Usuario> consultarPorCpf(String cpf);
 
     Optional<Usuario> consultarPorEmail(String email);
+
+    List<Usuario> listar();
 }
