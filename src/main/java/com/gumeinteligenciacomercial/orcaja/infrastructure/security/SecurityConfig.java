@@ -93,7 +93,11 @@ public class SecurityConfig {
                                 org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults().matcher("/oauth2/**"),
                                 org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults().matcher("/arquivos/**"),
                                 org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/auth/refresh"),
-                                org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/auth/logout")
+                                org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/auth/logout"),
+                                org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
+                                        .withDefaults().matcher(HttpMethod.POST, "/usuarios/cadastro"),
+                                org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
+                                        .withDefaults().matcher(HttpMethod.POST, "/auth/login")
                         )
                 )
                 .cors(c -> c.configurationSource(cors))

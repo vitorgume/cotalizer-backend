@@ -38,12 +38,11 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-//        if(usuario.getCpf().isBlank() || usuario.getCnpj().isBlank()) {
-//            this.validacaoEmail(usuario.getEmail());
-//        }
+        if(usuario.getCpf().isBlank() || usuario.getCnpj().isBlank()) {
+            this.validacaoEmail(usuario.getEmail());
+        }
 
-//        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
-        usuario.setStatus(StatusUsuario.ATIVO);
+        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
         usuario.setPlano(Plano.GRATIS);
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
