@@ -82,7 +82,7 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";
+            String logoSrc = (usuario.getUrlLogo().isBlank()) ? toDataUri(usuario.getUrlLogo()) : "";
 
             String htmlFinal = htmlTemplate
                     .replace("${logo_src}", logoSrc)

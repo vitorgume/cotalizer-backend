@@ -16,8 +16,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 @Configuration
-@Profile("!test")
+@Profile("prod")
 public class RedisConfig {
+
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(
             @Value("${spring.redis.url:}") String springUrl,

@@ -38,10 +38,9 @@ public class ArquivoDataProvider implements ArquivoGateway {
     public ArquivoDataProvider(
             @Value("${app.storage.s3.bucket}") String bucket,
             @Value("${app.storage.s3.region}") String region,
-            @Value("${app.storage.s3.endpoint:}") Optional<String> endpoint,
-            // credenciais (podem vir das ENVs)
-            @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
-            @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
+            @Value("${app.storage.s3.endpoint}") Optional<String> endpoint,
+            @Value("${app.storage.s3.access-key}") Optional<String> accessKey,
+            @Value("${app.storage.s3.secret-key}") Optional<String> secretKey,
             @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
