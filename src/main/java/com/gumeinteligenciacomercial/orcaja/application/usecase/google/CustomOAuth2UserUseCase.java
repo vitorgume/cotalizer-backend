@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
@@ -40,7 +42,7 @@ public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequ
             Usuario novo = Usuario.builder()
                     .nome(nome)
                     .email(email)
-                    .senha("test")
+                    .senha(UUID.randomUUID().toString())
                     .plano(Plano.GRATIS)
                     .build();
             usuarioUseCase.cadastrar(novo);
