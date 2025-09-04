@@ -17,9 +17,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomOidUserUseCase implements OAuth2UserService<OidcUserRequest, OidcUser> {
-
+    
     private final UsuarioUseCase usuarioUseCase;
-    private final OidcUserService delegate;
+    private final OidcUserService delegate = new OidcUserService();;
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
