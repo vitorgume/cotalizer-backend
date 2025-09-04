@@ -40,7 +40,7 @@ class ArquivoDataProviderTest {
                 Optional.empty(),
                 null,
                 null,
-                null,
+                false,
                 ""
         );
         setPrivateField(provider, "s3", s3);
