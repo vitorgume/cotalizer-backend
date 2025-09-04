@@ -63,6 +63,7 @@ public class LoginController {
         LoginDto loginDto = LoginDto.builder()
                 .usuarioId(result.getUsuario().getId())
                 .token(result.getAccessToken())
+                .refreshToken(result.getRefreshToken())
                 .build();
 
         return ResponseEntity.ok(new ResponseDto<>(loginDto));
@@ -70,18 +71,23 @@ public class LoginController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ResponseDto<AcessTokenResponseDto>> refresh(
-            @CookieValue(name = REFRESH_COOKIE, required = false) String refreshCookie,
+            @CookieValue(name = REFRESH_COOKIE, required = false) String rtCookie,
+            @RequestHeader(value = "X-Refresh-Token", required = false) String rtHeader,
             HttpServletResponse res
     ) {
-        if (refreshCookie == null || refreshCookie.isBlank()) return ResponseEntity.status(401).build();
+        String refresh = (rtHeader != null && !rtHeader.isBlank()) ? rtHeader : rtCookie;
+        if (refresh == null || refresh.isBlank()) return ResponseEntity.status(401).build();
 
-        RefreshResult result = refreshSessionUseCase.renovar(refreshCookie);
+        RefreshResult result = refreshSessionUseCase.renovar(refresh);
 
-        addRefreshCookie(res, result.getNewRefreshToken());
+        // opcional: continuar setando cookie p/ Chrome/Firefox
+        // addRefreshCookie(res, result.getNewRefreshToken());
 
-        deleteLegacyCookies(res);
-
-        return ResponseEntity.ok(new ResponseDto<>(new AcessTokenResponseDto(result.getNewAccessToken())));
+        // >>> IMPORTANTE: retorne o novo RT no corpo para o modo "header" poder girar o token
+        return ResponseEntity.ok(new ResponseDto<>(new AcessTokenResponseDto(
+                result.getNewAccessToken(),
+                result.getNewRefreshToken()
+        )));
     }
 
     @GetMapping("/me")

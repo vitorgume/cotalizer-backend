@@ -13,5 +13,6 @@ public class LoginDto {
     private String email;
     private String senha;
     private String token;
+    private String refreshToken;
     private String usuarioId;
 }
