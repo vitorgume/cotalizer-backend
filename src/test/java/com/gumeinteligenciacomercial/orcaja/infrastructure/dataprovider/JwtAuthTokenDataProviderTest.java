@@ -21,7 +21,7 @@ class JwtAuthTokenDataProviderTest {
             int refreshDays,
             long clockSkewSeconds
     ) {
-        return new JwtAuthTokenDataProvider(secret, issuer, accessMinutes, refreshDays, clockSkewSeconds);
+        return new JwtAuthTokenDataProvider(secret, "", issuer, accessMinutes, refreshDays, clockSkewSeconds);
     }
 
     // Segredo RAW (não-base64) com ≥ 32 bytes

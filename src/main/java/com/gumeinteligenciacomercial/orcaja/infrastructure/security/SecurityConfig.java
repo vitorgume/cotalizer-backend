@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security;
 
+import com.gumeinteligenciacomercial.orcaja.application.usecase.google.CustomOAuth2UserUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.google.GoogleOAuth2SuccessHandler;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -137,11 +138,15 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http,
+                                                         CustomOAuth2UserUseCase customOAuth2UserUseCase) throws Exception {
         http
                 .securityMatcher("/oauth2/**", "/login/oauth2/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .oauth2Login(oauth -> oauth.successHandler(googleOAuth2SuccessHandler))
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(u -> u.userService(customOAuth2UserUseCase))
+                        .successHandler(googleOAuth2SuccessHandler)
+                )
                 .csrf(csrf -> csrf.disable());
         return http.build();
     }
