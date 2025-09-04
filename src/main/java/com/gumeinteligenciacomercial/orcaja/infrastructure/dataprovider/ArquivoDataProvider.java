@@ -8,10 +8,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.*;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -38,53 +35,47 @@ public class ArquivoDataProvider implements ArquivoGateway {
     public ArquivoDataProvider(
             @Value("${app.storage.s3.bucket}") String bucket,
             @Value("${app.storage.s3.region}") String region,
-            @Value("${app.storage.s3.endpoint}") Optional<String> endpoint,
-            @Value("${app.storage.s3.access-key}") Optional<String> accessKey,
-            @Value("${app.storage.s3.secret-key}") Optional<String> secretKey,
+            @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
+            @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
             @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
+            @Value("${app.storage.s3.path-style:false}") boolean pathStyle,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
+        // Config S3: sem endpointOverride em produção
         var s3Cfg = S3Configuration.builder()
-                // path-style só quando usa endpoint S3-compatível (MinIO, etc.)
-                .pathStyleAccessEnabled(endpoint.filter(e -> !e.isBlank()).isPresent())
+                .pathStyleAccessEnabled(pathStyle) // true se bucket tiver "." no nome
                 .build();
 
-        // Definição de credenciais
+        // Credenciais
         AwsCredentialsProvider credsProvider;
-        boolean hasStaticCreds = accessKey.filter(k -> !k.isBlank()).isPresent()
-                && secretKey.filter(s -> !s.isBlank()).isPresent();
+        boolean hasAccess = accessKey.filter(k -> !k.isBlank()).isPresent();
+        boolean hasSecret = secretKey.filter(s -> !s.isBlank()).isPresent();
 
-        if (hasStaticCreds) {
-            var basic = sessionToken.filter(t -> !t.isBlank()).isPresent()
-                    ? software.amazon.awssdk.auth.credentials.AwsSessionCredentials.create(
-                    accessKey.get(), secretKey.get(), sessionToken.get())
-                    : AwsBasicCredentials.create(accessKey.get(), secretKey.get());
-            credsProvider = StaticCredentialsProvider.create(basic);
-        } else if (endpoint.filter(e -> !e.isBlank()).isPresent()) {
-            // endpoint custom (MinIO) quase sempre precisa credenciais explícitas
-            throw new IllegalStateException("Defina access-key/secret-key para endpoint S3 custom.");
+        if (hasAccess || hasSecret) {
+            if (!(hasAccess && hasSecret)) {
+                throw new IllegalStateException("Defina access-key e secret-key ou nenhuma das duas.");
+            }
+            credsProvider = sessionToken.filter(t -> !t.isBlank()).isPresent()
+                    ? StaticCredentialsProvider.create(
+                    AwsSessionCredentials.create(accessKey.get(), secretKey.get(), sessionToken.get()))
+                    : StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKey.get(), secretKey.get()));
         } else {
-            // AWS real: deixa o DefaultCredentialsProvider (ENVs padrão, profile, role/IMDS)
+            // AWS real: usa env/profile/role (DefaultCredentialsProvider)
             credsProvider = DefaultCredentialsProvider.create();
         }
 
-        var s3Builder = S3Client.builder()
+        this.s3 = S3Client.builder()
                 .region(Region.of(region))
                 .serviceConfiguration(s3Cfg)
-                .credentialsProvider(credsProvider);
+                .credentialsProvider(credsProvider)
+                .build();
 
-        var presignerBuilder = S3Presigner.builder()
+        this.presigner = S3Presigner.builder()
                 .region(Region.of(region))
-                .credentialsProvider(credsProvider);
+                .credentialsProvider(credsProvider)
+                .build();
 
-        endpoint.filter(e -> !e.isBlank()).ifPresent(url -> {
-            var ep = URI.create(url);
-            s3Builder.endpointOverride(ep);
-            presignerBuilder.endpointOverride(ep);
-        });
-
-        this.s3 = s3Builder.build();
-        this.presigner = presignerBuilder.build();
         this.bucket = bucket;
         this.publicBaseUrl = publicBaseUrl.endsWith("/") ? publicBaseUrl : publicBaseUrl + "/";
     }
