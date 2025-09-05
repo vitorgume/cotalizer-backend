@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.ia;
 
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.ErroEnviarParaIaException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.IaGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.MessagePromptIaDto;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.OpenIaResponseDto;
@@ -42,7 +43,7 @@ public class IaUseCase {
             if (limite < 3) {
                 return enviarParaIa(conteudo, limite + 1);
             } else {
-                throw new RuntimeException("Erro ao gerar orçamento com a IA", ex);
+                throw new ErroEnviarParaIaException();
             }
         }
     }

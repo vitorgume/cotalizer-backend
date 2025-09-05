@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Avaliacao;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +32,15 @@ class EmailUseCaseTest {
 
     @Value("${cotalizer.email.avaliacao}")
     private String EMAIL_NOVA_AVALIACAO;
+
+    @BeforeEach
+    void setUp() {
+        emailUseCase = new EmailUseCase(
+                mailSender,
+                "avaliacao@cotalizer.com", 
+                "http://localhost:5173/usuario/alterar/senha/"
+        );
+    }
 
     @Test
     void enviarCodigoVerificacaoDeveConfigurarEMandarEmailCorreto() {
