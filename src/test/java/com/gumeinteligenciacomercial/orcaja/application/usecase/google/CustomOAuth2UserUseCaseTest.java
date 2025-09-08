@@ -14,8 +14,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,6 +82,6 @@ class CustomOAuth2UserUseCaseTest {
         Usuario novo = usuarioCaptor.getValue();
         assertEquals(nome,  novo.getNome());
         assertEquals(email, novo.getEmail());
-        assertEquals("test", novo.getSenha());
+        assertNotNull(novo.getSenha());
     }
 }

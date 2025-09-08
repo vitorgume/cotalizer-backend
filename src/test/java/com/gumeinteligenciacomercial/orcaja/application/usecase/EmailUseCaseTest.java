@@ -30,8 +30,7 @@ class EmailUseCaseTest {
     @Captor
     private ArgumentCaptor<SimpleMailMessage> messageCaptor;
 
-    @Value("${cotalizer.email.avaliacao}")
-    private String EMAIL_NOVA_AVALIACAO;
+    private String EMAIL_NOVA_AVALIACAO = "avaliacao@cotalizer.com";
 
     @BeforeEach
     void setUp() {

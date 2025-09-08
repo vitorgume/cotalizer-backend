@@ -1,5 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.security.securityConfig;
 
+import com.gumeinteligenciacomercial.orcaja.application.usecase.google.CustomOAuth2UserUseCase;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.google.CustomOidUserUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.google.GoogleOAuth2SuccessHandler;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.SecurityConfig;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.security.jwt.JwtAuthFilter;
@@ -37,19 +39,24 @@ class SecurityIntegrationConfigTest {
     @MockitoBean
     private GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
 
+    @MockitoBean
+    private CustomOAuth2UserUseCase customOAuth2UserUseCase;
+
+    // << NOVO: requerido pelo método oauth2SecurityFilterChain(...)
+    @MockitoBean
+    private CustomOidUserUseCase customOidUserUseCase;
+
     @BeforeEach
     void setup() throws Exception {
-        // faz o mock “passar adiante” a requisição
+        // Deixa o JwtAuthFilter transparente no teste
         willAnswer(invocation -> {
-            ServletRequest req  = invocation.getArgument(0);
+            ServletRequest req = invocation.getArgument(0);
             ServletResponse res = invocation.getArgument(1);
-            FilterChain chain  = invocation.getArgument(2);
+            FilterChain chain = invocation.getArgument(2);
             chain.doFilter(req, res);
             return null;
         }).given(jwtAuthFilter)
-                .doFilter(any(ServletRequest.class),
-                        any(ServletResponse.class),
-                        any(FilterChain.class));
+                .doFilter(any(ServletRequest.class), any(ServletResponse.class), any(FilterChain.class));
     }
 
     @Test

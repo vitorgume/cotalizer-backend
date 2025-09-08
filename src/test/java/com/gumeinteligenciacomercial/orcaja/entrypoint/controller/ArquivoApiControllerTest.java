@@ -8,6 +8,8 @@ import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,8 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(
@@ -42,7 +43,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "cotalizer.email.avaliacao=EMAIL_TESTE",
                 "app.storage.s3.bucket=s3_teste",
                 "app.storage.s3.region=teste",
-                "app.files.public-base-url=teste"
+                "app.files.public-base-url=teste",
+                "api.assinatura.url=teste",
+                "cotalizer.url.alteracao-email=EMAIL_TESTE",
+                "google.redirect.menu.url=teste",
+                "google.redirect.login.url=teste",
+                "app.security.csrf.secure=false",
+                "app.security.csrf.sameSite=None"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
@@ -146,5 +153,29 @@ class ArquivoApiControllerTest {
                 .andExpect(jsonPath("$.dado.urlFoto").value("logos/u-1/logo.png"));
 
         verify(arquivoUseCase).cadastrarLogo(idUsuario, file);
+    }
+
+    @Test
+    void deveDeletarArquivoERetornar204() throws Exception {
+        String nomeArquivo = "/pasta/arquivo.";
+
+        BDDMockito.doNothing().when(arquivoUseCase).deletaArquivo(nomeArquivo);
+
+        mockMvc.perform(delete("/api/arquivos/arquivo/" + nomeArquivo))
+                .andExpect(status().isNoContent());
+
+        verify(arquivoUseCase).deletaArquivo(nomeArquivo);
+    }
+
+    @Test
+    void deveDeletarLogoERetornar204() throws Exception {
+        String nomeArquivo = "/pasta/logo.";
+
+        BDDMockito.doNothing().when(arquivoUseCase).deletarLogo(nomeArquivo);
+
+        mockMvc.perform(delete("/api/arquivos/logo/" + nomeArquivo))
+                .andExpect(status().isNoContent());
+
+        verify(arquivoUseCase).deletarLogo(nomeArquivo);
     }
 }

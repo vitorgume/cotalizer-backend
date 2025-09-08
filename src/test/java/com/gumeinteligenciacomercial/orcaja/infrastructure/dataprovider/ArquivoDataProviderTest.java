@@ -38,10 +38,10 @@ class ArquivoDataProviderTest {
                 "bucket-x",
                 "us-east-1",
                 Optional.empty(),
-                null,
+                Optional.of(""),
                 null,
                 false,
-                ""
+                "https://pub.example.com"
         );
         setPrivateField(provider, "s3", s3);
     }

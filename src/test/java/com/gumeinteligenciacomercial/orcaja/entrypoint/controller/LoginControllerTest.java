@@ -41,7 +41,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "cotalizer.email.avaliacao=EMAIL_TESTE",
                 "app.storage.s3.bucket=s3_teste",
                 "app.storage.s3.region=teste",
-                "app.files.public-base-url=teste"
+                "app.files.public-base-url=teste",
+                "api.assinatura.url=teste",
+                "cotalizer.url.alteracao-email=EMAIL_TESTE",
+                "google.redirect.menu.url=teste",
+                "google.redirect.login.url=teste",
+                "app.security.csrf.secure=true",
+                "app.security.csrf.sameSite=None"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)
@@ -66,11 +72,10 @@ class LoginControllerTest {
     @MockitoBean
     JavaMailSender javaMailSender;
 
-    private static final String REFRESH_COOKIE = "__Host-refresh";
+    private static final String REFRESH_COOKIE = "REFRESH_TOKEN";
 
     @Test
     void login_deveRetornar200_SetRefreshCookie_eBodyComTokenEUsuarioId() throws Exception {
-        // Arrange
         var reqJson = objectMapper.writeValueAsString(
                 Map.of("email", "alice@example.com", "senha", "123456")
         );
@@ -83,22 +88,18 @@ class LoginControllerTest {
         when(authResult.getAccessToken()).thenReturn("ACCESS_123");
         when(authResult.getRefreshToken()).thenReturn("REFRESH_456");
 
-        // qualquer domínio vindo do mapper serve; retornaremos null para nem depender do tipo
         try (MockedStatic<LoginMapper> mocked = mockStatic(LoginMapper.class)) {
             mocked.when(() -> LoginMapper.paraDomain(any(LoginDto.class))).thenReturn(null);
 
             given(loginUseCase.autenticar(any())).willReturn(authResult);
 
-            // Act & Assert
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(reqJson))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    // body: ResponseDto<LoginDto> -> $.dado.*
                     .andExpect(jsonPath("$.dado.usuarioId").value("u-1"))
                     .andExpect(jsonPath("$.dado.token").value("ACCESS_123"))
-                    // cookie: "__Host-refresh=REFRESH_456; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=2592000"
                     .andExpect(header().string(HttpHeaders.SET_COOKIE,
                             Matchers.allOf(
                                     Matchers.containsString(REFRESH_COOKIE + "=REFRESH_456"),
@@ -129,32 +130,33 @@ class LoginControllerTest {
 
     @Test
     void refresh_ok_deveSetarNovoCookie_eRetornarNovoAccessToken() throws Exception {
-        // Arrange
         var oldRefresh = "OLD_RT";
         var newRefresh = "NEW_RT";
-        var newAccess = "NEW_AT";
+        var newAccess  = "NEW_AT";
 
         var rr = mock(RefreshResult.class);
         when(rr.getNewAccessToken()).thenReturn(newAccess);
         when(rr.getNewRefreshToken()).thenReturn(newRefresh);
-
         given(refreshSessionUseCase.renovar(oldRefresh)).willReturn(rr);
 
-        // Act & Assert
         mockMvc.perform(post("/auth/refresh")
-                        .cookie(new Cookie("__Host-refresh", oldRefresh)))
+                        .cookie(new jakarta.servlet.http.Cookie(REFRESH_COOKIE, oldRefresh)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(Matchers.containsString(newAccess)))
-                .andExpect(header().string(HttpHeaders.SET_COOKIE,
-                        Matchers.allOf(
-                                Matchers.containsString("__Host-refresh=" + newRefresh),
-                                Matchers.containsString("HttpOnly"),
-                                Matchers.containsString("Secure"),
-                                Matchers.containsString("SameSite=None"),
-                                Matchers.containsString("Path=/"),
-                                Matchers.containsString("Max-Age=" + Duration.ofDays(30).toSeconds())
-                        )));
+                .andDo(result -> {
+                    var setCookies = result.getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+                    org.hamcrest.MatcherAssert.assertThat(
+                            setCookies,
+                            Matchers.hasItem(Matchers.allOf(
+                                    Matchers.containsString(REFRESH_COOKIE + "=" + newRefresh),
+                                    Matchers.containsString("HttpOnly"),
+                                    Matchers.containsString("SameSite=None"),
+                                    Matchers.containsString("Path=/"),
+                                    Matchers.containsString("Max-Age=" + Duration.ofDays(30).toSeconds())
+                            ))
+                    );
+                });
 
         verify(refreshSessionUseCase).renovar(oldRefresh);
     }

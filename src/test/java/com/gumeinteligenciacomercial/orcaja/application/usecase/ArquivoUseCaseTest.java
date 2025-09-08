@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ArquivoUseCaseTest {
+class   ArquivoUseCaseTest {
 
     @Mock
     OrcamentoIaUseCase orcamentoIaUseCase;
@@ -337,5 +337,25 @@ class ArquivoUseCaseTest {
         assertSame(resource, out);
 
         verify(gateway).carregarArquivo(key);
+    }
+
+    @Test
+    void deveDeletarArquivoComSucesso() {
+        String key = "/pasta/arquivo.";
+        Mockito.doNothing().when(gateway).deletarArquivo(anyString());
+
+        sut.deletaArquivo(key);
+
+        verify(gateway).deletarArquivo(anyString());
+    }
+
+    @Test
+    void deveDeletarLogoComSucesso() {
+        String key = "/pasta/logo.";
+        Mockito.doNothing().when(gateway).deletarLogo(anyString());
+
+        sut.deletarLogo(key);
+
+        verify(gateway).deletarLogo(anyString());
     }
 }

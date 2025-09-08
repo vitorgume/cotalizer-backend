@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -256,5 +257,47 @@ class UsuarioUseCaseTest {
         );
         verify(codigoAlteracaoSenhaUseCase).validaCodigoAlteracaoSenha(code);
         verifyNoMoreInteractions(gateway, criptografiaUseCase, emailUseCase, codigoValidacaoUseCase);
+    }
+
+    @Test
+    void ajustarQuantidadeOrcamentoMensal_quandoHaUsuarios_zeraContadorEAlteraCadaUm() {
+        Usuario u1 = Usuario.builder()
+                .id("u1").email("a@x.com").quantidadeOrcamentos(5).build();
+        Usuario u2 = Usuario.builder()
+                .id("u2").email("b@x.com").quantidadeOrcamentos(2).build();
+
+        when(gateway.listar()).thenReturn(List.of(u1, u2));
+
+        when(gateway.consultarPorId("u1")).thenReturn(Optional.of(u1));
+        when(gateway.consultarPorId("u2")).thenReturn(Optional.of(u2));
+
+        when(gateway.salvar(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        useCase.ajustarQuantidadeOrcamentoMensal();
+
+        verify(gateway).listar();
+
+        verify(gateway).consultarPorId("u1");
+        verify(gateway).consultarPorId("u2");
+
+        verify(gateway, times(2)).salvar(captor.capture());
+        List<Usuario> salvos = captor.getAllValues();
+        assertEquals(2, salvos.size());
+        assertEquals(0, salvos.get(0).getQuantidadeOrcamentos());
+        assertEquals(0, salvos.get(1).getQuantidadeOrcamentos());
+
+        assertEquals(0, u1.getQuantidadeOrcamentos());
+        assertEquals(0, u2.getQuantidadeOrcamentos());
+    }
+
+    @Test
+    void ajustarQuantidadeOrcamentoMensalQuandoListaVaziaNaoSalvaNada() {
+        when(gateway.listar()).thenReturn(List.of());
+
+        useCase.ajustarQuantidadeOrcamentoMensal();
+
+        verify(gateway).listar();
+        verify(gateway, never()).consultarPorId(anyString());
+        verify(gateway, never()).salvar(any());
     }
 }

@@ -6,6 +6,7 @@ import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,32 +27,43 @@ class GoogleOAuth2SuccessHandlerTest {
 
     @Mock
     private AuthTokenGateway tokenService;
-
     @Mock
     private UsuarioUseCase usuarioUseCase;
-
     @Mock
     private HttpServletRequest request;
-
     @Mock
     private HttpServletResponse response;
-
     @Mock
     private Authentication authentication;
-
     @Mock
     private OAuth2User oAuth2User;
 
-    @InjectMocks
     private GoogleOAuth2SuccessHandler handler;
+
+    private static final String MENU_URL = "http://localhost:5173/menu";
+    private static final String LOGIN_URL = "http://localhost:5173/login/sucesso";
+    private static final boolean SECURE = false;   // ajuste se necessário
+    private static final String SAME_SITE = "Lax";   // ex: "None" | "Lax" | "Strict"
+
+    @BeforeEach
+    void setUp() {
+        handler = new GoogleOAuth2SuccessHandler(
+                tokenService,
+                usuarioUseCase,
+                MENU_URL,
+                LOGIN_URL,
+                SECURE,
+                SAME_SITE
+        );
+    }
 
     @Captor
     private ArgumentCaptor<String> redirectCaptor;
 
     @Test
-    void onAuthenticationSuccessQuandoUsuarioTemCnpjRedirecionaParaMenu() throws IOException, ServletException {
+    void onAuthenticationSuccess_quandoUsuarioTemCnpj_redirecionaParaMenu_eSetaCookie() throws Exception {
         String email = "maria@exemplo.com";
-        String token = "jwt-token-123";
+        String refresh = "refresh-123";
         Usuario usuario = Usuario.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)
@@ -62,22 +74,32 @@ class GoogleOAuth2SuccessHandlerTest {
         when(authentication.getPrincipal()).thenReturn(oAuth2User);
         when(oAuth2User.getAttribute("email")).thenReturn(email);
         when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
-        when(tokenService.generateAccessToken(email, usuario.getId(), null)).thenReturn(token);
+        when(tokenService.generateRefreshToken(email, usuario.getId())).thenReturn(refresh);
 
         handler.onAuthenticationSuccess(request, response, authentication);
 
-        verify(usuarioUseCase, times(1)).consultarPorEmail(email);
-        verify(tokenService, times(1)).generateAccessToken(email, usuario.getId(), null);
-        verify(response, times(1)).sendRedirect(redirectCaptor.capture());
+        verify(usuarioUseCase).consultarPorEmail(email);
+        verify(tokenService).generateRefreshToken(email, usuario.getId());
 
-        String sentUrl = redirectCaptor.getValue();
-        assert sentUrl.equals("http://localhost:5173/menu?token=" + token);
+        // Verifica cookie
+        ArgumentCaptor<String> cookieCaptor = ArgumentCaptor.forClass(String.class);
+        verify(response).addHeader(eq(org.springframework.http.HttpHeaders.SET_COOKIE), cookieCaptor.capture());
+        String cookie = cookieCaptor.getValue();
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("REFRESH_TOKEN=" + refresh));
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("HttpOnly"));
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("Path=/"));
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("Max-Age=")); // 30 dias
+        // Se SECURE=true, você pode checar "Secure"; como está false, não precisa
+
+        // Verifica redirect
+        verify(response).sendRedirect(redirectCaptor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals(MENU_URL, redirectCaptor.getValue());
     }
 
     @Test
-    void onAuthenticationSuccessQuandoUsuarioSemDocumentoRedirecionaParaSucesso() throws IOException, ServletException {
+    void onAuthenticationSuccess_quandoUsuarioSemDocumento_redirecionaParaLogin_eSetaCookie() throws Exception {
         String email = "joao@exemplo.com";
-        String token = "jwt-token-456";
+        String refresh = "refresh-456";
         Usuario usuario = Usuario.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)
@@ -87,15 +109,19 @@ class GoogleOAuth2SuccessHandlerTest {
         when(authentication.getPrincipal()).thenReturn(oAuth2User);
         when(oAuth2User.getAttribute("email")).thenReturn(email);
         when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
-        when(tokenService.generateAccessToken(email, usuario.getId(), null)).thenReturn(token);
+        when(tokenService.generateRefreshToken(email, usuario.getId())).thenReturn(refresh);
 
         handler.onAuthenticationSuccess(request, response, authentication);
 
-        verify(usuarioUseCase, times(1)).consultarPorEmail(email);
-        verify(tokenService, times(1)).generateAccessToken(email, usuario.getId(), null);
-        verify(response, times(1)).sendRedirect(redirectCaptor.capture());
+        verify(usuarioUseCase).consultarPorEmail(email);
+        verify(tokenService).generateRefreshToken(email, usuario.getId());
 
-        String sentUrl = redirectCaptor.getValue();
-        assert sentUrl.equals("http://localhost:5173/login/sucesso?token=" + token);
+        ArgumentCaptor<String> cookieCaptor = ArgumentCaptor.forClass(String.class);
+        verify(response).addHeader(eq(org.springframework.http.HttpHeaders.SET_COOKIE), cookieCaptor.capture());
+        String cookie = cookieCaptor.getValue();
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("REFRESH_TOKEN=" + refresh));
+
+        verify(response).sendRedirect(redirectCaptor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals(LOGIN_URL, redirectCaptor.getValue());
     }
 }

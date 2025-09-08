@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
 
+import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -81,7 +82,7 @@ class JwtAuthTokenDataProviderTest {
         var provB = newProvider("5b6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615", "orcaja-test", 15, 30, 0);
 
         String jwtAssinadoComA = provA.generateAccessToken("dave@example.com", "id-1", List.of());
-        assertThrows(SignatureException.class, () -> provB.parse(jwtAssinadoComA));
+        assertThrows(DataProviderException.class, () -> provB.parse(jwtAssinadoComA));
     }
 
     @Test
@@ -91,7 +92,7 @@ class JwtAuthTokenDataProviderTest {
         var provIssuerErrado  = newProvider(secret, "issuer-errado", 15, 30, 60);
 
         String jwtComIssuerErrado = provIssuerErrado.generateAccessToken("eve@example.com", "id-2", null);
-        assertThrows(IncorrectClaimException.class, () -> provIssuerCorreto.parse(jwtComIssuerErrado));
+        assertThrows(DataProviderException.class, () -> provIssuerCorreto.parse(jwtComIssuerErrado));
     }
 
     @Test
@@ -99,15 +100,15 @@ class JwtAuthTokenDataProviderTest {
         var provider = newProvider(rawSecret(), "orcaja-test", -5, 30, 0); // access expirado
 
         String jwtExpirado = provider.generateAccessToken("frank@example.com", "id-3", null);
-        assertThrows(ExpiredJwtException.class, () -> provider.parse(jwtExpirado));
+        assertThrows(DataProviderException.class, () -> provider.parse(jwtExpirado));
     }
 
     @Test
     void parse_deveFalhar_quandoTokenMalformado() {
         var provider = newProvider(rawSecret(), "orcaja-test", 15, 30, 60);
 
-        assertThrows(MalformedJwtException.class, () -> provider.parse("nao-e-um-jwt"));
-        assertThrows(MalformedJwtException.class, () -> provider.parse("a.b"));
+        assertThrows(DataProviderException.class, () -> provider.parse("nao-e-um-jwt"));
+        assertThrows(DataProviderException.class, () -> provider.parse("a.b"));
     }
 
     @Test

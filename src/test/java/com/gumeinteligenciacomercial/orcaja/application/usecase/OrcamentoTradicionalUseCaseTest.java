@@ -2,9 +2,11 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.OrcamentoTradicionalNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.OrcamentoTradicionalGateway;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
 import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +35,9 @@ class OrcamentoTradicionalUseCaseTest {
 
     @Mock
     private OrcamentoTradicionalGateway gateway;
+
+    @Mock
+    private UsuarioUseCase usuarioUseCase;
 
     @InjectMocks
     private OrcamentoTradicionalUseCase useCase;
@@ -61,23 +67,36 @@ class OrcamentoTradicionalUseCaseTest {
 
     @Test
     void cadastrarDeveConfigurarCamposSalvarERetornarGateway() {
+        String usuarioId = "user-123";
+
         OrcamentoTradicional salvo = OrcamentoTradicional.builder()
                 .id("id123")
+                .idUsuario(usuarioId) // <-- ESSENCIAL
                 .produtos(novo.getProdutos())
                 .valorTotal(BigDecimal.valueOf(40.0))
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .dataCriacao(LocalDate.now())
                 .build();
+
         when(gateway.salvar(any(OrcamentoTradicional.class))).thenReturn(salvo);
+        when(usuarioUseCase.consultarPorId(eq(usuarioId)))
+                .thenReturn(Usuario.builder().id(usuarioId).quantidadeOrcamentos(0).build());
 
         OrcamentoTradicional result = useCase.cadastrar(novo);
 
         assertSame(salvo, result);
+
         verify(gateway).salvar(orcCaptor.capture());
         OrcamentoTradicional toSave = orcCaptor.getValue();
-        assertEquals(BigDecimal.valueOf(40.0), toSave.getValorTotal());
+
+        // Comparação de BigDecimal mais robusta:
+        assertEquals(0, BigDecimal.valueOf(40.0).compareTo(toSave.getValorTotal()));
         assertEquals(TipoOrcamento.TRADICIONAL, toSave.getTipoOrcamento());
         assertEquals(LocalDate.now(), toSave.getDataCriacao());
+
+        ArgumentCaptor<Usuario> usuarioCaptor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioUseCase).alterar(eq(usuarioId), usuarioCaptor.capture());
+        assertEquals(1, usuarioCaptor.getValue().getQuantidadeOrcamentos());
     }
 
     @Test

@@ -82,7 +82,12 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
 
-            String logoSrc = (usuario.getUrlLogo().isBlank()) ? toDataUri(usuario.getUrlLogo()) : "";
+            String rawLogo = Optional.ofNullable(usuario.getUrlLogo()).map(String::trim).orElse("");
+            String logoSrc = toDataUri(rawLogo);
+
+            if (logoSrc.isBlank()) {
+                logoSrc = "";
+            }
 
             String htmlFinal = htmlTemplate
                     .replace("${logo_src}", logoSrc)
@@ -149,7 +154,12 @@ public class HtmlUseCase {
 
             Usuario usuario = usuarioUseCase.consultarPorId(novoOrcamento.getIdUsuario());
 
-            String logoSrc = (usuario.getUrlLogo() != null) ? toDataUri(usuario.getUrlLogo()) : "";  // "data:image/png;base64,...."
+            String rawLogo = Optional.ofNullable(usuario.getUrlLogo()).map(String::trim).orElse("");
+            String logoSrc = toDataUri(rawLogo);
+
+            if (logoSrc.isBlank()) {
+                logoSrc = "";
+            }
 
             return htmlTemplate
                     .replace("${logo_src}", logoSrc)
@@ -183,27 +193,34 @@ public class HtmlUseCase {
                 .collect(Collectors.joining(" "));
     }
 
-    private String toDataUri(String absoluteUrl) {
-        try {
-            var client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(5))
-                    .build();
+    private String toDataUri(String url) {
+        if (url == null) return "";
+        url = url.trim();
+        if (url.isEmpty()) return "";
 
-            var req = HttpRequest.newBuilder(URI.create(absoluteUrl))
-                    .timeout(Duration.ofSeconds(10))
+        if (url.startsWith("data:")) return url;
+
+        try {
+            var req = java.net.http.HttpRequest.newBuilder(java.net.URI.create(url))
+                    .timeout(java.time.Duration.ofSeconds(5))
                     .GET()
                     .build();
 
-            var res = client.send(req, HttpResponse.BodyHandlers.ofByteArray());
+            var client = java.net.http.HttpClient.newHttpClient();
+            var resp = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofByteArray());
 
-            if (res.statusCode() >= 200 && res.statusCode() < 300) {
-                var ct = res.headers().firstValue("Content-Type").orElse("image/png");
-                var b64 = Base64.getEncoder().encodeToString(res.body());
-                return "data:" + ct + ";base64," + b64;
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                var bytes = resp.body();
+                String ctype = resp.headers().firstValue("Content-Type").orElse("image/png");
+                String b64 = java.util.Base64.getEncoder().encodeToString(bytes);
+                return "data:" + ctype + ";base64," + b64;
+            } else {
+                log.warn("Falha ao baixar logo {}: status {}", url, resp.statusCode());
+                return "";
             }
         } catch (Exception e) {
-            log.warn("Falha ao embutir logo em base64", e);
+            log.warn("Falha ao embutir logo em base64 a partir de '{}'", url, e);
+            return "";
         }
-        return null;
     }
 }
