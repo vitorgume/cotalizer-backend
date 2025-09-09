@@ -53,4 +53,15 @@ class CNPJValidatorTest {
         assertTrue(validator.isValid(cnpjValido, context),
                 () -> "Esperava true para: " + cnpjValido);
     }
+
+    @Test
+    void cnpjValido_quandoPrimeiroDigitoVerificadorEhZero_retornaTrue() {
+        assertTrue(validator.isValid("07150842375903", context));
+    }
+
+    @Test
+    void cnpjValido_quandoSegundoDigitoVerificadorEhZero_retornaTrue() {
+        assertTrue(validator.isValid("82421948924190", context));
+    }
+
 }

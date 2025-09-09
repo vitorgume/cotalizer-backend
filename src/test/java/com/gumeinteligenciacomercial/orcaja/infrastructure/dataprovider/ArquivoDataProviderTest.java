@@ -4,6 +4,8 @@ import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProvid
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,10 +16,14 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.core.exception.SdkClientException;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -178,6 +184,239 @@ class ArquivoDataProviderTest {
         assertEquals("Erro ao carregar arquivo.", ex.getMessage());
 
         verify(s3).getObject(any(GetObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoKeyValida_deveChamarS3ComPrefixoPdf() {
+        // given
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+
+        // when
+        provider.deletarArquivo("ARQ-1.pdf");
+
+        // then
+        ArgumentCaptor<DeleteObjectRequest> cap = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3).deleteObject(cap.capture());
+        DeleteObjectRequest req = cap.getValue();
+        assertEquals("bucket-x", req.bucket());
+        assertEquals("pdf/ARQ-1.pdf", req.key());
+    }
+
+    @Test
+    void deletarArquivo_quandoNomeEmBranco_naoChamaS3() {
+        provider.deletarArquivo("   "); // normalizeKey -> blank
+        verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoS3Retorna404_naoLancaExcecao() {
+        S3Exception notFound = (S3Exception) S3Exception.builder()
+                .statusCode(404)
+                .awsErrorDetails(AwsErrorDetails.builder().errorCode("NotFound").build())
+                .build();
+        when(s3.deleteObject(any(DeleteObjectRequest.class))).thenThrow(notFound);
+
+        // não deve lançar
+        assertDoesNotThrow(() -> provider.deletarArquivo("ARQ-2.pdf"));
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoErroCodeNoSuchKey_naoLancaExcecao() {
+        S3Exception noSuchKey = (S3Exception) S3Exception.builder()
+                .statusCode(400) // qualquer que não seja 404
+                .awsErrorDetails(AwsErrorDetails.builder().errorCode("NoSuchKey").build())
+                .build();
+        when(s3.deleteObject(any(DeleteObjectRequest.class))).thenThrow(noSuchKey);
+
+        // não deve lançar
+        assertDoesNotThrow(() -> provider.deletarArquivo("ARQ-missing.pdf"));
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoS3ExceptionDiferente_lancaDataProviderException() {
+        S3Exception err = (S3Exception) S3Exception.builder()
+                .statusCode(500)
+                .awsErrorDetails(AwsErrorDetails.builder().errorCode("InternalError").build())
+                .build();
+        when(s3.deleteObject(any(DeleteObjectRequest.class))).thenThrow(err);
+
+        DataProviderException ex = assertThrows(DataProviderException.class,
+                () -> provider.deletarArquivo("ARQ-err.pdf"));
+        assertEquals("Erro ao deletar arquivo no S3.", ex.getMessage());
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoFalhaClienteSdk_lancaDataProviderException() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenThrow(SdkClientException.create("network", null));
+
+        DataProviderException ex = assertThrows(DataProviderException.class,
+                () -> provider.deletarArquivo("ARQ-timeout.pdf"));
+        assertEquals("Erro ao deletar arquivo no S3.", ex.getMessage());
+        verify(s3).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarLogo_quandoBlank_naoChamaNada() {
+        provider.deletarLogo("  ");
+        verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarLogo_quandoTemExtensao_deveDelegarParaDeletarArquivo_eRemoverEmPdfFolder() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+
+        provider.deletarLogo("logo.png");
+
+        ArgumentCaptor<DeleteObjectRequest> cap = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3).deleteObject(cap.capture());
+        DeleteObjectRequest req = cap.getValue();
+        assertEquals("bucket-x", req.bucket());
+        assertEquals("pdf/logo.png", req.key());
+    }
+
+    @Test
+    void deletarLogo_quandoSemExtensao_naoDeveChamarDeletarArquivo() throws Exception {
+        ArquivoDataProvider local = new ArquivoDataProvider(
+                "bucket-x",
+                "us-east-1",
+                Optional.empty(),
+                Optional.of(""),
+                null,
+                false,
+                "https://pub.example.com"
+        );
+        setPrivateField(local, "s3", s3);
+
+        ArquivoDataProvider spyProvider = spy(local);
+
+        when(s3.listObjectsV2(any(ListObjectsV2Request.class)))
+                .thenReturn(ListObjectsV2Response.builder()
+                        .isTruncated(false)
+                        .contents(java.util.Collections.emptyList())
+                        .build());
+
+        assertDoesNotThrow(() -> spyProvider.deletarLogo("logo"));
+
+        verify(spyProvider, never()).deletarArquivo(anyString());
+        verify(s3).listObjectsV2(any(ListObjectsV2Request.class));
+        verify(s3, never()).deleteObject(any(DeleteObjectRequest.class));
+    }
+
+    @Test
+    void deletarArquivo_quandoComecaComBarra_normalizaAntes() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+
+        provider.deletarArquivo("/ARQ-5.pdf");
+
+        ArgumentCaptor<DeleteObjectRequest> cap = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3).deleteObject(cap.capture());
+        assertEquals("bucket-x", cap.getValue().bucket());
+        assertEquals("pdf/ARQ-5.pdf", cap.getValue().key());
+    }
+
+    @Test
+    void deletarArquivo_quandoPassaUrlPublica_normalizaRemovendoBase() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+
+        provider.deletarArquivo("https://pub.example.com/pdf/ARQ-3.pdf");
+
+        ArgumentCaptor<DeleteObjectRequest> cap = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3).deleteObject(cap.capture());
+        assertEquals("pdf/pdf/ARQ-3.pdf", cap.getValue().key());
+    }
+
+    @Test
+    void deletarArquivo_quandoPassaUrlDeAcesso_normalizaTrechoArquivosAcessar() {
+        when(s3.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+
+        provider.deletarArquivo("https://qualquer.host/arquivos/acessar/tenants/u1/branding/logo.png");
+
+        ArgumentCaptor<DeleteObjectRequest> cap = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3).deleteObject(cap.capture());
+        assertEquals("pdf/tenants/u1/branding/logo.png", cap.getValue().key());
+    }
+
+    @Test
+    void deletarLogo_quandoPrefixoTemPaginas_multipasChamadasDeleteObjects() throws Exception {
+        ArquivoDataProvider local = new ArquivoDataProvider(
+                "bucket-x","us-east-1", Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+        setPrivateField(local, "s3", s3);
+
+        ListObjectsV2Response page1 = ListObjectsV2Response.builder()
+                .isTruncated(true)
+                .nextContinuationToken("tok-2")
+                .contents(List.of(
+                        S3Object.builder().key("tenants/u/branding/logo.png").build(),
+                        S3Object.builder().key("tenants/u/branding/old.svg").build()
+                ))
+                .build();
+
+        ListObjectsV2Response page2 = ListObjectsV2Response.builder()
+                .isTruncated(false)
+                .contents(List.of(
+                        S3Object.builder().key("tenants/u/branding/legacy.jpg").build()
+                ))
+                .build();
+
+        when(s3.listObjectsV2(any(ListObjectsV2Request.class)))
+                .thenReturn(page1)
+                .thenReturn(page2);
+
+        when(s3.deleteObjects(any(DeleteObjectsRequest.class)))
+                .thenReturn(DeleteObjectsResponse.builder().build());
+
+        local.deletarLogo("tenants/u/branding/logo");
+
+        ArgumentCaptor<DeleteObjectsRequest> delCap = ArgumentCaptor.forClass(DeleteObjectsRequest.class);
+        verify(s3, times(2)).deleteObjects(delCap.capture());
+        List<DeleteObjectsRequest> reqs = delCap.getAllValues();
+
+        assertEquals(2, reqs.get(0).delete().objects().size());
+
+        assertEquals(1, reqs.get(1).delete().objects().size());
+
+        verify(s3, times(2)).listObjectsV2(any(ListObjectsV2Request.class));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "https://pub.example.com/pdf/ARQ-1.pdf, pdf/ARQ-1.pdf",
+            "https://site/arquivos/acessar/pdf/ARQ-2.pdf, pdf/ARQ-2.pdf",
+            "  /tenants/u/branding/logo.png , tenants/u/branding/logo.png",
+            "plain/key, plain/key"
+    })
+    void normalizeKey_variosCaminhos(String in, String expected) throws Exception {
+        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+        setPrivateField(p, "s3", s3);
+        var m = ArquivoDataProvider.class.getDeclaredMethod("normalizeKey", String.class);
+        m.setAccessible(true);
+        String out = (String) m.invoke(p, in);
+        assertEquals(expected, out);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "a/b/c.png, true",
+            "a/b/.hidden, true",
+            "a/b/c, false",
+            "folder.only/, false",
+            "c.jpg, true"
+    })
+    void hasExtension_casos(String key, boolean expected) throws Exception {
+        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+        var m = ArquivoDataProvider.class.getDeclaredMethod("hasExtension", String.class);
+        m.setAccessible(true);
+        boolean out = (boolean) m.invoke(p, key);
+        assertEquals(expected, out);
     }
 
     private static void setPrivateField(Object target, String fieldName, Object value) throws Exception {

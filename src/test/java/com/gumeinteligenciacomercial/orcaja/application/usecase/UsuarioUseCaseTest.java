@@ -300,4 +300,35 @@ class UsuarioUseCaseTest {
         verify(gateway, never()).consultarPorId(anyString());
         verify(gateway, never()).salvar(any());
     }
+
+    @Test
+    void alterarSenha_quandoValidadorRetornaNull_naoCriptografaMasAindaSalva() {
+        String code = "c-null";
+        when(codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(code)).thenReturn(null);
+
+        Usuario u = Usuario.builder().id(null).senha("old").build();
+        when(gateway.consultarPorId(isNull())).thenReturn(Optional.of(u));
+
+        when(gateway.salvar(u)).thenReturn(u);
+
+        Usuario res = useCase.alterarSenha("nova", code);
+
+        assertSame(u, res);
+        verify(criptografiaUseCase, never()).criptografar(anyString());
+        verify(codigoAlteracaoSenhaUseCase).validaCodigoAlteracaoSenha(code);
+        verify(gateway).consultarPorId(isNull());
+        verify(gateway).salvar(u);
+    }
+
+    @Test
+    void reenviarCodigoEmail_quandoUsuarioNaoExiste_devePropagarExceptionESemEnvio() {
+        String email = "no@x";
+        when(gateway.consultarPorEmail(email)).thenReturn(Optional.empty());
+
+        assertThrows(UsuarioNaoEncontradoException.class,
+                () -> useCase.reenviarCodigoEmail(email));
+
+        verify(gateway).consultarPorEmail(email);
+        verifyNoInteractions(codigoValidacaoUseCase, emailUseCase);
+    }
 }

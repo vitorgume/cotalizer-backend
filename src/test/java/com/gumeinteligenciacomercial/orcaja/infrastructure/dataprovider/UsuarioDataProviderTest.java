@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ class UsuarioDataProviderTest {
     private static final String ERR_SALVAR = "Erro ao salvar usuário.";
     private static final String ERR_CONSULT_ID = "Erro ao consultar usuário pelo seu id.";
     private static final String ERR_CONSULT_CPF = "Erro ao consultar usuário pelo seu cpf.";
-    private static final String ERR_DELETAR_ID = "Erro ao deletar usuário pelo seu id.";
+    private static final String ERR_LISTAR = "Erro ao listar usuários.";
     private static final String ERR_CONSULT_EMAIL = "Erro ao consultar usuário pelo seu email.";
 
     @Mock
@@ -195,4 +196,59 @@ class UsuarioDataProviderTest {
         assertEquals(ERR_CONSULT_EMAIL, ex.getMessage());
         then(repository).should().findByEmail(TEST_EMAIL);
     }
+
+    @Test
+    void listarComSucessoDeveRetornarListaDeDomainsMapeados() {
+        given(repository.findAll()).willReturn(java.util.List.of(entityIn, entityOut));
+
+        try (MockedStatic<UsuarioMapper> ms = mockStatic(UsuarioMapper.class)) {
+            ms.when(() -> UsuarioMapper.paraDomain(entityIn)).thenReturn(domainIn);
+            ms.when(() -> UsuarioMapper.paraDomain(entityOut)).thenReturn(domainOut);
+
+            java.util.List<Usuario> res = provider.listar();
+
+            assertNotNull(res);
+            assertEquals(2, res.size());
+            assertSame(domainIn, res.get(0));
+            assertSame(domainOut, res.get(1));
+
+            then(repository).should().findAll();
+            ms.verify(() -> UsuarioMapper.paraDomain(entityIn));
+            ms.verify(() -> UsuarioMapper.paraDomain(entityOut));
+        }
+    }
+
+    @Test
+    void listarQuandoRepositoryLancarErroDeveLancarDataProviderException() {
+        given(repository.findAll()).willThrow(new RuntimeException("fail-list"));
+
+        DataProviderException ex = assertThrows(DataProviderException.class, () -> provider.listar());
+        assertEquals(ERR_LISTAR, ex.getMessage());
+
+        then(repository).should().findAll();
+    }
+
+    @Test
+    void listar_quandoRepositoryExplode_lancaDataProviderException() {
+        UsuarioRepository repo = mock(UsuarioRepository.class);
+        when(repo.findAll()).thenThrow(new RuntimeException("boom"));
+        var provider = new UsuarioDataProvider(repo);
+        assertThrows(DataProviderException.class, provider::listar);
+    }
+
+    @Test
+    void listar_sucesso_mapeiaParaDomain() {
+        UsuarioRepository repo = mock(UsuarioRepository.class);
+        UsuarioEntity e = mock(UsuarioEntity.class);
+        when(repo.findAll()).thenReturn(List.of(e));
+        try (MockedStatic<UsuarioMapper> ms = mockStatic(UsuarioMapper.class)) {
+            Usuario u = Usuario.builder().id("x").build();
+            ms.when(() -> UsuarioMapper.paraDomain(e)).thenReturn(u);
+            var provider = new UsuarioDataProvider(repo);
+            List<Usuario> out = provider.listar();
+            assertEquals(1, out.size());
+            assertEquals("x", out.get(0).getId());
+        }
+    }
+
 }

@@ -124,4 +124,38 @@ class GoogleOAuth2SuccessHandlerTest {
         verify(response).sendRedirect(redirectCaptor.capture());
         org.junit.jupiter.api.Assertions.assertEquals(LOGIN_URL, redirectCaptor.getValue());
     }
+
+    @Test
+    void onAuthenticationSuccess_quandoUsuarioTemApenasCpf_redirecionaParaMenu_eCookieContemSameSite() throws Exception {
+        String email = "ana@exemplo.com";
+        String refresh = "refresh-789";
+        Usuario usuario = Usuario.builder()
+                .id(UUID.randomUUID().toString())
+                .email(email)
+                .nome("Ana")
+                .cpf("123.456.789-00")
+                .build();
+
+        when(authentication.getPrincipal()).thenReturn(oAuth2User);
+        when(oAuth2User.getAttribute("email")).thenReturn(email);
+        when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
+        when(tokenService.generateRefreshToken(email, usuario.getId())).thenReturn(refresh);
+
+        handler.onAuthenticationSuccess(request, response, authentication);
+
+        ArgumentCaptor<String> cookieCaptor = ArgumentCaptor.forClass(String.class);
+        verify(response).addHeader(eq(org.springframework.http.HttpHeaders.SET_COOKIE), cookieCaptor.capture());
+        String cookie = cookieCaptor.getValue();
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("REFRESH_TOKEN=" + refresh));
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("HttpOnly"));
+        org.junit.jupiter.api.Assertions.assertTrue(cookie.contains("SameSite=" + SAME_SITE));
+        org.junit.jupiter.api.Assertions.assertFalse(cookie.contains("Secure"));
+
+        verify(response).sendRedirect(redirectCaptor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals(MENU_URL, redirectCaptor.getValue());
+
+        verify(usuarioUseCase).consultarPorEmail(email);
+        verify(tokenService).generateRefreshToken(email, usuario.getId());
+    }
+
 }
