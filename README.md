@@ -4,9 +4,6 @@
 
 > Backend REST do Cotalizer: geração/gestão de orçamentos (com e sem IA), PDFs em S3, autenticação e gestão de usuários.
 > 
-
-## Sumário
-
 ---
 
 ## Visão Geral
