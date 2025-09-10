@@ -174,10 +174,6 @@ open target/site/jacoco/index.html
 - `/auth/login` → define cookie de refresh + retorna access token
 - `/auth/refresh` → rotaciona refresh e retorna novo access
 - `/orcamentos` → CRUD e geração de PDF (S3)
-
-> Sugestão: publicar OpenAPI (springdoc) em /v3/api-docs + Swagger UI.
-> 
-
 ---
 
 ## Licença / Uso
