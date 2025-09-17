@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,7 +69,7 @@ public class GoogleOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        String redirectUrl = (usuario.getCnpj() != null || usuario.getCpf() != null)
+        String redirectUrl = usuario.getTipoCadastro().equals(TipoCadastro.GOOGLE)
                 ? GOOGLE_REDIRECT_MENU_URL
                 : GOOGLE_REDIRECT_LOGIN_URL;
 

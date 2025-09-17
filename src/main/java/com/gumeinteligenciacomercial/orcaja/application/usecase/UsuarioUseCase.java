@@ -4,10 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalid
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioJaCadastradoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
-import com.gumeinteligenciacomercial.orcaja.domain.Plano;
-import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
-import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
-import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
+import com.gumeinteligenciacomercial.orcaja.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,7 +27,7 @@ public class UsuarioUseCase {
 
     public Usuario cadastrar(Usuario usuario) {
         log.info("Cadastrando novo usuário. Usuário: {}", usuario);
-        Optional<Usuario> usuarioExistente = this.consultarPorCpf(usuario.getCpf());
+        Optional<Usuario> usuarioExistente = this.gateway.consultarPorEmail(usuario.getEmail());
 
         usuarioExistente.ifPresent(us -> {
             throw new UsuarioJaCadastradoException();
@@ -38,7 +35,7 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        if(usuario.getCpf() != null || usuario.getCnpj() != null) {
+        if(usuario.getTipoCadastro().equals(TipoCadastro.TRADICIONAL)) {
             this.validacaoEmail(usuario.getEmail());
         }
 
@@ -46,6 +43,7 @@ public class UsuarioUseCase {
         usuario.setPlano(Plano.GRATIS);
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
+        usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 
@@ -162,9 +160,5 @@ public class UsuarioUseCase {
     private void validacaoEmail(String email) {
         String codigo = codigoValidacaoUseCase.gerarCodigo(email);
         emailUseCase.enviarCodigoVerificacao(email, codigo);
-    }
-
-    private Optional<Usuario> consultarPorCpf(String cpf) {
-        return gateway.consultarPorCpf(cpf);
     }
 }

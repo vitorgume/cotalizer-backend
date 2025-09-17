@@ -7,8 +7,6 @@ public class UsuarioMapper {
     public static UsuarioEntity paraEntity(Usuario domain) {
         return UsuarioEntity.builder()
                 .id(domain.getId())
-                .cpf(domain.getCpf())
-                .cnpj(domain.getCnpj())
                 .email(domain.getEmail())
                 .nome(domain.getNome())
                 .telefone(domain.getTelefone())
@@ -21,14 +19,13 @@ public class UsuarioMapper {
                 .feedback(domain.getFeedback())
                 .quantidadeOrcamentos(domain.getQuantidadeOrcamentos())
                 .dataCriacao(domain.getDataCriacao())
+                .tipoCadastro(domain.getTipoCadastro())
                 .build();
     }
 
     public static Usuario paraDomain(UsuarioEntity entity) {
         return Usuario.builder()
                 .id(entity.getId())
-                .cpf(entity.getCpf())
-                .cnpj(entity.getCnpj())
                 .email(entity.getEmail())
                 .nome(entity.getNome())
                 .telefone(entity.getTelefone())
@@ -41,6 +38,7 @@ public class UsuarioMapper {
                 .feedback(entity.getFeedback())
                 .quantidadeOrcamentos(entity.getQuantidadeOrcamentos())
                 .dataCriacao(entity.getDataCriacao())
+                .tipoCadastro(entity.getTipoCadastro())
                 .build();
     }
 }

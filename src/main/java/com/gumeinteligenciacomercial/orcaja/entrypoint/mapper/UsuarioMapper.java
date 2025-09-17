@@ -8,8 +8,6 @@ public class UsuarioMapper {
     public static UsuarioDto paraDto(Usuario domain) {
         return UsuarioDto.builder()
                 .id(domain.getId())
-                .cpf(domain.getCpf())
-                .cnpj(domain.getCnpj())
                 .email(domain.getEmail())
                 .nome(domain.getNome())
                 .telefone(domain.getTelefone())
@@ -21,14 +19,13 @@ public class UsuarioMapper {
                 .feedback(domain.getFeedback())
                 .quantidadeOrcamentos(domain.getQuantidadeOrcamentos())
                 .dataCriacao(domain.getDataCriacao())
+                .tipoCadastro(domain.getTipoCadastro())
                 .build();
     }
 
     public static Usuario paraDomain(UsuarioDto dto) {
         return Usuario.builder()
                 .id(dto.getId())
-                .cpf(dto.getCpf())
-                .cnpj(dto.getCnpj())
                 .email(dto.getEmail())
                 .nome(dto.getNome())
                 .telefone(dto.getTelefone())
@@ -41,6 +38,7 @@ public class UsuarioMapper {
                 .feedback(dto.getFeedback())
                 .quantidadeOrcamentos(dto.getQuantidadeOrcamentos())
                 .dataCriacao(dto.getDataCriacao())
+                .tipoCadastro(dto.getTipoCadastro())
                 .build();
     }
 }
