@@ -51,20 +51,16 @@ class UsuarioUseCaseTest {
         Usuario u = Usuario.builder()
                 .email("e@x.com")
                 .senha("raw")
-                .cpf("123")
-                .cnpj("456")
                 .build();
         when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
         Usuario saved = Usuario.builder().id(userId).build();
         when(gateway.salvar(captor.capture())).thenReturn(saved);
-        when(gateway.consultarPorCpf(anyString())).thenReturn(Optional.empty());
 
         useCase.cadastrar(u);
 
         Usuario result = captor.getValue();
 
         assertEquals("hashed", u.getSenha());
-        verify(gateway).consultarPorCpf("123");
         verify(criptografiaUseCase).criptografar("raw");
         verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
         verify(gateway).salvar(u);
@@ -74,14 +70,14 @@ class UsuarioUseCaseTest {
 
     @Test
     void cadastrarJaExistenteLancaUsuarioJaCadastradoException() {
-        Usuario exists = Usuario.builder().cpf("123").build();
-        when(gateway.consultarPorCpf("123")).thenReturn(Optional.of(exists));
-        Usuario toCreate = Usuario.builder().cpf("123").build();
+        Usuario exists = Usuario.builder().email("emailteste").build();
+        when(gateway.consultarPorEmail("emailteste")).thenReturn(Optional.of(exists));
+        Usuario toCreate = Usuario.builder().email("emailteste").build();
 
         assertThrows(UsuarioJaCadastradoException.class,
                 () -> useCase.cadastrar(toCreate)
         );
-        verify(gateway).consultarPorCpf("123");
+        verify(gateway).consultarPorEmail("emailteste");
         verifyNoMoreInteractions(gateway);
     }
 

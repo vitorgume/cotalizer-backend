@@ -22,8 +22,6 @@ class UsuarioMapperTest {
                 .nome("Nome teste")
                 .email("Email teste")
                 .telefone("554400000000")
-                .cpf("12345678987")
-                .cnpj("")
                 .senha("senha-teste-123")
                 .status(StatusUsuario.ATIVO)
                 .plano(Plano.GRATIS)
@@ -38,8 +36,6 @@ class UsuarioMapperTest {
                 .nome("Nome teste 2")
                 .email("Email teste 2")
                 .telefone("554400000002")
-                .cpf("12345678988")
-                .cnpj("")
                 .senha("senha-teste-124")
                 .status(StatusUsuario.ATIVO)
                 .plano(Plano.GRATIS)
@@ -58,8 +54,6 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDomain.getNome(), usuarioTeste.getNome());
         Assertions.assertEquals(usuarioDomain.getEmail(), usuarioTeste.getEmail());
         Assertions.assertEquals(usuarioDomain.getTelefone(), usuarioTeste.getTelefone());
-        Assertions.assertEquals(usuarioDomain.getCpf(), usuarioTeste.getCpf());
-        Assertions.assertEquals(usuarioDomain.getCnpj(), usuarioTeste.getCnpj());
         Assertions.assertNull(usuarioTeste.getSenha());
         Assertions.assertEquals(usuarioDomain.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioDomain.getIdCustomer(), usuarioTeste.getIdCustomer());
@@ -76,8 +70,6 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDto.getNome(), usuarioTeste.getNome());
         Assertions.assertEquals(usuarioDto.getEmail(), usuarioTeste.getEmail());
         Assertions.assertEquals(usuarioDto.getTelefone(), usuarioTeste.getTelefone());
-        Assertions.assertEquals(usuarioDto.getCpf(), usuarioTeste.getCpf());
-        Assertions.assertEquals(usuarioDto.getCnpj(), usuarioTeste.getCnpj());
         Assertions.assertEquals(usuarioDto.getSenha(), usuarioTeste.getSenha());
         Assertions.assertEquals(usuarioDto.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioDto.getIdCustomer(), usuarioTeste.getIdCustomer());

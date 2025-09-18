@@ -22,8 +22,6 @@ class UsuarioMapperTest {
                 .nome("Nome teste")
                 .email("Email teste")
                 .telefone("554400000000")
-                .cpf("12345678987")
-                .cnpj("")
                 .senha("senha-teste-123")
                 .status(StatusUsuario.ATIVO)
                 .plano(Plano.GRATIS)
@@ -39,8 +37,6 @@ class UsuarioMapperTest {
                 .nome("Nome teste 2")
                 .email("Email teste 2")
                 .telefone("554400000001")
-                .cpf("")
-                .cnpj("12345678988")
                 .senha("senha-teste-312")
                 .status(StatusUsuario.INATIVO)
                 .plano(Plano.PLUS)
@@ -59,8 +55,6 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDomain.getNome(), usuarioTeste.getNome());
         Assertions.assertEquals(usuarioDomain.getEmail(), usuarioTeste.getEmail());
         Assertions.assertEquals(usuarioDomain.getTelefone(), usuarioTeste.getTelefone());
-        Assertions.assertEquals(usuarioDomain.getCpf(), usuarioTeste.getCpf());
-        Assertions.assertEquals(usuarioDomain.getCnpj(), usuarioTeste.getCnpj());
         Assertions.assertEquals(usuarioDomain.getSenha(), usuarioTeste.getSenha());
         Assertions.assertEquals(usuarioDomain.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioDomain.getIdCustomer(), usuarioTeste.getIdCustomer());
@@ -77,8 +71,6 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioEntity.getNome(), usuarioTeste.getNome());
         Assertions.assertEquals(usuarioEntity.getEmail(), usuarioTeste.getEmail());
         Assertions.assertEquals(usuarioEntity.getTelefone(), usuarioTeste.getTelefone());
-        Assertions.assertEquals(usuarioEntity.getCpf(), usuarioTeste.getCpf());
-        Assertions.assertEquals(usuarioEntity.getCnpj(), usuarioTeste.getCnpj());
         Assertions.assertEquals(usuarioEntity.getSenha(), usuarioTeste.getSenha());
         Assertions.assertEquals(usuarioEntity.getStatus(), usuarioTeste.getStatus());
         Assertions.assertEquals(usuarioEntity.getIdCustomer(), usuarioTeste.getIdCustomer());

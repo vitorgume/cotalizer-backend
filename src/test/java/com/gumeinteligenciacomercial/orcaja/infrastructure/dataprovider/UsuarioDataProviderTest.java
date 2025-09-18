@@ -125,42 +125,6 @@ class UsuarioDataProviderTest {
     }
 
     @Test
-    void consultarPorCpfComSucessoDeveRetornarOptionalDomain() {
-        given(repository.findByCpf(TEST_CPF)).willReturn(Optional.of(entityIn));
-        try (MockedStatic<UsuarioMapper> ms = mockStatic(UsuarioMapper.class)) {
-            ms.when(() -> UsuarioMapper.paraDomain(entityIn))
-                    .thenReturn(domainOut);
-
-            Optional<Usuario> opt = provider.consultarPorCpf(TEST_CPF);
-            assertTrue(opt.isPresent());
-            assertSame(domainOut, opt.get());
-
-            then(repository).should().findByCpf(TEST_CPF);
-            ms.verify(() -> UsuarioMapper.paraDomain(entityIn));
-        }
-    }
-
-    @Test
-    void consultarPorCpfQuandoNaoEncontrarDeveRetornarOptionalVazio() {
-        given(repository.findByCpf(TEST_CPF)).willReturn(Optional.empty());
-
-        Optional<Usuario> opt = provider.consultarPorCpf(TEST_CPF);
-        assertTrue(opt.isEmpty());
-        then(repository).should().findByCpf(TEST_CPF);
-    }
-
-    @Test
-    void consultarPorCpfQuandoRepositoryLancarErroDeveLancarDataProviderException() {
-        given(repository.findByCpf(anyString()))
-                .willThrow(new RuntimeException("fail-cpf"));
-        DataProviderException ex = assertThrows(
-                DataProviderException.class,
-                () -> provider.consultarPorCpf(TEST_CPF)
-        );
-        assertEquals(ERR_CONSULT_CPF, ex.getMessage());
-    }
-
-    @Test
     void consultarPorEmailComSucessoDeveRetornarOptionalDomain() {
         given(repository.findByEmail(TEST_EMAIL)).willReturn(Optional.of(entityIn));
         try (MockedStatic<UsuarioMapper> ms = mockStatic(UsuarioMapper.class)) {

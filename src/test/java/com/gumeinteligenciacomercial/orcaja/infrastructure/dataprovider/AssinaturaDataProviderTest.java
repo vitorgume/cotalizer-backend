@@ -22,7 +22,7 @@ import static org.mockito.BDDMockito.then;
 class AssinaturaDataProviderTest {
 
     private static final String API_KEY = "minha-api-key";
-    private static final String URL_BASE = "http://localhost:8081/assinaturas/";
+    private static final String URL_BASE = "http://localhost:8081/assinaturas";
     @Mock
     private WebClient webClient;
 
@@ -123,7 +123,7 @@ class AssinaturaDataProviderTest {
         assertDoesNotThrow(() -> provider.enviarCancelamento(userId));
 
         then(webClient).should().delete();
-        then(deleteUriSpec).should().uri(URL_BASE + userId);
+        then(deleteUriSpec).should().uri(URL_BASE + "/" + userId);
         then(deleteHeadersSpec).should().header("x-api-key", API_KEY);
         then(deleteHeadersSpec).should().retrieve();
         then(deleteResponseSpec).should().bodyToMono(Map.class);

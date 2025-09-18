@@ -78,8 +78,6 @@ class UsuarioControllerTest {
                 .nome("Nome teste 2")
                 .email("Email teste 2")
                 .telefone("554400000002")
-                .cpf("12345678988")
-                .cnpj("")
                 .senha("senha-teste-124")
                 .status(StatusUsuario.ATIVO)
                 .plano(Plano.GRATIS)
@@ -93,8 +91,6 @@ class UsuarioControllerTest {
                 .nome("Nome teste 2")
                 .email("Email teste 2")
                 .telefone("554400000001")
-                .cpf("")
-                .cnpj("12345678988")
                 .senha("senha-teste-312")
                 .status(StatusUsuario.INATIVO)
                 .plano(Plano.PLUS)
@@ -108,7 +104,6 @@ class UsuarioControllerTest {
     void deveCadastrarComSucesso() throws Exception {
         usuarioDto.setId(null);
 
-        Mockito.when(usuarioRepository.findByCpf(anyString())).thenReturn(Optional.empty());
         Mockito.when(criptografiaUseCase.criptografar(anyString())).thenReturn("Senhacriptografada");
         Mockito.when(codigoValidacaoUseCase.gerarCodigo(anyString())).thenReturn("codigovalidacaoemail");
         Mockito.doNothing().when(emailUseCase).enviarCodigoVerificacao(anyString(), anyString());
@@ -125,7 +120,6 @@ class UsuarioControllerTest {
         Assertions.assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, usuarioCaptor.getValue().getStatus());
         Assertions.assertEquals(Plano.GRATIS, usuarioCaptor.getValue().getPlano());
 
-        Mockito.verify(usuarioRepository).findByCpf(anyString());
         Mockito.verify(criptografiaUseCase).criptografar(anyString());
         Mockito.verify(usuarioRepository).save(any());
     }

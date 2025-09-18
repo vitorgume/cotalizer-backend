@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,8 +43,8 @@ class GoogleOAuth2SuccessHandlerTest {
 
     private static final String MENU_URL = "http://localhost:5173/menu";
     private static final String LOGIN_URL = "http://localhost:5173/login/sucesso";
-    private static final boolean SECURE = false;   // ajuste se necessário
-    private static final String SAME_SITE = "Lax";   // ex: "None" | "Lax" | "Strict"
+    private static final boolean SECURE = false;
+    private static final String SAME_SITE = "Lax";
 
     @BeforeEach
     void setUp() {
@@ -68,7 +69,7 @@ class GoogleOAuth2SuccessHandlerTest {
                 .id(UUID.randomUUID().toString())
                 .email(email)
                 .nome("Maria")
-                .cnpj("00.000.000/0001-91")
+                .tipoCadastro(TipoCadastro.GOOGLE)
                 .build();
 
         when(authentication.getPrincipal()).thenReturn(oAuth2User);
@@ -104,6 +105,7 @@ class GoogleOAuth2SuccessHandlerTest {
                 .id(UUID.randomUUID().toString())
                 .email(email)
                 .nome("João")
+                .tipoCadastro(TipoCadastro.TRADICIONAL)
                 .build();
 
         when(authentication.getPrincipal()).thenReturn(oAuth2User);
@@ -133,7 +135,7 @@ class GoogleOAuth2SuccessHandlerTest {
                 .id(UUID.randomUUID().toString())
                 .email(email)
                 .nome("Ana")
-                .cpf("123.456.789-00")
+                .tipoCadastro(TipoCadastro.GOOGLE)
                 .build();
 
         when(authentication.getPrincipal()).thenReturn(oAuth2User);
