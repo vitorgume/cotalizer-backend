@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum Plano {
     GRATIS(0, "Plano Gratuito", 5),
     PLUS(1, "Plano Plus", 100),
-    ENTERPRISE(2, "Plano Enterprise", 5000);
+    ENTERPRISE(2, "Plano Enterprise", 500);
 
     private final int codigo;
     private final String descricao;
