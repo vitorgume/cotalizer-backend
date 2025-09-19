@@ -13,10 +13,8 @@ public class EmailUseCase {
 
     private final JavaMailSender mailSender;
 
-    @Value("${cotalizer.email.avaliacao}")
     private final String EMAIL_AVALIACAO;
 
-    @Value("${cotalizer.url.alteracao-email}")
     private final String URL_ALTERACAO_EMAIL;
 
     public EmailUseCase(

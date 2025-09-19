@@ -23,7 +23,6 @@ class AssinaturaDataProviderTest {
 
     private static final String API_KEY = "minha-api-key";
     private static final String URL_BASE = "http://localhost:8081/assinaturas";
-
     @Mock
     private WebClient webClient;
 
@@ -116,7 +115,7 @@ class AssinaturaDataProviderTest {
 
         given(deleteMono.block()).willReturn(Map.of());
         given(webClient.delete()).willReturn(deleteUriSpec);
-        given(deleteUriSpec.uri(startsWith(URL_BASE + "/"))).willReturn(deleteHeadersSpec);
+        given(deleteUriSpec.uri(startsWith(URL_BASE))).willReturn(deleteHeadersSpec);
         given(deleteHeadersSpec.header("x-api-key", API_KEY)).willReturn(deleteHeadersSpec);
         given(deleteHeadersSpec.retrieve()).willReturn(deleteResponseSpec);
         given(deleteResponseSpec.bodyToMono(Map.class)).willReturn(deleteMono);

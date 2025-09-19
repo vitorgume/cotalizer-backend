@@ -68,4 +68,10 @@ class CpfValidatorTest {
         assertTrue(validator.isValid(cpfValido, context),
                 () -> "Esperava true para CPF válido: " + cpfValido);
     }
+
+    @Test
+    void cpfValido_quandoAmbosDigitosFinaisSaoZero_deveRetornarTrue() {
+        assertTrue(validator.isValid("00349968500", context));
+    }
+
 }

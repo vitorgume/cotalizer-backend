@@ -11,8 +11,6 @@ public interface UsuarioGateway {
 
     Optional<Usuario> consultarPorId(String idUsuario);
 
-    Optional<Usuario> consultarPorCpf(String cpf);
-
     Optional<Usuario> consultarPorEmail(String email);
 
     List<Usuario> listar();

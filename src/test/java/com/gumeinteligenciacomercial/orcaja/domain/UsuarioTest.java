@@ -14,8 +14,6 @@ class UsuarioTest {
                 .email("Novo email")
                 .telefone("0000000000001")
                 .status(StatusUsuario.INATIVO)
-                .cpf("0000000000001")
-                .cnpj("3333333333331")
                 .plano(Plano.PLUS)
                 .feedback(true)
                 .build();
@@ -25,8 +23,6 @@ class UsuarioTest {
                 .email("email")
                 .telefone("0000000000000")
                 .status(StatusUsuario.ATIVO)
-                .cpf("0000000000000")
-                .cnpj("3333333333330")
                 .plano(Plano.GRATIS)
                 .feedback(false)
                 .build();
@@ -37,8 +33,6 @@ class UsuarioTest {
         Assertions.assertEquals(usuario.getEmail(), novosDados.getEmail());
         Assertions.assertEquals(usuario.getTelefone(), novosDados.getTelefone());
         Assertions.assertEquals(usuario.getStatus(), novosDados.getStatus());
-        Assertions.assertEquals(usuario.getCpf(), novosDados.getCpf());
-        Assertions.assertEquals(usuario.getCnpj(), novosDados.getCnpj());
         Assertions.assertEquals(usuario.getPlano(), novosDados.getPlano());
         Assertions.assertTrue(usuario.getFeedback());
     }

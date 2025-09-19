@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ArquivoUseCaseTest {
+class   ArquivoUseCaseTest {
 
     @Mock
     OrcamentoIaUseCase orcamentoIaUseCase;
@@ -338,4 +338,67 @@ class ArquivoUseCaseTest {
 
         verify(gateway).carregarArquivo(key);
     }
+
+    @Test
+    void deveDeletarArquivoComSucesso() {
+        String key = "/pasta/arquivo.";
+        Mockito.doNothing().when(gateway).deletarArquivo(anyString());
+
+        sut.deletaArquivo(key);
+
+        verify(gateway).deletarArquivo(anyString());
+    }
+
+    @Test
+    void deveDeletarLogoComSucesso() {
+        String key = "/pasta/logo.";
+        Mockito.doNothing().when(gateway).deletarLogo(anyString());
+
+        sut.deletarLogo(key);
+
+        verify(gateway).deletarLogo(anyString());
+    }
+
+    @Test
+    void acessarArquivo_quandoComecaComBarraApenas_removeBarraInicial() {
+        String sujo = "   /dir/arquivo.txt   ";
+        String esperado = "dir/arquivo.txt";
+        Resource resource = mock(Resource.class);
+
+        when(gateway.carregarArquivo(esperado)).thenReturn(resource);
+
+        var out = sut.acessarArquivo(sujo);
+
+        assertSame(resource, out);
+        verify(gateway).carregarArquivo(esperado);
+    }
+
+    @Test
+    void acessarArquivo_quandoTerminaComPontoApenas_removePontoFinal() {
+        String sujo = "dir/sub/arquivo.   ";
+        String esperado = "dir/sub/arquivo";
+        Resource resource = mock(Resource.class);
+
+        when(gateway.carregarArquivo(esperado)).thenReturn(resource);
+
+        var out = sut.acessarArquivo(sujo);
+
+        assertSame(resource, out);
+        verify(gateway).carregarArquivo(esperado);
+    }
+
+    @Test
+    void acessarArquivo_quandoNaoPrecisaSanitizar_mantemChave() {
+        String sujo = "dir/sub/arquivo";
+        String esperado = "dir/sub/arquivo";
+        Resource resource = mock(Resource.class);
+
+        when(gateway.carregarArquivo(esperado)).thenReturn(resource);
+
+        var out = sut.acessarArquivo(sujo);
+
+        assertSame(resource, out);
+        verify(gateway).carregarArquivo(esperado);
+    }
+
 }

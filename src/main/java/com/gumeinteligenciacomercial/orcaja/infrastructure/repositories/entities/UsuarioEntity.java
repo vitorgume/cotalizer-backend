@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entitie
 
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -21,8 +22,6 @@ public class UsuarioEntity {
     private String nome;
     private String email;
     private String telefone;
-    private String cpf;
-    private String cnpj;
     private String senha;
     private StatusUsuario status;
     private Plano plano;
@@ -32,4 +31,5 @@ public class UsuarioEntity {
     private Boolean feedback;
     private Integer quantidadeOrcamentos;
     private LocalDateTime dataCriacao;
+    private TipoCadastro tipoCadastro;
 }

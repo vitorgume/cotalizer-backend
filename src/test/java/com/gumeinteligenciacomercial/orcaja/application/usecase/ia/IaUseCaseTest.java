@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.ia;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ConversaoJsonException;
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.ErroEnviarParaIaException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.IaGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.OpenIaResponseDto;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.PromptDto;
@@ -98,7 +99,7 @@ class IaUseCaseTest {
         when(gateway.enviarMensagem(any())).thenReturn(responseIa);
 
         assertThrows(
-                ConversaoJsonException.class,
+                ErroEnviarParaIaException.class,
                 () -> iaUseCase.gerarOrcamento("texto qualquer")
         );
     }

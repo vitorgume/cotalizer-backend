@@ -101,6 +101,8 @@ class OrcamentoControllerTest {
         usuarioEntity = UsuarioEntity.builder()
                 .id("id-teste")
                 .plano(Plano.GRATIS)
+                .quantidadeOrcamentos(0)
+                .email("emailteste@gmail.com")
                 .build();
 
         pageOrcamentos = new PageImpl<>(List.of(
@@ -132,7 +134,7 @@ class OrcamentoControllerTest {
         orcamentoIA.put("desconto", "10%");
 
         Mockito.when(usuarioRepository.findById(anyString())).thenReturn(Optional.of(usuarioEntity));
-        Mockito.when(orcamentoRepository.findByIdUsuario(anyString(), any())).thenReturn(pageOrcamentos);
+        Mockito.when(usuarioRepository.save(any())).thenReturn(usuarioEntity);
         Mockito.when(iaUseCase.gerarOrcamento(anyString()))
                 .thenReturn(new HashMap<>(orcamentoIA));
         Mockito.when(orcamentoRepository.save(any())).thenReturn(orcamento);
@@ -144,8 +146,7 @@ class OrcamentoControllerTest {
                 .andExpect(header().string("Location", "/orcamentos/" + orcamento.getId()))
                 .andExpect(jsonPath("$.dado.id").value(orcamento.getId()));
 
-        Mockito.verify(usuarioRepository).findById(anyString());
-        Mockito.verify(orcamentoRepository).findByIdUsuario(anyString(), any());
+        Mockito.verify(usuarioRepository, Mockito.times(3)).findById(anyString());
         Mockito.verify(iaUseCase).gerarOrcamento(anyString());
         Mockito.verify(orcamentoRepository).save(any());
     }

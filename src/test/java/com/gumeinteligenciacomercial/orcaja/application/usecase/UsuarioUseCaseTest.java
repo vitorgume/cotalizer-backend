@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,20 +51,16 @@ class UsuarioUseCaseTest {
         Usuario u = Usuario.builder()
                 .email("e@x.com")
                 .senha("raw")
-                .cpf("123")
-                .cnpj("456")
                 .build();
         when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
         Usuario saved = Usuario.builder().id(userId).build();
         when(gateway.salvar(captor.capture())).thenReturn(saved);
-        when(gateway.consultarPorCpf(anyString())).thenReturn(Optional.empty());
 
         useCase.cadastrar(u);
 
         Usuario result = captor.getValue();
 
         assertEquals("hashed", u.getSenha());
-        verify(gateway).consultarPorCpf("123");
         verify(criptografiaUseCase).criptografar("raw");
         verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
         verify(gateway).salvar(u);
@@ -73,14 +70,14 @@ class UsuarioUseCaseTest {
 
     @Test
     void cadastrarJaExistenteLancaUsuarioJaCadastradoException() {
-        Usuario exists = Usuario.builder().cpf("123").build();
-        when(gateway.consultarPorCpf("123")).thenReturn(Optional.of(exists));
-        Usuario toCreate = Usuario.builder().cpf("123").build();
+        Usuario exists = Usuario.builder().email("emailteste").build();
+        when(gateway.consultarPorEmail("emailteste")).thenReturn(Optional.of(exists));
+        Usuario toCreate = Usuario.builder().email("emailteste").build();
 
         assertThrows(UsuarioJaCadastradoException.class,
                 () -> useCase.cadastrar(toCreate)
         );
-        verify(gateway).consultarPorCpf("123");
+        verify(gateway).consultarPorEmail("emailteste");
         verifyNoMoreInteractions(gateway);
     }
 
@@ -256,5 +253,78 @@ class UsuarioUseCaseTest {
         );
         verify(codigoAlteracaoSenhaUseCase).validaCodigoAlteracaoSenha(code);
         verifyNoMoreInteractions(gateway, criptografiaUseCase, emailUseCase, codigoValidacaoUseCase);
+    }
+
+    @Test
+    void ajustarQuantidadeOrcamentoMensal_quandoHaUsuarios_zeraContadorEAlteraCadaUm() {
+        Usuario u1 = Usuario.builder()
+                .id("u1").email("a@x.com").quantidadeOrcamentos(5).build();
+        Usuario u2 = Usuario.builder()
+                .id("u2").email("b@x.com").quantidadeOrcamentos(2).build();
+
+        when(gateway.listar()).thenReturn(List.of(u1, u2));
+
+        when(gateway.consultarPorId("u1")).thenReturn(Optional.of(u1));
+        when(gateway.consultarPorId("u2")).thenReturn(Optional.of(u2));
+
+        when(gateway.salvar(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        useCase.ajustarQuantidadeOrcamentoMensal();
+
+        verify(gateway).listar();
+
+        verify(gateway).consultarPorId("u1");
+        verify(gateway).consultarPorId("u2");
+
+        verify(gateway, times(2)).salvar(captor.capture());
+        List<Usuario> salvos = captor.getAllValues();
+        assertEquals(2, salvos.size());
+        assertEquals(0, salvos.get(0).getQuantidadeOrcamentos());
+        assertEquals(0, salvos.get(1).getQuantidadeOrcamentos());
+
+        assertEquals(0, u1.getQuantidadeOrcamentos());
+        assertEquals(0, u2.getQuantidadeOrcamentos());
+    }
+
+    @Test
+    void ajustarQuantidadeOrcamentoMensalQuandoListaVaziaNaoSalvaNada() {
+        when(gateway.listar()).thenReturn(List.of());
+
+        useCase.ajustarQuantidadeOrcamentoMensal();
+
+        verify(gateway).listar();
+        verify(gateway, never()).consultarPorId(anyString());
+        verify(gateway, never()).salvar(any());
+    }
+
+    @Test
+    void alterarSenha_quandoValidadorRetornaNull_naoCriptografaMasAindaSalva() {
+        String code = "c-null";
+        when(codigoAlteracaoSenhaUseCase.validaCodigoAlteracaoSenha(code)).thenReturn(null);
+
+        Usuario u = Usuario.builder().id(null).senha("old").build();
+        when(gateway.consultarPorId(isNull())).thenReturn(Optional.of(u));
+
+        when(gateway.salvar(u)).thenReturn(u);
+
+        Usuario res = useCase.alterarSenha("nova", code);
+
+        assertSame(u, res);
+        verify(criptografiaUseCase, never()).criptografar(anyString());
+        verify(codigoAlteracaoSenhaUseCase).validaCodigoAlteracaoSenha(code);
+        verify(gateway).consultarPorId(isNull());
+        verify(gateway).salvar(u);
+    }
+
+    @Test
+    void reenviarCodigoEmail_quandoUsuarioNaoExiste_devePropagarExceptionESemEnvio() {
+        String email = "no@x";
+        when(gateway.consultarPorEmail(email)).thenReturn(Optional.empty());
+
+        assertThrows(UsuarioNaoEncontradoException.class,
+                () -> useCase.reenviarCodigoEmail(email));
+
+        verify(gateway).consultarPorEmail(email);
+        verifyNoInteractions(codigoValidacaoUseCase, emailUseCase);
     }
 }

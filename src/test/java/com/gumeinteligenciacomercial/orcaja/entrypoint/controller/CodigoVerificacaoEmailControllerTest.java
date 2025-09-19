@@ -37,7 +37,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "cotalizer.email.avaliacao=EMAIL_TESTE",
                 "app.storage.s3.bucket=s3_teste",
                 "app.storage.s3.region=teste",
-                "app.files.public-base-url=teste"
+                "app.files.public-base-url=teste",
+                "api.assinatura.url=teste",
+                "cotalizer.url.alteracao-email=EMAIL_TESTE",
+                "google.redirect.menu.url=teste",
+                "google.redirect.login.url=teste",
+                "app.security.csrf.secure=false",
+                "app.security.csrf.sameSite=None"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)

@@ -5,6 +5,7 @@ import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CNPJ;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.cpf_cnpj.CPF;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -38,18 +39,6 @@ public class UsuarioDto {
     @JsonProperty("telefone")
     private String telefone;
 
-    @Pattern(
-            regexp = "^\\d{14}$",
-            message = "O CNPJ deve conter exatamente 14 dígitos numéricos, sem formatação"
-    )
-    @JsonProperty("cpf")
-    @CPF
-    private String cpf;
-
-    @JsonProperty("cnpj")
-    @CNPJ
-    private String cnpj;
-
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).+$",
@@ -80,4 +69,7 @@ public class UsuarioDto {
 
     @JsonProperty("data_criacao")
     private LocalDateTime dataCriacao;
+
+    @JsonProperty("tipo_cadastro")
+    private TipoCadastro tipoCadastro;
 }

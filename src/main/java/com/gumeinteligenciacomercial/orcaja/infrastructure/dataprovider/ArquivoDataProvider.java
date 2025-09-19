@@ -14,6 +14,7 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -38,15 +39,11 @@ public class ArquivoDataProvider implements ArquivoGateway {
             @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
             @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
             @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
-            @Value("${app.storage.s3.path-style:false}") boolean pathStyle,
+            @Value("${app.storage.s3.endpoint:}") Optional<String> endpointOpt,
+            @Value("${app.storage.s3.path-style:false}") boolean pathStyleProp,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
-        // Config S3: sem endpointOverride em produção
-        var s3Cfg = S3Configuration.builder()
-                .pathStyleAccessEnabled(pathStyle) // true se bucket tiver "." no nome
-                .build();
-
-        // Credenciais
+        // ===== Credenciais =====
         AwsCredentialsProvider credsProvider;
         boolean hasAccess = accessKey.filter(k -> !k.isBlank()).isPresent();
         boolean hasSecret = secretKey.filter(s -> !s.isBlank()).isPresent();
@@ -61,23 +58,42 @@ public class ArquivoDataProvider implements ArquivoGateway {
                     : StaticCredentialsProvider.create(
                     AwsBasicCredentials.create(accessKey.get(), secretKey.get()));
         } else {
-            // AWS real: usa env/profile/role (DefaultCredentialsProvider)
             credsProvider = DefaultCredentialsProvider.create();
         }
 
-        this.s3 = S3Client.builder()
-                .region(Region.of(region))
-                .serviceConfiguration(s3Cfg)
-                .credentialsProvider(credsProvider)
+        // ===== Endpoint/Path-style =====
+        // Se temos endpoint (ex.: LocalStack), força path-style (a menos que o prop já esteja true)
+        boolean usandoEndpointCustom = endpointOpt.filter(s -> !s.isBlank()).isPresent();
+        boolean pathStyle = usandoEndpointCustom || pathStyleProp;
+
+        S3Configuration s3Cfg = S3Configuration.builder()
+                .pathStyleAccessEnabled(pathStyle)
                 .build();
 
-        this.presigner = S3Presigner.builder()
+        S3ClientBuilder s3b = S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(credsProvider)
-                .build();
+                .serviceConfiguration(s3Cfg)
+                .credentialsProvider(credsProvider);
+
+        S3Presigner.Builder presignerBuilder = S3Presigner.builder()
+                .region(Region.of(region))
+                .credentialsProvider(credsProvider);
+
+        endpointOpt.ifPresent(ep -> {
+            URI uri = URI.create(ep);
+            s3b.endpointOverride(uri);
+            presignerBuilder.endpointOverride(uri);
+            log.info("S3 endpointOverride aplicado: {}", ep);
+        });
+
+        this.s3 = s3b.build();
+        this.presigner = presignerBuilder.build();
 
         this.bucket = bucket;
         this.publicBaseUrl = publicBaseUrl.endsWith("/") ? publicBaseUrl : publicBaseUrl + "/";
+
+        log.info("S3 configurado -> region={}, pathStyle={}, endpointPresent={}",
+                region, pathStyle, usandoEndpointCustom);
     }
 
 

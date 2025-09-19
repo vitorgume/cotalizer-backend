@@ -55,7 +55,7 @@ public class AssinaturaDataProvider implements AssinaturaGateway {
     public void enviarCancelamento(String idUsuario) {
         try {
             webClient.delete()
-                    .uri(API_ASSINATURA_URL + idUsuario)
+                    .uri(API_ASSINATURA_URL + "/" + idUsuario)
                     .header("x-api-key", API_ASSINATURAS_KEY)
                     .retrieve()
                     .bodyToMono(Map.class)

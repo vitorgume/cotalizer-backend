@@ -55,20 +55,6 @@ public class UsuarioDataProvider implements UsuarioGateway {
     }
 
     @Override
-    public Optional<Usuario> consultarPorCpf(String cpf) {
-        Optional<UsuarioEntity> usuarioEntity;
-
-        try {
-            usuarioEntity = repository.findByCpf(cpf);
-        } catch (Exception ex) {
-            log.error(MENSAGEM_ERRO_CONSULTAR_POR_CPF, ex);
-            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_CPF, ex.getCause());
-        }
-
-        return usuarioEntity.map(UsuarioMapper::paraDomain);
-    }
-
-    @Override
     public Optional<Usuario> consultarPorEmail(String email) {
         Optional<UsuarioEntity> usuarioEntity;
 

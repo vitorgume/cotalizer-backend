@@ -1,7 +1,9 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.CredenciasIncorretasException;
+import com.gumeinteligenciacomercial.orcaja.application.gateway.AuthTokenGateway;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.LoginGateway;
+import com.gumeinteligenciacomercial.orcaja.domain.AuthResult;
 import com.gumeinteligenciacomercial.orcaja.domain.Login;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import org.junit.jupiter.api.Test;
@@ -20,47 +22,13 @@ class LoginUseCaseTest {
     private UsuarioUseCase usuarioUseCase;
 
     @Mock
-    private LoginGateway gateway;
+    private AuthTokenGateway tokenGateway;
+
     @Mock
     private CriptografiaUseCase criptografiaUseCase;
 
     @InjectMocks
     private LoginUseCase loginUseCase;
-
-//    @Test
-//    void autenticarSucessoRetornaLoginCorreto() {
-//        String email = "john@example.com";
-//        String senhaRaw = "password";
-//        String hashed = "hashedPassword";
-//        String usuarioId = "u1";
-//        String token = "jwt-token";
-//
-//        Login loginInput = Login.builder()
-//                .email(email)
-//                .senha(senhaRaw)
-//                .build();
-//
-//        Usuario usuario = Usuario.builder()
-//                .email(email)
-//                .senha(hashed)
-//                .id(usuarioId)
-//                .build();
-//
-//        when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
-//        when(criptografiaUseCase.validaSenha(senhaRaw, hashed)).thenReturn(true);
-//        when(gateway.generateToken(email, usuarioId)).thenReturn(token);
-//
-//        Login result = loginUseCase.autenticar(loginInput);
-//
-//        assertEquals(token, result.getToken());
-//        assertEquals(email, result.getEmail());
-//        assertEquals(usuarioId, result.getUsuarioId());
-//
-//        verify(usuarioUseCase).consultarPorEmail(email);
-//        verify(criptografiaUseCase).validaSenha(senhaRaw, hashed);
-//        verify(gateway).generateToken(email, usuarioId);
-//        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, gateway);
-//    }
 
     @Test
     void autenticarSenhaIncorretaLancarExcecao() {
@@ -87,7 +55,7 @@ class LoginUseCaseTest {
 
         verify(usuarioUseCase).consultarPorEmail(email);
         verify(criptografiaUseCase).validaSenha(senhaRaw, hashed);
-        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, gateway);
+        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, tokenGateway);
     }
 
     @Test
@@ -114,28 +82,61 @@ class LoginUseCaseTest {
 
         verify(usuarioUseCase).consultarPorEmail(emailInput);
         verify(criptografiaUseCase, never()).validaSenha(any(), any());
-        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, gateway);
+        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, tokenGateway);
     }
 
-//    @Test
-//    void gerarTokenJwtDeveRetornarToken() {
-//        String email = "john@example.com";
-//        String usuarioId = "u1";
-//        String token = "jwt-token";
-//
-//        Usuario usuario = Usuario.builder()
-//                .id(usuarioId)
-//                .email(email)
-//                .build();
-//
-//        when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
-//        when(gateway.generateToken(email, usuarioId)).thenReturn(token);
-//
-//        String result = loginUseCase.gerarTokenJwt(email);
-//
-//        assertEquals(token, result);
-//        verify(usuarioUseCase).consultarPorEmail(email);
-//        verify(gateway).generateToken(email, usuarioId);
-//        verifyNoMoreInteractions(usuarioUseCase, gateway);
-//    }
+    @Test
+    void autenticarSucesso_deveGerarTokensERetornarAuthResult() {
+        String email = "ok@example.com";
+        String senhaRaw = "secret";
+        String hashed = "hashed";
+        String userId = "u-123";
+
+        Login loginInput = Login.builder()
+                .email(email)
+                .senha(senhaRaw)
+                .build();
+        Usuario usuario = Usuario.builder()
+                .id(userId)
+                .email(email)
+                .senha(hashed)
+                .build();
+
+        when(usuarioUseCase.consultarPorEmail(email)).thenReturn(usuario);
+        when(criptografiaUseCase.validaSenha(senhaRaw, hashed)).thenReturn(true);
+        when(tokenGateway.generateAccessToken(email, userId, null)).thenReturn("ACCESS_X");
+        when(tokenGateway.generateRefreshToken(email, userId)).thenReturn("REFRESH_Y");
+
+        AuthResult res = loginUseCase.autenticar(loginInput);
+
+        assertNotNull(res);
+        assertEquals(usuario, res.getUsuario());
+        assertEquals("ACCESS_X", res.getAccessToken());
+        assertEquals("REFRESH_Y", res.getRefreshToken());
+
+        verify(usuarioUseCase).consultarPorEmail(email);
+        verify(criptografiaUseCase).validaSenha(senhaRaw, hashed);
+        verify(tokenGateway).generateAccessToken(email, userId, null);
+        verify(tokenGateway).generateRefreshToken(email, userId);
+        verifyNoMoreInteractions(usuarioUseCase, criptografiaUseCase, tokenGateway);
+    }
+
+    @Test
+    void autenticarQuandoUsuarioNulo_deveLancarCredenciasIncorretas() {
+        String email = "missing@example.com";
+        String senha = "x";
+
+        Login loginInput = Login.builder()
+                .email(email)
+                .senha(senha)
+                .build();
+
+        when(usuarioUseCase.consultarPorEmail(email)).thenReturn(null);
+
+        assertThrows(CredenciasIncorretasException.class,
+                () -> loginUseCase.autenticar(loginInput));
+
+        verify(usuarioUseCase).consultarPorEmail(email);
+        verifyNoInteractions(criptografiaUseCase, tokenGateway);
+    }
 }
