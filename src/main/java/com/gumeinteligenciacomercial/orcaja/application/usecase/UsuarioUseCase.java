@@ -35,7 +35,7 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        if(usuario.getTipoCadastro() == null) {
+        if(usuario.getTipoCadastro().equals(TipoCadastro.TRADICIONAL)) {
             this.validacaoEmail(usuario.getEmail());
         }
 
