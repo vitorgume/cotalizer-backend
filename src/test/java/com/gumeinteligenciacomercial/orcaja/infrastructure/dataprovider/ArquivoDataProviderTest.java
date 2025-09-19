@@ -45,7 +45,7 @@ class ArquivoDataProviderTest {
                 "us-east-1",
                 Optional.empty(),
                 Optional.of(""),
-                null,
+                Optional.empty(),
                 Optional.empty(),
                 false,
                 "https://pub.example.com"
@@ -289,7 +289,7 @@ class ArquivoDataProviderTest {
                 Optional.empty(),
                 Optional.empty(),
                 Optional.of(""),
-                null,
+                Optional.empty(),
                 false,
                 "https://pub.example.com"
         );

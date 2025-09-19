@@ -39,7 +39,7 @@ public class ArquivoDataProvider implements ArquivoGateway {
             @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
             @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
             @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
-            @Value("${app.storage.s3.endpoint:}") Optional<String> endpointOpt,
+            @Value("${app.storage.s3.endpoint}") Optional<String> endpointOpt,
             @Value("${app.storage.s3.path-style:false}") boolean pathStyleProp,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
