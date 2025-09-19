@@ -43,10 +43,10 @@ class ArquivoDataProviderTest {
         provider = new ArquivoDataProvider(
                 "bucket-x",
                 "us-east-1",
-                Optional.empty(),
-                Optional.of(""),
-                Optional.empty(),
-                Optional.empty(),
+                "",
+                "",
+                "",
+                "",
                 false,
                 "https://pub.example.com"
         );
@@ -286,10 +286,10 @@ class ArquivoDataProviderTest {
         ArquivoDataProvider local = new ArquivoDataProvider(
                 "bucket-x",
                 "us-east-1",
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(""),
-                Optional.empty(),
+                "",
+                "",
+                "",
+                "",
                 false,
                 "https://pub.example.com"
         );
@@ -350,7 +350,12 @@ class ArquivoDataProviderTest {
     @Test
     void deletarLogo_quandoPrefixoTemPaginas_multipasChamadasDeleteObjects() throws Exception {
         ArquivoDataProvider local = new ArquivoDataProvider(
-                "bucket-x","us-east-1", Optional.empty(),Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+                "bucket-x","us-east-1", "",
+                "",
+                "",
+                "",
+                false,
+                "https://pub.example.com");
         setPrivateField(local, "s3", s3);
 
         ListObjectsV2Response page1 = ListObjectsV2Response.builder()
@@ -397,7 +402,10 @@ class ArquivoDataProviderTest {
             "plain/key, plain/key"
     })
     void normalizeKey_variosCaminhos(String in, String expected) throws Exception {
-        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", Optional.empty(),Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", "",
+                "",
+                "",
+                "", false, "https://pub.example.com");
         setPrivateField(p, "s3", s3);
         var m = ArquivoDataProvider.class.getDeclaredMethod("normalizeKey", String.class);
         m.setAccessible(true);
@@ -414,7 +422,10 @@ class ArquivoDataProviderTest {
             "c.jpg, true"
     })
     void hasExtension_casos(String key, boolean expected) throws Exception {
-        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", Optional.empty(),Optional.empty(), Optional.of(""), null, false, "https://pub.example.com");
+        ArquivoDataProvider p = new ArquivoDataProvider("bucket-x","us-east-1", "",
+                "",
+                "",
+                "", false, "https://pub.example.com");
         var m = ArquivoDataProvider.class.getDeclaredMethod("hasExtension", String.class);
         m.setAccessible(true);
         boolean out = (boolean) m.invoke(p, key);
