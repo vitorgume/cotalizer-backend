@@ -7,6 +7,7 @@ import com.gumeinteligenciacomercial.orcaja.application.usecase.CriptografiaUseC
 import com.gumeinteligenciacomercial.orcaja.application.usecase.EmailUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.AlteracaoSenhaDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
@@ -84,6 +85,7 @@ class UsuarioControllerTest {
                 .idCustomer("id-customer-teste-2")
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste 2")
+                .tipoCadastro(TipoCadastro.TRADICIONAL)
                 .build();
 
         usuario = UsuarioEntity.builder()
@@ -97,6 +99,7 @@ class UsuarioControllerTest {
                 .idCustomer("id-customer-teste-2")
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste-1")
+                .tipoCadastro(TipoCadastro.TRADICIONAL)
                 .build();
     }
 
