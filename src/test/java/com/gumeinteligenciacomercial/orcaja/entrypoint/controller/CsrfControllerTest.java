@@ -36,7 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "google.redirect.menu.url=teste",
                 "google.redirect.login.url=test",
                 "app.security.csrf.secure=false",
-                "app.security.csrf.sameSite=None"
+                "app.security.csrf.sameSite=None",
+                "app.storage.s3.endpoint=http://localhost:4566"
         }
 )
 @AutoConfigureMockMvc(addFilters = true)

@@ -5,10 +5,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.CodigoInvalid
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioJaCadastradoException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
-import com.gumeinteligenciacomercial.orcaja.domain.Plano;
-import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
-import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
-import com.gumeinteligenciacomercial.orcaja.domain.VerificacaoEmail;
+import com.gumeinteligenciacomercial.orcaja.domain.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,6 +48,7 @@ class UsuarioUseCaseTest {
         Usuario u = Usuario.builder()
                 .email("e@x.com")
                 .senha("raw")
+                .tipoCadastro(TipoCadastro.TRADICIONAL)
                 .build();
         when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
         Usuario saved = Usuario.builder().id(userId).build();

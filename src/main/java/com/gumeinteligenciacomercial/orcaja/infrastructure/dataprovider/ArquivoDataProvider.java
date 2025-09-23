@@ -36,64 +36,62 @@ public class ArquivoDataProvider implements ArquivoGateway {
     public ArquivoDataProvider(
             @Value("${app.storage.s3.bucket}") String bucket,
             @Value("${app.storage.s3.region}") String region,
-            @Value("${app.storage.s3.access-key:}") Optional<String> accessKey,
-            @Value("${app.storage.s3.secret-key:}") Optional<String> secretKey,
-            @Value("${app.storage.s3.session-token:}") Optional<String> sessionToken,
-            @Value("${app.storage.s3.endpoint:}") Optional<String> endpointOpt,
-            @Value("${app.storage.s3.path-style:false}") boolean pathStyleProp,
+            @Value("${app.storage.s3.access-key:}") String accessKey,
+            @Value("${app.storage.s3.secret-key:}") String secretKey,
+            @Value("${app.storage.s3.session-token:}") String sessionToken,
+            @Value("${app.storage.s3.endpoint:}") String endpoint,
+            @Value("${app.storage.s3.path-style:false}") boolean pathStyle,
             @Value("${app.files.public-base-url}") String publicBaseUrl
     ) {
-        // ===== Credenciais =====
+        // Config do S3
+        var s3Cfg = S3Configuration.builder()
+                .pathStyleAccessEnabled(pathStyle)
+                .build();
+
+        // Credenciais
         AwsCredentialsProvider credsProvider;
-        boolean hasAccess = accessKey.filter(k -> !k.isBlank()).isPresent();
-        boolean hasSecret = secretKey.filter(s -> !s.isBlank()).isPresent();
+        boolean hasAccess = accessKey != null && !accessKey.isBlank();
+        boolean hasSecret = secretKey != null && !secretKey.isBlank();
 
         if (hasAccess || hasSecret) {
-            if (!(hasAccess && hasSecret)) {
+            if (!hasAccess || !hasSecret) {
                 throw new IllegalStateException("Defina access-key e secret-key ou nenhuma das duas.");
             }
-            credsProvider = sessionToken.filter(t -> !t.isBlank()).isPresent()
-                    ? StaticCredentialsProvider.create(
-                    AwsSessionCredentials.create(accessKey.get(), secretKey.get(), sessionToken.get()))
-                    : StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKey.get(), secretKey.get()));
+            if (sessionToken != null && !sessionToken.isBlank()) {
+                credsProvider = StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create(accessKey, secretKey, sessionToken));
+            } else {
+                credsProvider = StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey));
+            }
         } else {
             credsProvider = DefaultCredentialsProvider.create();
         }
 
-        // ===== Endpoint/Path-style =====
-        // Se temos endpoint (ex.: LocalStack), força path-style (a menos que o prop já esteja true)
-        boolean usandoEndpointCustom = endpointOpt.filter(s -> !s.isBlank()).isPresent();
-        boolean pathStyle = usandoEndpointCustom || pathStyleProp;
-
-        S3Configuration s3Cfg = S3Configuration.builder()
-                .pathStyleAccessEnabled(pathStyle)
-                .build();
-
-        S3ClientBuilder s3b = S3Client.builder()
+        var s3Builder = S3Client.builder()
                 .region(Region.of(region))
                 .serviceConfiguration(s3Cfg)
                 .credentialsProvider(credsProvider);
 
-        S3Presigner.Builder presignerBuilder = S3Presigner.builder()
+        var presignerBuilder = S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(credsProvider);
 
-        endpointOpt.ifPresent(ep -> {
-            URI uri = URI.create(ep);
-            s3b.endpointOverride(uri);
-            presignerBuilder.endpointOverride(uri);
-            log.info("S3 endpointOverride aplicado: {}", ep);
-        });
+        // Só aplica endpointOverride quando houver um endpoint não-vazio
+        Optional.ofNullable(endpoint)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .ifPresent(ep -> {
+                    URI uri = URI.create(ep); // vai lançar IllegalArgumentException se malformado
+                    s3Builder.endpointOverride(uri);
+                    presignerBuilder.endpointOverride(uri);
+                });
 
-        this.s3 = s3b.build();
+        this.s3 = s3Builder.build();
         this.presigner = presignerBuilder.build();
 
         this.bucket = bucket;
         this.publicBaseUrl = publicBaseUrl.endsWith("/") ? publicBaseUrl : publicBaseUrl + "/";
-
-        log.info("S3 configurado -> region={}, pathStyle={}, endpointPresent={}",
-                region, pathStyle, usandoEndpointCustom);
     }
 
 

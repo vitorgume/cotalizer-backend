@@ -87,7 +87,7 @@ public class SecurityConfig {
         handler.setCsrfRequestAttributeName("_csrf");
 
         http
-                .securityMatcher("/api/**", "/usuarios/**", "/login", "/auth/**", "/verificaoes/**", "/orcamentos/**", "/csrf", "/assinaturas/**", "/avaliacoes/**")
+                .securityMatcher("/api/**", "/usuarios/**", "/login", "/auth/**", "/verificaoes/**", "/orcamentos/**", "/csrf", "/assinaturas/**", "/avaliacoes/**", "/senhas/**")
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfRepo)
                         .csrfTokenRequestHandler(handler)
