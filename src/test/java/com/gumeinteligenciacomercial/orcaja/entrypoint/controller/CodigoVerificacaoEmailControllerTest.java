@@ -43,7 +43,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "google.redirect.menu.url=teste",
                 "google.redirect.login.url=teste",
                 "app.security.csrf.secure=false",
-                "app.security.csrf.sameSite=None"
+                "app.security.csrf.sameSite=None",
+                "app.id.prompt.ia.gerador-orcamento=teste",
+                "app.id.prompt.ia.interpretador-prompt=teste"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)

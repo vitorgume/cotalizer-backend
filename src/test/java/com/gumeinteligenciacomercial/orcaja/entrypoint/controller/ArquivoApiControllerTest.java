@@ -50,7 +50,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 "google.redirect.login.url=teste",
                 "app.security.csrf.secure=false",
                 "app.security.csrf.sameSite=None",
-                "app.storage.s3.endpoint=http://localhost:4566"
+                "app.storage.s3.endpoint=http://localhost:4566",
+                "app.id.prompt.ia.gerador-orcamento=teste",
+                "app.id.prompt.ia.interpretador-prompt=teste"
         }
 )
 @AutoConfigureMockMvc(addFilters = false)

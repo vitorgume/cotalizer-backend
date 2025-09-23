@@ -11,9 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,34 +47,14 @@ class PromptDataProviderTest {
     }
 
     @Test
-    void buscarPorIdAtivoComSucessoDeveRetornarListaDomain() {
-        given(repository.findByAtivoTrue()).willReturn(List.of(entity1, entity2));
-
-        try (MockedStatic<PromptMapper> ms = mockStatic(PromptMapper.class)) {
-            ms.when(() -> PromptMapper.paraDomain(entity1)).thenReturn(domain1);
-            ms.when(() -> PromptMapper.paraDomain(entity2)).thenReturn(domain2);
-
-            List<Prompt> resultados = provider.buscarPorIdAtivo();
-
-            assertEquals(2, resultados.size());
-            assertSame(domain1, resultados.get(0));
-            assertSame(domain2, resultados.get(1));
-
-            then(repository).should().findByAtivoTrue();
-            ms.verify(() -> PromptMapper.paraDomain(entity1));
-            ms.verify(() -> PromptMapper.paraDomain(entity2));
-        }
-    }
-
-    @Test
     void buscarPorIdAtivoQuandoRepositoryLancarErroDeveLancarDataProviderException() {
-        given(repository.findByAtivoTrue()).willThrow(new RuntimeException("erro remoto"));
+        given(repository.findByIdAndAtivoTrue(Mockito.anyString())).willThrow(new RuntimeException("erro remoto"));
 
         DataProviderException ex = assertThrows(
                 DataProviderException.class,
-                () -> provider.buscarPorIdAtivo()
+                () -> provider.buscarPorIdAtivo("")
         );
         assertEquals(ERR_BUSCAR, ex.getMessage());
-        then(repository).should().findByAtivoTrue();
+        then(repository).should().findByIdAndAtivoTrue("");
     }
 }
