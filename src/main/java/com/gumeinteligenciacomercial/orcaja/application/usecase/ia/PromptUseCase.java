@@ -1,12 +1,13 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.ia;
 
+import com.gumeinteligenciacomercial.orcaja.application.exceptions.PromptNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.PromptGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Prompt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,14 +16,17 @@ public class PromptUseCase {
 
     private final PromptGateway gateway;
 
-    public Prompt buscarAtivo() {
+    public Prompt buscarPorIdAtivo(String idPrompt) {
         log.info("Buscando prompt ativo");
 
-        List<Prompt> prompts = gateway.buscarAtivo();
-        Prompt prompt = prompts.getFirst();
+        Optional<Prompt> prompt = gateway.buscarPorIdAtivo(idPrompt);
+
+        if(prompt.isEmpty()) {
+            throw new PromptNaoEncontradoException();
+        }
 
         log.info("Prompt buscado com sucesso.");
 
-        return prompt;
+        return prompt.get();
     }
 }

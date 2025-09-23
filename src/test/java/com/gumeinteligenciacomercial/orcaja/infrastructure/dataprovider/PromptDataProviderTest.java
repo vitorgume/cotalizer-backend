@@ -45,14 +45,14 @@ class PromptDataProviderTest {
     }
 
     @Test
-    void buscarAtivoComSucessoDeveRetornarListaDomain() {
+    void buscarPorIdAtivoComSucessoDeveRetornarListaDomain() {
         given(repository.findByAtivoTrue()).willReturn(List.of(entity1, entity2));
 
         try (MockedStatic<PromptMapper> ms = mockStatic(PromptMapper.class)) {
             ms.when(() -> PromptMapper.paraDomain(entity1)).thenReturn(domain1);
             ms.when(() -> PromptMapper.paraDomain(entity2)).thenReturn(domain2);
 
-            List<Prompt> resultados = provider.buscarAtivo();
+            List<Prompt> resultados = provider.buscarPorIdAtivo();
 
             assertEquals(2, resultados.size());
             assertSame(domain1, resultados.get(0));
@@ -65,12 +65,12 @@ class PromptDataProviderTest {
     }
 
     @Test
-    void buscarAtivoQuandoRepositoryLancarErroDeveLancarDataProviderException() {
+    void buscarPorIdAtivoQuandoRepositoryLancarErroDeveLancarDataProviderException() {
         given(repository.findByAtivoTrue()).willThrow(new RuntimeException("erro remoto"));
 
         DataProviderException ex = assertThrows(
                 DataProviderException.class,
-                () -> provider.buscarAtivo()
+                () -> provider.buscarPorIdAtivo()
         );
         assertEquals(ERR_BUSCAR, ex.getMessage());
         then(repository).should().findByAtivoTrue();

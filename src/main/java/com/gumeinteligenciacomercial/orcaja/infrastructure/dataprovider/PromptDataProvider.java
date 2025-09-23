@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -21,16 +23,16 @@ public class PromptDataProvider implements PromptGateway {
     private final String MENSAMGE_ERRO_BUSCAR_PROMPT_ATIVO = "Erro ao buscar por prompts ativos.";
 
     @Override
-    public List<Prompt> buscarAtivo() {
-        List<PromptEntity> promptEntities;
+    public Optional<Prompt> buscarPorIdAtivo(String idPrompt) {
+        Optional<PromptEntity> promptEntities;
 
         try {
-            promptEntities = repository.findByAtivoTrue();
+            promptEntities = repository.findByIdAndAtivoTrue(idPrompt);
         } catch (Exception ex) {
             log.error(MENSAMGE_ERRO_BUSCAR_PROMPT_ATIVO, ex);
             throw new DataProviderException(MENSAMGE_ERRO_BUSCAR_PROMPT_ATIVO, ex.getCause());
         }
 
-        return promptEntities.stream().map(PromptMapper::paraDomain).toList();
+        return promptEntities.map(PromptMapper::paraDomain);
     }
 }

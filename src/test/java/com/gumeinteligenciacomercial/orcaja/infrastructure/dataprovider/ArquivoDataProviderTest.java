@@ -46,6 +46,7 @@ class ArquivoDataProviderTest {
                 Optional.empty(),
                 Optional.of(""),
                 null,
+                Optional.of(""),
                 false,
                 "https://pub.example.com"
         );

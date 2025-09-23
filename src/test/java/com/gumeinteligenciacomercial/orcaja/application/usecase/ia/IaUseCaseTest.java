@@ -1,6 +1,5 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.ia;
 
-import com.gumeinteligenciacomercial.orcaja.application.exceptions.ConversaoJsonException;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ErroEnviarParaIaException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.IaGateway;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.dto.OpenIaResponseDto;
@@ -16,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,10 +40,11 @@ class IaUseCaseTest {
     void gerarOrcamentoDeveChamarGatewayComPromptCorretoERetornarMapa() {
         String conteudoOriginal = "Quero 3 canetas azuis";
         Prompt promptDomain = Prompt.builder()
+                .id("fd6ae793-f385-4d44-8b8f-b2571ebcf901")
                 .modelIa("gpt-3.5")
                 .conteudo("system-prompt")
                 .build();
-        when(promptUseCase.buscarAtivo()).thenReturn(promptDomain);
+        when(promptUseCase.buscarPorIdAtivo("fd6ae793-f385-4d44-8b8f-b2571ebcf901")).thenReturn(promptDomain);
 
         OpenIaResponseDto responseIa = mock(OpenIaResponseDto.class);
         OpenIaResponseDto.Choice choice = mock(OpenIaResponseDto.Choice.class);
@@ -64,7 +65,7 @@ class IaUseCaseTest {
 
         Map<String, Object> resultado = iaUseCase.gerarOrcamento(conteudoOriginal);
 
-        verify(promptUseCase, times(1)).buscarAtivo();
+        verify(promptUseCase, times(1)).buscarPorIdAtivo("fd6ae793-f385-4d44-8b8f-b2571ebcf901");
         verify(gateway, times(1)).enviarMensagem(promptDtoCaptor.capture());
         PromptDto usado = promptDtoCaptor.getValue();
         assertEquals(promptDomain.getModelIa(), usado.getModel());
@@ -80,8 +81,9 @@ class IaUseCaseTest {
 
     @Test
     void gerarOrcamentoQuandoJsonInvalidoDeveLancarConversaoJsonException() {
-        when(promptUseCase.buscarAtivo()).thenReturn(
+        when(promptUseCase.buscarPorIdAtivo("fd6ae793-f385-4d44-8b8f-b2571ebcf901")).thenReturn(
                 Prompt.builder()
+                        .id("fd6ae793-f385-4d44-8b8f-b2571ebcf901")
                         .modelIa("gpt-3.5")
                         .conteudo("system")
                         .build()
