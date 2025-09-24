@@ -16,6 +16,7 @@ class UsuarioTest {
                 .status(StatusUsuario.INATIVO)
                 .plano(Plano.PLUS)
                 .feedback(true)
+                .onboarding(true)
                 .build();
 
         Usuario usuario = Usuario.builder()
@@ -25,6 +26,7 @@ class UsuarioTest {
                 .status(StatusUsuario.ATIVO)
                 .plano(Plano.GRATIS)
                 .feedback(false)
+                .onboarding(false)
                 .build();
 
         usuario.setDados(novosDados);
@@ -35,5 +37,6 @@ class UsuarioTest {
         Assertions.assertEquals(usuario.getStatus(), novosDados.getStatus());
         Assertions.assertEquals(usuario.getPlano(), novosDados.getPlano());
         Assertions.assertTrue(usuario.getFeedback());
+        Assertions.assertTrue(usuario.getOnboarding());
     }
 }

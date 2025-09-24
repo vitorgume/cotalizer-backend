@@ -100,6 +100,7 @@ class CustomOidUserUseCaseTest {
         assertEquals(Plano.GRATIS, salvo.getPlano());
         assertNotNull(salvo.getSenha());
         assertFalse(salvo.getSenha().isBlank());
+        assertFalse(salvo.getOnboarding());
     }
 
     @Test
@@ -131,6 +132,7 @@ class CustomOidUserUseCaseTest {
         assertEquals(Plano.GRATIS, salvo.getPlano());
         assertNotNull(salvo.getSenha());
         assertFalse(salvo.getSenha().isBlank());
+        assertFalse(salvo.getOnboarding());
     }
 
 }

@@ -29,6 +29,7 @@ class UsuarioMapperTest {
                 .idAssinatura("id-assinatura-teste")
                 .urlLogo("url-logo-teste")
                 .feedback(true)
+                .onboarding(true)
                 .build();
 
         usuarioDto = UsuarioDto.builder()
@@ -43,6 +44,7 @@ class UsuarioMapperTest {
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste 2")
                 .feedback(false)
+                .onboarding(false)
                 .build();
     }
 
@@ -60,6 +62,7 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDomain.getIdAssinatura(), usuarioTeste.getIdAssinatura());
         Assertions.assertEquals(usuarioDomain.getUrlLogo(), usuarioTeste.getUrlLogo());
         Assertions.assertTrue(usuarioTeste.getFeedback());
+        Assertions.assertTrue(usuarioTeste.getOnboarding());
     }
 
     @Test
@@ -76,5 +79,6 @@ class UsuarioMapperTest {
         Assertions.assertEquals(usuarioDto.getIdAssinatura(), usuarioTeste.getIdAssinatura());
         Assertions.assertEquals(usuarioDto.getUrlLogo(), usuarioTeste.getUrlLogo());
         Assertions.assertFalse(usuarioTeste.getFeedback());
+        Assertions.assertFalse(usuarioTeste.getOnboarding());
     }
 }
