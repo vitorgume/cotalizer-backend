@@ -50,7 +50,7 @@ public class UsuarioDto {
     private StatusUsuario status;
 
     @JsonProperty("plano")
-    private Plano plano;
+    private PlanoDto plano;
 
     @JsonProperty("id_customer")
     private String idCustomer;

@@ -24,7 +24,7 @@ public class UsuarioEntity {
     private String telefone;
     private String senha;
     private StatusUsuario status;
-    private Plano plano;
+    private PlanoEntity plano;
     private String idCustomer;
     private String idAssinatura;
     private String urlLogo;
