@@ -72,4 +72,7 @@ public class UsuarioDto {
 
     @JsonProperty("tipo_cadastro")
     private TipoCadastro tipoCadastro;
+
+    @JsonProperty("onboarding")
+    private Boolean onboarding;
 }

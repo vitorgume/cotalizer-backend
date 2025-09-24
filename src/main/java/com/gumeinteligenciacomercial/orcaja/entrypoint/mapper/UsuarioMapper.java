@@ -20,6 +20,7 @@ public class UsuarioMapper {
                 .quantidadeOrcamentos(domain.getQuantidadeOrcamentos())
                 .dataCriacao(domain.getDataCriacao())
                 .tipoCadastro(domain.getTipoCadastro())
+                .onboarding(domain.getOnboarding())
                 .build();
     }
 
@@ -39,6 +40,7 @@ public class UsuarioMapper {
                 .quantidadeOrcamentos(dto.getQuantidadeOrcamentos())
                 .dataCriacao(dto.getDataCriacao())
                 .tipoCadastro(dto.getTipoCadastro())
+                .onboarding(dto.getOnboarding())
                 .build();
     }
 }

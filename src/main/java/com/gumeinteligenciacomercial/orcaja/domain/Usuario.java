@@ -25,6 +25,7 @@ public class Usuario {
     private Integer quantidadeOrcamentos;
     private LocalDateTime dataCriacao;
     private TipoCadastro tipoCadastro;
+    private Boolean onboarding;
 
     public void setDados(Usuario usuario) {
         this.nome = usuario.getNome();
@@ -37,6 +38,7 @@ public class Usuario {
         this.urlLogo = usuario.getUrlLogo();
         this.feedback = usuario.getFeedback();
         this.quantidadeOrcamentos = usuario.getQuantidadeOrcamentos();
+        this.onboarding = usuario.getOnboarding();
     }
 
     public void somarOrcamentos() {

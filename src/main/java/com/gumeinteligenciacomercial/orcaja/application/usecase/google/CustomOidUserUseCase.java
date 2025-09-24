@@ -38,6 +38,7 @@ public class CustomOidUserUseCase implements OAuth2UserService<OidcUserRequest, 
                     .senha(UUID.randomUUID().toString())
                     .plano(Plano.GRATIS)
                     .tipoCadastro(TipoCadastro.GOOGLE)
+                    .onboarding(false)
                     .build();
             usuarioUseCase.cadastrar(salvo);
         }

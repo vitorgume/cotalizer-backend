@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +45,7 @@ public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequ
                     .email(email)
                     .senha(UUID.randomUUID().toString())
                     .plano(Plano.GRATIS)
+                    .tipoCadastro(TipoCadastro.GOOGLE)
                     .build();
             usuarioUseCase.cadastrar(novo);
         }

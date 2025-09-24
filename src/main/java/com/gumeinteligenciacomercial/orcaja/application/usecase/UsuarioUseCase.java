@@ -44,6 +44,7 @@ public class UsuarioUseCase {
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
         usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);
+        usuario.setOnboarding(false);
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 
