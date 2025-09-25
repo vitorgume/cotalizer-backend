@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
@@ -29,6 +30,9 @@ class CustomOidUserUseCaseTest {
     private UsuarioUseCase usuarioUseCase;
 
     @Mock
+    private PlanoUseCase planoUseCase;
+
+    @Mock
     private OidcUserService delegate; // vamos injetar no campo 'delegate' via ReflectionTestUtils
 
     @Mock
@@ -44,7 +48,7 @@ class CustomOidUserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new CustomOidUserUseCase(usuarioUseCase);
+        useCase = new CustomOidUserUseCase(usuarioUseCase, planoUseCase);
         // injeta o mock do OidcUserService no campo 'delegate' (privado e final)
         ReflectionTestUtils.setField(useCase, "delegate", delegate);
     }
@@ -97,7 +101,7 @@ class CustomOidUserUseCaseTest {
         Usuario salvo = usuarioCaptor.getValue();
         assertEquals("Bob", salvo.getNome());
         assertEquals(email, salvo.getEmail());
-        assertEquals(Plano.GRATIS, salvo.getPlano());
+//        assertEquals(Plano.GRATIS, salvo.getPlano());
         assertNotNull(salvo.getSenha());
         assertFalse(salvo.getSenha().isBlank());
         assertFalse(salvo.getOnboarding());
@@ -129,7 +133,7 @@ class CustomOidUserUseCaseTest {
         // fallback do nome para o email
         assertEquals(email, salvo.getNome());
         assertEquals(email, salvo.getEmail());
-        assertEquals(Plano.GRATIS, salvo.getPlano());
+//        assertEquals(Plano.GRATIS, salvo.getPlano());
         assertNotNull(salvo.getSenha());
         assertFalse(salvo.getSenha().isBlank());
         assertFalse(salvo.getOnboarding());

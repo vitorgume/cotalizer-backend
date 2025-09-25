@@ -29,11 +29,11 @@ class OrcamentosUseCaseTest {
     void cadastrarOrcamentoIa_quandoAbaixoDoLimite_deveConsultarUsuarioEChamarCadastrar() {
         // given
         String userId = "u1";
-        int limite = Plano.GRATIS.getLimiteOrcamentos();
+        int limite = 5;
         Usuario usuario = Usuario.builder()
                 .id(userId)
-                .plano(Plano.GRATIS)
-                .quantidadeOrcamentos(limite - 1) // abaixo do limite
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
+                .quantidadeOrcamentos(limite - 1)
                 .build();
 
         Orcamento novo = Orcamento.builder().usuarioId(userId).build();
@@ -56,10 +56,10 @@ class OrcamentosUseCaseTest {
     void cadastrarOrcamentoIa_quandoNoLimite_deveLancarLimiteOrcamentosPlanoException() {
         // given
         String userId = "u2";
-        int limite = Plano.GRATIS.getLimiteOrcamentos();
+        int limite = 5;
         Usuario usuario = Usuario.builder()
                 .id(userId)
-                .plano(Plano.GRATIS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .quantidadeOrcamentos(limite) // exatamente no limite -> lança
                 .build();
 
@@ -79,10 +79,10 @@ class OrcamentosUseCaseTest {
     void cadastrarOrcamentoTradicional_quandoAbaixoDoLimite_deveConsultarUsuarioEChamarCadastrar() {
         // given
         String userId = "u3";
-        int limite = Plano.GRATIS.getLimiteOrcamentos();
+        int limite = 5;
         Usuario usuario = Usuario.builder()
                 .id(userId)
-                .plano(Plano.GRATIS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .quantidadeOrcamentos(limite - 1)
                 .build();
 
@@ -106,10 +106,10 @@ class OrcamentosUseCaseTest {
     void cadastrarOrcamentoTradicional_quandoNoLimite_deveLancarLimiteOrcamentosPlanoException() {
         // given
         String userId = "u4";
-        int limite = Plano.GRATIS.getLimiteOrcamentos();
+        int limite = 5;
         Usuario usuario = Usuario.builder()
                 .id(userId)
-                .plano(Plano.GRATIS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .quantidadeOrcamentos(limite) // exatamente no limite -> lança
                 .build();
 

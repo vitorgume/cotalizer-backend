@@ -3,6 +3,8 @@ package com.gumeinteligenciacomercial.orcaja.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioTest {
@@ -14,7 +16,7 @@ class UsuarioTest {
                 .email("Novo email")
                 .telefone("0000000000001")
                 .status(StatusUsuario.INATIVO)
-                .plano(Plano.PLUS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").build())
                 .feedback(true)
                 .onboarding(true)
                 .build();
@@ -24,7 +26,7 @@ class UsuarioTest {
                 .email("email")
                 .telefone("0000000000000")
                 .status(StatusUsuario.ATIVO)
-                .plano(Plano.GRATIS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").build())
                 .feedback(false)
                 .onboarding(false)
                 .build();

@@ -9,8 +9,10 @@ import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.AlteracaoSenhaDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.PlanoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +83,7 @@ class UsuarioControllerTest {
                 .telefone("554400000002")
                 .senha("senha-teste-124")
                 .status(StatusUsuario.ATIVO)
-                .plano(Plano.GRATIS)
+                .plano(PlanoDto.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .idCustomer("id-customer-teste-2")
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste 2")
@@ -95,7 +97,7 @@ class UsuarioControllerTest {
                 .telefone("554400000001")
                 .senha("senha-teste-312")
                 .status(StatusUsuario.INATIVO)
-                .plano(Plano.PLUS)
+                .plano(PlanoEntity.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .idCustomer("id-customer-teste-2")
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste-1")
@@ -121,7 +123,7 @@ class UsuarioControllerTest {
 
         Assertions.assertEquals(usuarioDto.getNome(), usuarioCaptor.getValue().getNome());
         Assertions.assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, usuarioCaptor.getValue().getStatus());
-        Assertions.assertEquals(Plano.GRATIS, usuarioCaptor.getValue().getPlano());
+        Assertions.assertEquals(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build().getId(), usuarioCaptor.getValue().getPlano().getId());
 
         Mockito.verify(criptografiaUseCase).criptografar(anyString());
         Mockito.verify(usuarioRepository).save(any());

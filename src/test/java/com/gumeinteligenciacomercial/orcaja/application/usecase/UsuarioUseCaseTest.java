@@ -63,7 +63,7 @@ class UsuarioUseCaseTest {
         verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
         verify(gateway).salvar(u);
         assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, result.getStatus());
-        assertEquals(Plano.GRATIS, result.getPlano());
+        assertEquals(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build(), result.getPlano());
     }
 
     @Test

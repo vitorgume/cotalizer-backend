@@ -9,6 +9,7 @@ import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoEntity;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import org.bson.Document;
 import org.junit.jupiter.api.Assertions;
@@ -100,7 +101,7 @@ class OrcamentoControllerTest {
 
         usuarioEntity = UsuarioEntity.builder()
                 .id("id-teste")
-                .plano(Plano.GRATIS)
+                .plano(PlanoEntity.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .quantidadeOrcamentos(0)
                 .email("emailteste@gmail.com")
                 .build();

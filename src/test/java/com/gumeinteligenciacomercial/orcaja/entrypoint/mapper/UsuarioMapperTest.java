@@ -3,12 +3,11 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.mapper;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusUsuario;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.PlanoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.UsuarioDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioMapperTest {
 
@@ -24,7 +23,7 @@ class UsuarioMapperTest {
                 .telefone("554400000000")
                 .senha("senha-teste-123")
                 .status(StatusUsuario.ATIVO)
-                .plano(Plano.GRATIS)
+                .plano(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .idCustomer("id-customer-teste")
                 .idAssinatura("id-assinatura-teste")
                 .urlLogo("url-logo-teste")
@@ -39,7 +38,7 @@ class UsuarioMapperTest {
                 .telefone("554400000002")
                 .senha("senha-teste-124")
                 .status(StatusUsuario.ATIVO)
-                .plano(Plano.GRATIS)
+                .plano(PlanoDto.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .idCustomer("id-customer-teste-2")
                 .idAssinatura("id-assinatura-teste-2")
                 .urlLogo("url-logo-teste 2")

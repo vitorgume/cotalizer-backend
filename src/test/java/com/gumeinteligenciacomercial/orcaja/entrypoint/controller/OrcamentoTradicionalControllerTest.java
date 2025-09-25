@@ -157,7 +157,7 @@ class OrcamentoTradicionalControllerTest {
         UsuarioEntity usuario = UsuarioEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .email("emailtste@gmail.com")
-                .plano(Plano.PLUS)
+                .plano(PlanoEntity.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build())
                 .quantidadeOrcamentos(0)
                 .build();
 
