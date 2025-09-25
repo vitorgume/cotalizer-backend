@@ -24,6 +24,7 @@ public class UsuarioUseCase {
     private final EmailUseCase emailUseCase;
     private final CodigoValidacaoUseCase codigoValidacaoUseCase;
     private final CodigoAlteracaoSenhaUseCase codigoAlteracaoSenhaUseCase;
+    private final PlanoUseCase planoUseCase;
 
     public Usuario cadastrar(Usuario usuario) {
         log.info("Cadastrando novo usuário. Usuário: {}", usuario);
@@ -40,7 +41,7 @@ public class UsuarioUseCase {
         }
 
         usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
-        usuario.setPlano(Plano.GRATIS);
+        usuario.setPlano(planoUseCase.consularPlanoPadrao());
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
         usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);

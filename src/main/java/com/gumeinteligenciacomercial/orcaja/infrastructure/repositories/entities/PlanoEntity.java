@@ -2,9 +2,11 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entitie
 
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Document(collection = "planos")
 @AllArgsConstructor
@@ -14,12 +16,14 @@ import java.math.BigDecimal;
 @Builder
 public class PlanoEntity {
 
-    @MongoId
+    @MongoId(FieldType.OBJECT_ID)
     private String id;
     private String titulo;
+    private String descricao;
     private BigDecimal valor;
     private Integer limite;
     private String idPlanoStripe;
     private Boolean padrao;
-    private Integer grau;
+    private Integer sequencia;
+    private List<String> servicos;
 }

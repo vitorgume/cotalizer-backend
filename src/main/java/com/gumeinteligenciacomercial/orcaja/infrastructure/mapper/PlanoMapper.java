@@ -9,11 +9,27 @@ public class PlanoMapper {
         return Plano.builder()
                 .id(entity.getId())
                 .titulo(entity.getTitulo())
+                .descricao(entity.getDescricao())
                 .valor(entity.getValor())
                 .limite(entity.getLimite())
                 .padrao(entity.getPadrao())
                 .idPlanoStripe(entity.getIdPlanoStripe())
-                .grau(entity.getGrau())
+                .sequencia(entity.getSequencia())
+                .servicos(entity.getServicos())
+                .build();
+    }
+
+    public static PlanoEntity paraEntity(Plano domain) {
+        return PlanoEntity.builder()
+                .id(domain.getId())
+                .titulo(domain.getTitulo())
+                .descricao(domain.getDescricao())
+                .valor(domain.getValor())
+                .limite(domain.getLimite())
+                .padrao(domain.getPadrao())
+                .idPlanoStripe(domain.getIdPlanoStripe())
+                .sequencia(domain.getSequencia())
+                .servicos(domain.getServicos())
                 .build();
     }
 }

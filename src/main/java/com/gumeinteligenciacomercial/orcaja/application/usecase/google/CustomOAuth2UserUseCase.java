@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
@@ -20,15 +21,18 @@ import java.util.UUID;
 public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UsuarioUseCase usuarioUseCase;
-    private final OAuth2UserService<OAuth2UserRequest,OAuth2User> delegate;
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
+    private final PlanoUseCase planoUseCase;
 
     public CustomOAuth2UserUseCase(
             UsuarioUseCase usuarioUseCase,
             @Qualifier("defaultOauth2UserService")
-            OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate
+            OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate,
+            PlanoUseCase planoUseCase
     ) {
         this.usuarioUseCase = usuarioUseCase;
-        this.delegate     = delegate;
+        this.delegate = delegate;
+        this.planoUseCase = planoUseCase;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequ
         OAuth2User user = delegate.loadUser(userRequest);
 
         String email = user.getAttribute("email");
-        String nome  = user.getAttribute("name");
+        String nome = user.getAttribute("name");
         try {
             usuarioUseCase.consultarPorEmail(email);
         } catch (UsuarioNaoEncontradoException ex) {
@@ -44,7 +48,7 @@ public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequ
                     .nome(nome)
                     .email(email)
                     .senha(UUID.randomUUID().toString())
-                    .plano(Plano.GRATIS)
+                    .plano(planoUseCase.consularPlanoPadrao())
                     .tipoCadastro(TipoCadastro.GOOGLE)
                     .build();
             usuarioUseCase.cadastrar(novo);

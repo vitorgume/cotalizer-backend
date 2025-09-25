@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class OrcamentosUseCase {
@@ -34,7 +36,7 @@ public class OrcamentosUseCase {
     }
 
     private void validarPlanoUsuario(Usuario usuario) {
-        if(usuario.getQuantidadeOrcamentos() == usuario.getPlano().getLimiteOrcamentos()) {
+        if(Objects.equals(usuario.getQuantidadeOrcamentos(), usuario.getPlano().getLimite())) {
             throw new LimiteOrcamentosPlanoException();
         }
     }

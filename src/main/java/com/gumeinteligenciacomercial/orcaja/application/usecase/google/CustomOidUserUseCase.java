@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
@@ -20,7 +21,8 @@ import java.util.UUID;
 public class CustomOidUserUseCase implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     private final UsuarioUseCase usuarioUseCase;
-    private final OidcUserService delegate = new OidcUserService();;
+    private final OidcUserService delegate = new OidcUserService();
+    private final PlanoUseCase planoUseCase;
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -36,7 +38,7 @@ public class CustomOidUserUseCase implements OAuth2UserService<OidcUserRequest, 
                     .nome(nome)
                     .email(email)
                     .senha(UUID.randomUUID().toString())
-                    .plano(Plano.GRATIS)
+                    .plano(planoUseCase.consularPlanoPadrao())
                     .tipoCadastro(TipoCadastro.GOOGLE)
                     .onboarding(false)
                     .build();
