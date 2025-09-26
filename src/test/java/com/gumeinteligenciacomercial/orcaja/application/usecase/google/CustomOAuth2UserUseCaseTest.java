@@ -1,7 +1,9 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
+import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
+import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +36,9 @@ class CustomOAuth2UserUseCaseTest {
 
     @Mock
     private OAuth2User oauth2User;
+
+    @Mock
+    private PlanoUseCase planoUseCase;
 
     @Captor
     private ArgumentCaptor<Usuario> usuarioCaptor;
@@ -69,6 +74,7 @@ class CustomOAuth2UserUseCaseTest {
         when(delegate.loadUser(userRequest)).thenReturn(oauth2User);
         when(oauth2User.getAttribute("email")).thenReturn(email);
         when(oauth2User.getAttribute("name")).thenReturn(nome);
+        when(planoUseCase.consularPlanoPadrao()).thenReturn(Plano.builder().id("idteste123").build());
 
         doThrow(new UsuarioNaoEncontradoException())
                 .when(usuarioUseCase).consultarPorEmail(email);

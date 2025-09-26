@@ -35,6 +35,9 @@ class UsuarioUseCaseTest {
     @Mock
     private CodigoAlteracaoSenhaUseCase codigoAlteracaoSenhaUseCase;
 
+    @Mock
+    private PlanoUseCase planoUseCase;
+
     @InjectMocks
     private UsuarioUseCase useCase;
 
@@ -50,9 +53,14 @@ class UsuarioUseCaseTest {
                 .senha("raw")
                 .tipoCadastro(TipoCadastro.TRADICIONAL)
                 .build();
+
+        Plano plano = Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build();
+
         when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
         Usuario saved = Usuario.builder().id(userId).build();
         when(gateway.salvar(captor.capture())).thenReturn(saved);
+
+        when(planoUseCase.consularPlanoPadrao()).thenReturn(plano);
 
         useCase.cadastrar(u);
 
@@ -63,7 +71,7 @@ class UsuarioUseCaseTest {
         verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
         verify(gateway).salvar(u);
         assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, result.getStatus());
-        assertEquals(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build(), result.getPlano());
+        assertEquals(plano, result.getPlano());
     }
 
     @Test

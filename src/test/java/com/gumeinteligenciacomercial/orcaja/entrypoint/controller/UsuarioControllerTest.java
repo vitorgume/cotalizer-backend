@@ -36,15 +36,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(
-        properties = {
-                "spring.task.scheduling.enabled=false",
-                "openia.api.key=TEST_OPENAI_KEY",
-                "security.api.key=TEST_SIGNATURES_KEY",
-                "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615"
-        }
-)
-@AutoConfigureMockMvc(addFilters = false)
+    @SpringBootTest(
+            properties = {
+                    "spring.task.scheduling.enabled=false",
+                    "openia.api.key=TEST_OPENAI_KEY",
+                    "security.api.key=TEST_SIGNATURES_KEY",
+                    "secret.key=5a6bf2660e4a4fb7ec956e43959e4e6f826a9662a1f4578bcab89e3178770615"
+            }
+    )
+    @AutoConfigureMockMvc(addFilters = false)
 class UsuarioControllerTest {
 
     @Autowired
@@ -123,7 +123,7 @@ class UsuarioControllerTest {
 
         Assertions.assertEquals(usuarioDto.getNome(), usuarioCaptor.getValue().getNome());
         Assertions.assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, usuarioCaptor.getValue().getStatus());
-        Assertions.assertEquals(Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build().getId(), usuarioCaptor.getValue().getPlano().getId());
+        Assertions.assertEquals(Plano.builder().id("68d58b90e07426a92ca547de").limite(5).build().getId(), usuarioCaptor.getValue().getPlano().getId());
 
         Mockito.verify(criptografiaUseCase).criptografar(anyString());
         Mockito.verify(usuarioRepository).save(any());

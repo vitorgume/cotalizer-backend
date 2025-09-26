@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.AvaliacaoDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +61,7 @@ class AvaliacaoControllerTest {
                 .motivoNota("motivo teste")
                 .build();
 
-        usuarioEntity = UsuarioEntity.builder().id("id-teste").nome("Nome teste").email("emailteste@gmail.com").build();
+        usuarioEntity = UsuarioEntity.builder().id("id-teste").plano(PlanoEntity.builder().id("idteste123").build()).nome("Nome teste").email("emailteste@gmail.com").build();
     }
 
     @Test

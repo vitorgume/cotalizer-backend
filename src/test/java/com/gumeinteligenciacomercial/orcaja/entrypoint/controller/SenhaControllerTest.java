@@ -5,6 +5,7 @@ import com.gumeinteligenciacomercial.orcaja.application.usecase.CodigoAlteracaoS
 import com.gumeinteligenciacomercial.orcaja.application.usecase.EmailUseCase;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.SolicitacaoNovaSenhaDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,7 @@ class SenhaControllerTest {
         solicitacaoNovaSenhaDto = new SolicitacaoNovaSenhaDto("emailteste@gmail.com");
         usuarioEntity = UsuarioEntity.builder()
                 .id("idteste")
+                .plano(PlanoEntity.builder().id("teste").build())
                 .email("emailteste@gmail.com")
                 .build();
     }

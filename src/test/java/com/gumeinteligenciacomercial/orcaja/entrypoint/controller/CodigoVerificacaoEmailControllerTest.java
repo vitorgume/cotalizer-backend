@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.VerificacaoEmailDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +82,7 @@ class CodigoVerificacaoEmailControllerTest {
         usuario = UsuarioEntity.builder()
                 .id("id-teste")
                 .email("emailteste@gmail.com")
+                .plano(PlanoEntity.builder().id("idteste123").build())
                 .build();
 
         valueOps = Mockito.mock(ValueOperations.class);
