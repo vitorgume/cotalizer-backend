@@ -20,6 +20,7 @@ public class OrcamentoMapper {
                 .status(domain.getStatus())
                 .tipoOrcamento(domain.getTipoOrcamento())
                 .valorTotal(domain.getValorTotal())
+                .template(TemplateMapper.paraEntity(domain.getTemplate()))
                 .build();
     }
 
@@ -35,6 +36,7 @@ public class OrcamentoMapper {
                 .status(entity.getStatus())
                 .tipoOrcamento(entity.getTipoOrcamento())
                 .valorTotal(entity.getValorTotal())
+                .template(TemplateMapper.paraDomain(entity.getTemplate()))
                 .build();
     }
 

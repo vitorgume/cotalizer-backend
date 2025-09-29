@@ -26,4 +26,5 @@ public class OrcamentoDto {
     private StatusOrcamento status;
     private TipoOrcamento tipoOrcamento;
     private BigDecimal valorTotal;
+    private TemplateDto template;
 }

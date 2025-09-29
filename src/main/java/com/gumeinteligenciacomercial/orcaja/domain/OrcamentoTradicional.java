@@ -25,6 +25,7 @@ public class OrcamentoTradicional {
     private TipoOrcamento tipoOrcamento;
     private StatusOrcamento status;
     private LocalDate dataCriacao;
+    private Template template;
 
     public void setDados(OrcamentoTradicional orcamentoTradicional) {
         this.cliente = orcamentoTradicional.getCliente();
@@ -36,5 +37,6 @@ public class OrcamentoTradicional {
         this.idUsuario = orcamentoTradicional.getIdUsuario();
         this.valorTotal = orcamentoTradicional.getValorTotal();
         this.status = orcamentoTradicional.getStatus();
+        this.template = orcamentoTradicional.getTemplate();
     }
 }

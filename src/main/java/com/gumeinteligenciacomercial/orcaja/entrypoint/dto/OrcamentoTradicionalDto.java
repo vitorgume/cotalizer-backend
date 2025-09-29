@@ -27,4 +27,5 @@ public class OrcamentoTradicionalDto {
     private TipoOrcamento tipoOrcamento;
     private StatusOrcamento status;
     private LocalDate dataCriacao;
+    private TemplateDto template;
 }

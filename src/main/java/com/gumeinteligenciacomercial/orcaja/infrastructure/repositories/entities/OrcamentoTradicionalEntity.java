@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class    OrcamentoTradicionalEntity {
+public class OrcamentoTradicionalEntity {
 
     @MongoId
     private String id;
@@ -31,4 +31,5 @@ public class    OrcamentoTradicionalEntity {
     private TipoOrcamento tipoOrcamento;
     private StatusOrcamento status;
     private LocalDate dataCriacao;
+    private TemplateEntity template;
 }

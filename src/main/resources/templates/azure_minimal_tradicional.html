@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Orçamento Tradicional</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: "Segoe UI", Arial, sans-serif;
+          background: #f7fbff;
+          color: #17212b;
+          padding: 24px;
+          font-size: 14px;
+        }
+
+        .invoice-container { width: 100%; }
+
+        /* Cabeçalho */
+        .header-table {
+          width: 100%;
+          border-bottom: 2px solid #e3eef7;
+          margin-bottom: 16px;
+          table-layout: fixed;
+        }
+
+        .logo-cell { width: 200px; vertical-align: middle; }
+        .logo-box { width: 200px; height: 68px; display: block; overflow: hidden; }
+        .logo-box img { max-width: 100%; max-height: 100%; display: block; width: auto; height: auto; }
+
+        .info-cell {
+          text-align: right;
+          vertical-align: middle;
+          font-size: 13px;
+          color: #304254;
+        }
+        .badge {
+          display: inline-block;
+          background: #e6f0ff;
+          color: #1e5db3;
+          border: 1px solid #cfe0ff;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-weight: 700;
+          margin-bottom: 6px;
+        }
+
+        /* Seções de cliente/obs/campos */
+        .client-section {
+          background: #ffffff;
+          border: 1px solid #e3eef7;
+          border-radius: 10px;
+          padding: 16px;
+          margin: 18px 0 14px 0;
+        }
+        .client-section h3 {
+          font-size: 13px;
+          color: #4b5e73;
+          text-transform: uppercase;
+          letter-spacing: .5px;
+          margin-bottom: 10px;
+        }
+        .client-section p { margin-bottom: 4px; }
+
+        /* Tabela de itens */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        thead th {
+          text-align: left;
+          font-size: 12px;
+          padding: 12px 10px;
+          background: #f1f6fc;
+          color: #39546e;
+          border-bottom: 1px solid #dfeaf5;
+          text-transform: uppercase;
+          letter-spacing: .3px;
+        }
+        tbody td {
+          padding: 12px 10px;
+          border-bottom: 1px solid #eef4fa;
+          vertical-align: top;
+          background: #ffffff;
+        }
+        tbody tr:nth-child(2n) td { background: #fbfdff; }
+        th:last-child, td:last-child { text-align: right; }
+
+        /* Totais */
+        .totals { width: 100%; display: flex; justify-content: flex-end; margin-top: 8px; }
+        .totals-box {
+          width: 320px;
+          background: #ffffff;
+          border: 1px solid #e3eef7;
+          border-radius: 12px;
+          padding: 10px;
+        }
+        .totals-row {
+          display: flex; justify-content: space-between; padding: 8px 8px; font-size: 14px; color: #203041;
+        }
+        .totals-row + .totals-row { border-top: 1px dashed #e3eef7; }
+        .totals-row.final {
+          background: linear-gradient(90deg, #1e5db3, #2b7be0);
+          color: #ffffff;
+          font-weight: 800;
+          border-radius: 8px;
+          padding: 12px 12px;
+          border: none;
+          margin-top: 10px;
+        }
+
+        /* Termos */
+        .terms {
+          font-size: 12px; color: #5b748e;
+          border-top: 1px dashed #d7e4f2;
+          padding-top: 14px;
+          margin-top: 22px;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+
+    <table class="header-table" role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="logo-cell">
+                <div class="logo-box">
+                    <img src="${logo_src}" alt="Logo" width="200" height="68"/>
+                </div>
+            </td>
+            <td class="info-cell">
+                <div class="badge">Orçamento Tradicional</div>
+                <p><strong>Nº:</strong> ${id}</p>
+                <p><strong>Data:</strong> ${data}</p>
+            </td>
+        </tr>
+    </table>
+
+    <div class="client-section">
+        <h3>Dados do Cliente</h3>
+        <p><strong>Cliente:</strong> ${cliente}</p>
+        <p><strong>CNPJ/CPF:</strong> ${cnpjCpf}</p>
+    </div>
+
+    <div class="client-section">
+        <h3>Observações</h3>
+        <p>${observacoes}</p>
+    </div>
+
+    <div class="client-section">
+        <h3>Campos Personalizados</h3>
+        ${campos_personalizados}
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Descrição</th>
+            <th>Qtd</th>
+            <th>Valor Unit.</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${itens}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div class="totals-box">
+            <div class="totals-row"><span>Subtotal</span><span>${subtotal}</span></div>
+            <div class="totals-row final"><span>Total</span><span>${total}</span></div>
+        </div>
+    </div>
+
+    <div class="terms">
+        <p>Este orçamento é válido por até 7 dias. Os valores estão sujeitos a alteração após esse período. Para
+            dúvidas, entre em contato.</p>
+    </div>
+
+</div>
+</body>
+</html>

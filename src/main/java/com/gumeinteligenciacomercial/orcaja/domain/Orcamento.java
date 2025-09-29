@@ -22,11 +22,14 @@ public class Orcamento {
     private StatusOrcamento status;
     private TipoOrcamento tipoOrcamento;
     private BigDecimal valorTotal;
+    private Template template;
 
     public void setDados(Orcamento novoOrcamento) {
         this.orcamentoFormatado = novoOrcamento.getOrcamentoFormatado();
         this.titulo = novoOrcamento.getTitulo();
         this.urlArquivo = novoOrcamento.getUrlArquivo();
         this.status = novoOrcamento.getStatus();
+        this.template = novoOrcamento.getTemplate();
+        this.valorTotal = novoOrcamento.getValorTotal();
     }
 }

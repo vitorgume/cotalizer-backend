@@ -28,4 +28,5 @@ public class OrcamentoEntity {
     private StatusOrcamento status;
     private TipoOrcamento tipoOrcamento;
     private BigDecimal valorTotal;
+    private TemplateEntity template;
 }

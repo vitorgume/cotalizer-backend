@@ -1,10 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
-import com.gumeinteligenciacomercial.orcaja.domain.CampoPersonalizado;
-import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
-import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
-import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,8 +29,9 @@ public class HtmlUseCase {
 
     private final UsuarioUseCase usuarioUseCase;
 
-    public String gerarHtml(Map<String, Object> orcamento, String idUsuario) {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/template_orcamento.html");
+    public String gerarHtml(Map<String, Object> orcamento, String idUsuario, String nomeTemplate) {
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/" + nomeTemplate + ".html");
 
         try {
             String htmlTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -108,8 +106,9 @@ public class HtmlUseCase {
     }
 
     public String gerarHtmlTradicional(OrcamentoTradicional novoOrcamento) {
+
         InputStream is = getClass().getClassLoader()
-                .getResourceAsStream("templates/template_orcamento_tradicional.html");
+                .getResourceAsStream("templates/" + novoOrcamento.getTemplate().getNomeArquivo() + "_tradicional.html");
         if (is == null) throw new IllegalStateException("Template não encontrado!");
 
         try (is) {

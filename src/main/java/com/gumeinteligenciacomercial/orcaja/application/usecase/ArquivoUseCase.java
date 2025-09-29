@@ -26,7 +26,7 @@ public class ArquivoUseCase {
     public Orcamento salvarArquivo(Orcamento novoOrcamento) {
         log.info("Gerenado pdf do orçamento. Orçamento: {}", novoOrcamento);
 
-        String html = htmlUseCase.gerarHtml(novoOrcamento.getOrcamentoFormatado(), novoOrcamento.getUsuarioId());
+        String html = htmlUseCase.gerarHtml(novoOrcamento.getOrcamentoFormatado(), novoOrcamento.getUsuarioId(), novoOrcamento.getTemplate().getNomeArquivo());
 
         String urlArquivo = gateway.salvarPdf(this.gerarNomeArquivo(), html);
 
