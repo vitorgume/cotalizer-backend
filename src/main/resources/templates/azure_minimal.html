@@ -4,170 +4,210 @@
     <meta charset="UTF-8"/>
     <title>Orçamento</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: "Segoe UI", Arial, sans-serif;
-          background: #f7fbff;
-          color: #17212b;
-          padding: 24px;
-          font-size: 14px;
+        /* ===== Paleta ===== */
+        :root{
+          --ink: #1A1A1A;
+          --paper: #E1DED7;
+          --rose: #DEC7C1;
+          --sand: #E2D7C1;
+          --sage: #5B6D55;
+          --lilac: #D3C2D4;
+          --line: rgba(26,26,26,.14);
         }
 
-        .invoice-container { width: 100%; }
-
-        /* Cabeçalho */
-        .header-table {
-          width: 100%;
-          border-bottom: 2px solid #e3eef7;
-          margin-bottom: 16px;
-          table-layout: fixed;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+          background: var(--paper);
+          color: var(--ink);
+          font: 14px/1.45 "Segoe UI", Arial, sans-serif;
+          padding: 22px;
         }
 
-        .logo-cell { width: 200px; vertical-align: middle; }
-        .logo-box {
-          width: 200px; height: 68px; display: block; overflow: hidden;
-        }
-        .logo-box img {
-          max-width: 100%; max-height: 100%; display: block; width: auto; height: auto;
+        .sheet{
+          max-width: 820px;
+          margin: 0 auto;
+          background: #fff;
+          border: 1px solid var(--line);
+          border-radius: 16px;
+          overflow: hidden;
         }
 
-        .info-cell {
-          text-align: right;
-          vertical-align: middle;
-          font-size: 13px;
-          color: #304254;
+        /* ===== Faixa superior cromática (pastel stripes) ===== */
+        .stripe{
+          height: 10px;
+          background: linear-gradient(90deg,
+            var(--rose) 0 25%,
+            var(--sand) 25% 50%,
+            var(--lilac) 50% 75%,
+            var(--sage) 75% 100%);
         }
-        .badge {
-          display: inline-block;
-          background: #e6f0ff;
-          color: #1e5db3;
-          border: 1px solid #cfe0ff;
-          padding: 6px 10px;
+
+        /* ===== Cabeçalho ===== */
+        .head{
+          padding: 18px 22px 14px;
+          border-bottom: 1px solid var(--line);
+          background:
+              linear-gradient(180deg, rgba(222,199,193,.20), rgba(222,199,193,0) 60%);
+        }
+        .h-table{width:100%; border-collapse:collapse; table-layout:fixed}
+        .logo-cell{width: 220px; vertical-align: middle;}
+        .logo-box{width:220px;height:72px;overflow:hidden}
+        .logo-box img{max-width:100%;max-height:100%;display:block}
+
+        .meta{ text-align:right; vertical-align:middle; }
+        .title{
+          font-size: 22px; font-weight: 800; letter-spacing:.3px;
+          color: var(--sage); /* título na sálvia */
+          margin-bottom: 4px;
+        }
+        .small{ font-size: 13px; color: #3d3d3d; }
+        .chip{
+          display:inline-block;
+          background: var(--lilac);
+          color: var(--ink);
+          padding: 4px 10px;
           border-radius: 999px;
           font-weight: 700;
-          margin-bottom: 6px;
-        }
-
-        /* Cliente / Info */
-        .client-section {
-          background: #ffffff;
-          border: 1px solid #e3eef7;
-          border-radius: 10px;
-          padding: 16px;
-          margin: 18px 0 24px 0;
-        }
-        .client-section h3 {
-          font-size: 13px;
-          color: #4b5e73;
-          text-transform: uppercase;
-          letter-spacing: .5px;
-          margin-bottom: 10px;
-        }
-        .client-section p { margin-bottom: 4px; }
-
-        /* Tabela de itens */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-        thead th {
-          text-align: left;
           font-size: 12px;
-          padding: 12px 10px;
-          background: #f1f6fc;
-          color: #39546e;
-          border-bottom: 1px solid #dfeaf5;
-          text-transform: uppercase;
-          letter-spacing: .3px;
+          letter-spacing:.3px;
+          margin-bottom: 6px;
+          border: 1px solid rgba(26,26,26,.08);
         }
-        tbody td {
-          padding: 12px 10px;
-          border-bottom: 1px solid #eef4fa;
-          vertical-align: top;
-          background: #ffffff;
-        }
-        tbody tr:nth-child(2n) td { background: #fbfdff; }
-        th:last-child, td:last-child { text-align: right; }
 
-        /* Totais */
-        .totals { width: 100%; display: flex; justify-content: flex-end; margin-top: 8px; }
-        .totals-box {
-          width: 320px;
-          background: #ffffff;
-          border: 1px solid #e3eef7;
+        /* ===== Bloco do cliente ===== */
+        .block{
+          margin: 18px 22px;
+          border: 1px solid var(--line);
           border-radius: 12px;
-          padding: 10px;
+          background: linear-gradient(180deg, #fff, #fff) padding-box,
+                      linear-gradient(180deg, var(--sand), var(--lilac)) border-box;
+          padding: 14px;
         }
-        .totals-row {
-          display: flex; justify-content: space-between; padding: 8px 8px; font-size: 14px; color: #203041;
+        .block h3{
+          font-size:12px; text-transform:uppercase; letter-spacing:.35px;
+          color:#555; margin-bottom:8px;
         }
-        .totals-row + .totals-row { border-top: 1px dashed #e3eef7; }
-        .totals-row.final {
-          background: linear-gradient(90deg, #1e5db3, #2b7be0);
-          color: #ffffff;
-          font-weight: 800;
-          border-radius: 8px;
-          padding: 12px 12px;
-          border: none;
-          margin-top: 10px;
+        .block p{ margin-bottom:4px }
+
+        /* ===== Tabela de itens ===== */
+        .items{ margin: 0 22px 10px }
+        table{ width:100%; border-collapse:collapse }
+        thead th{
+          text-align:left;
+          font-size:12px; text-transform:uppercase; letter-spacing:.35px;
+          padding:10px 8px;
+          background: #faf9f8;
+          color:#424242;
+          border-bottom: 2px solid var(--rose);
+        }
+        tbody td{
+          padding:10px 8px;
+          border-bottom: 1px dashed var(--line);
+          vertical-align:top;
+        }
+        thead th:last-child, tbody td:last-child{ text-align:right }
+
+        /* ===== Totais ===== */
+        .totals{
+          margin: 6px 22px 18px;
+          display: table; width:100%;
+        }
+        .totals .box{
+          display: table; margin-left:auto; width: 340px;
+          border:1px solid var(--line);
+          border-radius:12px;
+          background: #fff;
+        }
+        .row{
+          display: table; width:100%;
+          border-bottom:1px solid var(--line);
+        }
+        .row:last-child{ border-bottom:none; }
+        .cellL, .cellR{
+          display: table-cell; padding:10px 12px; vertical-align:middle;
+        }
+        .cellR{ text-align:right; }
+        .row.final .cellL, .row.final .cellR{
+          font-weight:800;
+          background: linear-gradient(90deg, rgba(91,109,85,.10), rgba(211,194,212,.10));
+          border-top: 1px solid rgba(26,26,26,.08);
+          border-bottom-left-radius:12px; border-bottom-right-radius:12px;
         }
 
-        /* Termos */
-        .terms {
-          font-size: 12px; color: #5b748e;
-          border-top: 1px dashed #d7e4f2;
-          padding-top: 14px;
-          margin-top: 26px;
+        /* ===== Termos ===== */
+        .terms{
+          margin: 0 22px 22px;
+          padding-top: 12px;
+          border-top: 1px dashed var(--line);
+          color:#585858;
+          font-size:12px;
         }
     </style>
 </head>
 <body>
-<div class="invoice-container">
+<div class="sheet">
+    <div class="stripe"></div>
 
-    <table class="header-table" role="presentation" cellspacing="0" cellpadding="0">
-        <tr>
-            <td class="logo-cell">
-                <div class="logo-box">
-                    <img src="${logo_src}" alt="Logo" width="200" height="68"/>
-                </div>
-            </td>
-            <td class="info-cell">
-                <div class="badge">Orçamento Tradicional</div>
-                <p><strong>Nº:</strong> ${id}</p>
-                <p><strong>Data:</strong> ${data}</p>
-            </td>
-        </tr>
-    </table>
+    <div class="head">
+        <table class="h-table" role="presentation" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="logo-cell">
+                    <div class="logo-box">
+                        <img src="${logo_src}" alt="Logo" width="220" height="72"/>
+                    </div>
+                </td>
+                <td class="meta">
+                    <div class="chip">Orçamento</div>
+                    <div class="title">Resumo de Proposta</div>
+                    <div class="small"><strong>Nº:</strong> ${id}</div>
+                    <div class="small"><strong>Data:</strong> ${data}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-    <div class="client-section">
-        <h3>Cliente</h3>
+    <div class="block">
+        <h3>Dados do cliente</h3>
         ${campos}
     </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Item Descrição</th>
-            <th>Qtd</th>
-            <th>Valor Unitário</th>
-            <th>Total</th>
-        </tr>
-        </thead>
-        <tbody>
-        ${itens}
-        </tbody>
-    </table>
+    <div class="items">
+        <table>
+            <thead>
+            <tr>
+                <th>Item / Descrição</th>
+                <th>Qtd</th>
+                <th>Valor unit.</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${itens}
+            </tbody>
+        </table>
+    </div>
 
     <div class="totals">
-        <div class="totals-box">
-            <div class="totals-row"><span>Sub Total</span><span>${subtotal}</span></div>
-            <div class="totals-row"><span>Desconto</span><span>${desconto}</span></div>
-            <div class="totals-row final"><span>Total</span><span>${total}</span></div>
+        <div class="box">
+            <div class="row">
+                <div class="cellL">Subtotal</div>
+                <div class="cellR">${subtotal}</div>
+            </div>
+            <div class="row">
+                <div class="cellL">Desconto</div>
+                <div class="cellR">${desconto}</div>
+            </div>
+            <div class="row final">
+                <div class="cellL">Total</div>
+                <div class="cellR">${total}</div>
+            </div>
         </div>
     </div>
 
     <div class="terms">
-        <p>Este orçamento é válido por até 7 dias. Os valores estão sujeitos a alteração após esse período. Para dúvidas
-            ou condições de pagamento, entre em contato conosco.</p>
+        Este orçamento é válido por até 7 dias. Valores sujeitos a alteração após esse período.
+        Em caso de dúvidas, entre em contato.
     </div>
-
 </div>
 </body>
 </html>

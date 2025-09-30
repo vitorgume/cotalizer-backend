@@ -30,79 +30,95 @@ public class HtmlUseCase {
     private final UsuarioUseCase usuarioUseCase;
 
     public String gerarHtml(Map<String, Object> orcamento, String idUsuario, String nomeTemplate) {
+        String templatePath = "templates/" + nomeTemplate + ".html";
 
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/" + nomeTemplate + ".html");
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(templatePath)) {
+            if (in == null) {
+                throw new ArquivoException("Template não encontrado: " + templatePath, null);
+            }
 
-        try {
-            String htmlTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            String htmlTemplate = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
             String dataFormatada = LocalDateTime.now().format(formatter);
 
+            // ===== Campos (tudo exceto 'itens')
             StringBuilder camposHtml = new StringBuilder();
             for (Map.Entry<String, Object> entry : orcamento.entrySet()) {
-                String chave = formatarChave(entry.getKey());
+                String key = entry.getKey();
                 Object valor = entry.getValue();
+                if ("itens".equalsIgnoreCase(key) || valor instanceof List) continue;
 
-                if (entry.getKey().equalsIgnoreCase("itens") || valor instanceof List)
-                    continue;
+                String chaveFmt = formatarChave(key);
+                String valorFmt = valor != null ? escapeHtml(String.valueOf(valor)) : "";
 
                 camposHtml.append("<p><strong>")
-                        .append(chave)
+                        .append(escapeHtml(chaveFmt))
                         .append(":</strong> ")
-                        .append(valor != null ? valor.toString() : "")
+                        .append(valorFmt)
                         .append("</p>");
             }
 
+            // ===== Itens
             StringBuilder itensHtml = new StringBuilder();
-            double subtotal = 0;
+            double subtotal = 0.0;
+
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
+            if (itens != null) {
+                for (Map<String, Object> item : itens) {
+                    String descricao = String.valueOf(
+                            item.getOrDefault("descricao",
+                                    item.getOrDefault("produto", ""))
+                    );
+                    int quantidade = (int) Math.round(parseNumberFlexible(item.getOrDefault("quantidade", "0")));
+                    double valorUnit = parseNumberFlexible(
+                            item.getOrDefault("valorUnitario", item.getOrDefault("valor_unit", "0"))
+                    );
+                    double totalItem = quantidade * valorUnit;
+                    subtotal += totalItem;
 
-            for (Map<String, Object> item : itens) {
-                String descricao = String.valueOf(item.getOrDefault("descricao", item.getOrDefault("produto", "")));
-                int quantidade = Integer.parseInt(item.getOrDefault("quantidade", "0").toString());
-                double valorUnitario = Double.parseDouble(item.getOrDefault("valorUnitario", item.getOrDefault("valor_unit", "0")).toString());
-                double totalItem = quantidade * valorUnitario;
-                subtotal += totalItem;
-
-                itensHtml.append(String.format("""
-                            <tr>
-                                <td><strong>%s</strong></td>
-                                <td>%d</td>
-                                <td>R$ %.2f</td>
-                                <td>R$ %.2f</td>
-                            </tr>
-                        """, descricao, quantidade, valorUnitario, totalItem));
+                    itensHtml.append("""
+                    <tr>
+                      <td><strong>%s</strong></td>
+                      <td>%d</td>
+                      <td>%s</td>
+                      <td>%s</td>
+                    </tr>
+                """.formatted(
+                            escapeHtml(descricao),
+                            quantidade,
+                            toBRL(valorUnit),
+                            toBRL(totalItem)
+                    ));
+                }
             }
 
-            double desconto = orcamento.get("desconto") != null ? Double.parseDouble(orcamento.get("desconto").toString()) : 0.0;
-            double valorFinal = subtotal - (subtotal * desconto / 100);
+            // ===== Desconto (valor absoluto; se vier "5%" vira subtotal*5/100)
+            double desconto = parseDiscount(orcamento.get("desconto"), subtotal);
+            double valorFinal = subtotal - desconto;
 
+            // ===== Logo (data URI se possível)
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
-
             String rawLogo = Optional.ofNullable(usuario.getUrlLogo()).map(String::trim).orElse("");
-            String logoSrc = toDataUri(rawLogo);
-
-            if (logoSrc.isBlank()) {
-                logoSrc = "";
-            }
+            String logoSrc = Optional.ofNullable(toDataUri(rawLogo)).orElse("");
 
             String htmlFinal = htmlTemplate
-                    .replace("${logo_src}", logoSrc)
+                    .replace("${logo_src}", escapeHtml(logoSrc))
                     .replace("${id}", escapeHtml(UUID.randomUUID().toString()))
-                    .replace("${data}", dataFormatada)
+                    .replace("${data}", escapeHtml(dataFormatada))
                     .replace("${campos}", camposHtml.toString())
                     .replace("${itens}", itensHtml.toString())
-                    .replace("${subtotal}", String.format("R$ %.2f", subtotal))
-                    .replace("${desconto}", String.format("R$ %.2f", subtotal * desconto / 100))
-                    .replace("${total}", String.format("R$ %.2f", valorFinal));
+                    .replace("${subtotal}", escapeHtml(toBRL(subtotal)))
+                    .replace("${desconto}", escapeHtml(toBRL(desconto)))
+                    .replace("${total}", escapeHtml(toBRL(valorFinal)));
 
             return htmlFinal;
+
         } catch (Exception ex) {
             log.error("Erro ao gerar html para orçamento com IA.", ex);
             throw new ArquivoException("Erro ao gerar html para orçamento com IA.", ex);
         }
-
     }
 
     public String gerarHtmlTradicional(OrcamentoTradicional novoOrcamento) {
@@ -222,4 +238,52 @@ public class HtmlUseCase {
             return "";
         }
     }
+
+    private double parseNumberFlexible(Object raw) {
+        if (raw == null) return 0.0;
+        if (raw instanceof Number n) return n.doubleValue();
+
+        String s = raw.toString().trim();
+        if (s.isEmpty()) return 0.0;
+
+        // remove tudo que não for dígito, ponto, vírgula, sinal
+        s = s.replaceAll("[^0-9,.-]", "");
+
+        // Se houver vírgula e ponto, assume que o ÚLTIMO separador é o decimal.
+        int lastComma = s.lastIndexOf(',');
+        int lastDot   = s.lastIndexOf('.');
+        int lastSep   = Math.max(lastComma, lastDot);
+
+        if (lastSep >= 0) {
+            String intPart  = s.substring(0, lastSep).replaceAll("[^0-9-]", ""); // remove milhares
+            String fracPart = s.substring(lastSep + 1).replaceAll("[^0-9]", "");
+            s = intPart + "." + fracPart;
+        } else {
+            // só vírgulas OU só pontos? Normalize vírgula para ponto
+            s = s.replace(',', '.');
+        }
+
+        if (s.equals(".") || s.equals("-") || s.equals("-.") || s.isEmpty()) return 0.0;
+        return Double.parseDouble(s);
+    }
+
+    private double parseDiscount(Object raw, double subtotal) {
+        if (raw == null) return 0.0;
+
+        String str = raw.toString().trim();
+        boolean isPercent = str.endsWith("%");
+        if (isPercent) {
+            // pega só a parte numérica e calcula sobre subtotal
+            double p = parseNumberFlexible(str);
+            return subtotal * (p / 100.0);
+        } else {
+            return parseNumberFlexible(str);
+        }
+    }
+
+    private static String toBRL(double v) {
+        java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("pt", "BR"));
+        return nf.format(v);
+    }
+
 }
