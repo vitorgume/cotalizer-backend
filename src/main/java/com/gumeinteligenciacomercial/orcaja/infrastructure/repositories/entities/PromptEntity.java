@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -12,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Builder
 public class PromptEntity {
 
-    @MongoId
+    @Id
     private String id;
     private String conteudo;
     private String modelIa;

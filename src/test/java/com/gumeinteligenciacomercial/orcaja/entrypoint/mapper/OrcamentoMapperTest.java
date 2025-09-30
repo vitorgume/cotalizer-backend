@@ -2,8 +2,11 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.mapper;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.Template;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.TemplateDto;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.TemplateEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,7 @@ class OrcamentoMapperTest {
                 .status(StatusOrcamento.PENDENTE)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(100))
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentoDto = OrcamentoDto.builder()
@@ -47,6 +51,7 @@ class OrcamentoMapperTest {
                 .status(StatusOrcamento.APROVADO)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(110))
+                .template(TemplateDto.builder().build().builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentos = new PageImpl<>(List.of(
@@ -61,6 +66,7 @@ class OrcamentoMapperTest {
                         .status(StatusOrcamento.PENDENTE)
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .valorTotal(BigDecimal.valueOf(130))
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 Orcamento.builder()
                         .id("id-teste 4")
@@ -73,6 +79,7 @@ class OrcamentoMapperTest {
                         .status(StatusOrcamento.PENDENTE)
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .valorTotal(BigDecimal.valueOf(140))
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 Orcamento.builder()
                         .id("id-teste 5")
@@ -85,6 +92,7 @@ class OrcamentoMapperTest {
                         .status(StatusOrcamento.PENDENTE)
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .valorTotal(BigDecimal.valueOf(150))
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build()
         ));
     }
@@ -102,6 +110,7 @@ class OrcamentoMapperTest {
         Assertions.assertEquals(orcamentoDomain.getUsuarioId(), orcamentoTeste.getUsuarioId());
         Assertions.assertEquals(orcamentoDomain.getStatus(), orcamentoTeste.getStatus());
         Assertions.assertEquals(orcamentoDomain.getTipoOrcamento(), orcamentoTeste.getTipoOrcamento());
+        Assertions.assertEquals(orcamentoDomain.getTemplate().getId(), orcamentoTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoDomain.getValorTotal(), orcamentoTeste.getValorTotal());
     }
 
@@ -118,6 +127,7 @@ class OrcamentoMapperTest {
         Assertions.assertEquals(orcamentoDto.getUsuarioId(), orcamentoTeste.getUsuarioId());
         Assertions.assertEquals(orcamentoDto.getStatus(), orcamentoTeste.getStatus());
         Assertions.assertEquals(orcamentoDto.getTipoOrcamento(), orcamentoTeste.getTipoOrcamento());
+        Assertions.assertEquals(orcamentoDto.getTemplate().getId(), orcamentoTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoDto.getValorTotal(), orcamentoTeste.getValorTotal());
     }
 
@@ -140,6 +150,7 @@ class OrcamentoMapperTest {
         Assertions.assertEquals(orcamentos.getContent().get(index).getUsuarioId(), orcamentoTeste.getUsuarioId());
         Assertions.assertEquals(orcamentos.getContent().get(index).getStatus(), orcamentoTeste.getStatus());
         Assertions.assertEquals(orcamentos.getContent().get(index).getTipoOrcamento(), orcamentoTeste.getTipoOrcamento());
+        Assertions.assertEquals(orcamentos.getContent().get(index).getTemplate().getId(), orcamentoTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentos.getContent().get(index).getValorTotal(), orcamentoTeste.getValorTotal());
     }
 

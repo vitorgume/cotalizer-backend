@@ -2,8 +2,10 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.mapper;
 
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.Template;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoEntity;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.TemplateEntity;
 import org.bson.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,7 @@ class OrcamentoMapperTest {
                 .status(StatusOrcamento.PENDENTE)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(100))
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentoEntity = OrcamentoEntity.builder()
@@ -44,6 +47,7 @@ class OrcamentoMapperTest {
                 .status(StatusOrcamento.PENDENTE)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(100))
+                .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                 .build();
     }
 
@@ -60,6 +64,7 @@ class OrcamentoMapperTest {
         Assertions.assertEquals(orcamentoDomain.getUsuarioId(), orcamentoTeste.getIdUsuario());
         Assertions.assertEquals(orcamentoDomain.getStatus(), orcamentoTeste.getStatus());
         Assertions.assertEquals(orcamentoDomain.getTipoOrcamento(), orcamentoTeste.getTipoOrcamento());
+        Assertions.assertEquals(orcamentoDomain.getTemplate().getId(), orcamentoTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoDomain.getValorTotal(), orcamentoTeste.getValorTotal());
     }
 
@@ -75,6 +80,7 @@ class OrcamentoMapperTest {
         Assertions.assertEquals(orcamentoEntity.getIdUsuario(), orcamentoTeste.getUsuarioId());
         Assertions.assertEquals(orcamentoEntity.getStatus(), orcamentoTeste.getStatus());
         Assertions.assertEquals(orcamentoEntity.getTipoOrcamento(), orcamentoTeste.getTipoOrcamento());
+        Assertions.assertEquals(orcamentoEntity.getTemplate().getId(), orcamentoTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoEntity.getValorTotal(), orcamentoTeste.getValorTotal());
 
         Document esperado    = orcamentoEntity.getOrcamentoFormatado();

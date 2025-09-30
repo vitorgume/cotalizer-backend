@@ -1,10 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.mapper;
 
 import com.gumeinteligenciacomercial.orcaja.domain.*;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.CampoPersonalizadoDto;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
-import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ProdutoOrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +35,7 @@ class OrcamentoTradicionalMapperTest {
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .status(StatusOrcamento.PENDENTE)
                 .dataCriacao(LocalDate.now())
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentoTradicionalDto = OrcamentoTradicionalDto.builder()
@@ -53,6 +51,7 @@ class OrcamentoTradicionalMapperTest {
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .status(StatusOrcamento.PENDENTE)
                 .dataCriacao(LocalDate.now())
+                .template(TemplateDto.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentosTradicionais = new PageImpl<>(List.of(
@@ -69,6 +68,7 @@ class OrcamentoTradicionalMapperTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 OrcamentoTradicional.builder()
                         .id("id-teste")
@@ -83,6 +83,7 @@ class OrcamentoTradicionalMapperTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 OrcamentoTradicional.builder()
                         .id("id-teste")
@@ -97,6 +98,7 @@ class OrcamentoTradicionalMapperTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(Template.builder().id("teste").nomeArquivo("teste").build())
                         .build()
         ));
     }
@@ -118,6 +120,7 @@ class OrcamentoTradicionalMapperTest {
         Assertions.assertEquals(orcamentoTradicionalDomain.getValorTotal(), orcamentoTradicionalTeste.getValorTotal());
         Assertions.assertEquals(orcamentoTradicionalDomain.getTipoOrcamento(), orcamentoTradicionalTeste.getTipoOrcamento());
         Assertions.assertEquals(orcamentoTradicionalDomain.getStatus(), orcamentoTradicionalTeste.getStatus());
+        Assertions.assertEquals(orcamentoTradicionalDomain.getTemplate().getId(), orcamentoTradicionalTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoTradicionalDomain.getDataCriacao(), orcamentoTradicionalTeste.getDataCriacao());
     }
 
@@ -138,6 +141,7 @@ class OrcamentoTradicionalMapperTest {
         Assertions.assertEquals(orcamentoTradicionalDto.getValorTotal(), orcamentoTradicionalTeste.getValorTotal());
         Assertions.assertEquals(orcamentoTradicionalDto.getTipoOrcamento(), orcamentoTradicionalTeste.getTipoOrcamento());
         Assertions.assertEquals(orcamentoTradicionalDto.getStatus(), orcamentoTradicionalTeste.getStatus());
+        Assertions.assertEquals(orcamentoTradicionalDto.getTemplate().getId(), orcamentoTradicionalTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentoTradicionalDto.getDataCriacao(), orcamentoTradicionalTeste.getDataCriacao());
     }
 
@@ -164,6 +168,7 @@ class OrcamentoTradicionalMapperTest {
         Assertions.assertEquals(orcamentosTradicionais.getContent().get(index).getValorTotal(), orcamentoTradicionalTeste.getValorTotal());
         Assertions.assertEquals(orcamentosTradicionais.getContent().get(index).getTipoOrcamento(), orcamentoTradicionalTeste.getTipoOrcamento());
         Assertions.assertEquals(orcamentosTradicionais.getContent().get(index).getStatus(), orcamentoTradicionalTeste.getStatus());
+        Assertions.assertEquals(orcamentosTradicionais.getContent().get(index).getTemplate().getId(), orcamentoTradicionalTeste.getTemplate().getId());
         Assertions.assertEquals(orcamentosTradicionais.getContent().get(index).getDataCriacao(), orcamentoTradicionalTeste.getDataCriacao());
     }
 }

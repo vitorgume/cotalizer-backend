@@ -8,6 +8,7 @@ import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.CampoPersonalizadoDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoTradicionalDto;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.ProdutoOrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.TemplateDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoTradicionalRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
@@ -88,6 +89,7 @@ class OrcamentoTradicionalControllerTest {
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .status(StatusOrcamento.PENDENTE)
                 .dataCriacao(LocalDate.now())
+                .template(TemplateDto.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamentoTradicional = OrcamentoTradicionalEntity.builder()
@@ -103,6 +105,7 @@ class OrcamentoTradicionalControllerTest {
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .status(StatusOrcamento.PENDENTE)
                 .dataCriacao(LocalDate.now())
+                .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         pageOrcamentos = new PageImpl<>(List.of(
@@ -119,6 +122,7 @@ class OrcamentoTradicionalControllerTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 OrcamentoTradicionalEntity.builder()
                         .id("id-teste")
@@ -133,6 +137,7 @@ class OrcamentoTradicionalControllerTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                         .build(),
                 OrcamentoTradicionalEntity.builder()
                         .id("id-teste")
@@ -147,6 +152,7 @@ class OrcamentoTradicionalControllerTest {
                         .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                         .status(StatusOrcamento.PENDENTE)
                         .dataCriacao(LocalDate.now())
+                        .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                         .build()
         ));
 

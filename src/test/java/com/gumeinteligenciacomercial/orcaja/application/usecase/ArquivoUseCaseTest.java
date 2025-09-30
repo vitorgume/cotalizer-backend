@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.ArquivoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
 import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
+import com.gumeinteligenciacomercial.orcaja.domain.Template;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +60,7 @@ class   ArquivoUseCaseTest {
     ArgumentCaptor<Usuario> usuarioCaptor;
 
     private static final Pattern NOME_ARQ_PATTERN = Pattern.compile("^ARQ-[A-Za-z0-9]{5}$");
+    private static final String TEMPLATE_TEST = "teste";
 
     private Orcamento novoOrcamento(String id, String usuarioId) {
         return Orcamento.builder()
@@ -69,6 +71,7 @@ class   ArquivoUseCaseTest {
                 .orcamentoFormatado(Map.of("key", "value"))
                 .dataCriacao(LocalDate.now())
                 .valorTotal(new BigDecimal("123.45"))
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
     }
 
@@ -81,6 +84,7 @@ class   ArquivoUseCaseTest {
                 .idUsuario(idUsuario)
                 .valorTotal(new BigDecimal("321.00"))
                 .dataCriacao(LocalDate.now())
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
     }
 
@@ -95,7 +99,7 @@ class   ArquivoUseCaseTest {
     void salvarArquivoDeveGerarSalvarEAtualizarOrcamento() {
         var input = novoOrcamento("orc-1", "usr-1");
 
-        when(htmlUseCase.gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId()))
+        when(htmlUseCase.gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId(), TEMPLATE_TEST))
                 .thenReturn("<html>OK</html>");
         when(gateway.salvarPdf(anyString(), eq("<html>OK</html>")))
                 .thenReturn("https://files/ARQ-abcde.pdf");
@@ -111,7 +115,7 @@ class   ArquivoUseCaseTest {
         assertEquals("https://files/ARQ-abcde.pdf", out.getUrlArquivo());
 
         InOrder inOrder = inOrder(htmlUseCase, gateway, orcamentoIaUseCase);
-        inOrder.verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId());
+        inOrder.verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId(), TEMPLATE_TEST);
         inOrder.verify(gateway).salvarPdf(nomeArquivoCaptor.capture(), htmlCaptor.capture());
         inOrder.verify(orcamentoIaUseCase).consultarPorId("orc-1");
         inOrder.verify(orcamentoIaUseCase).alterar(eq("orc-1"), orcamentoCaptor.capture());
@@ -127,27 +131,27 @@ class   ArquivoUseCaseTest {
     @Test
     void salvarArquivoDevePropagarExcecao_quandoGerarHtmlFalha() {
         var input = novoOrcamento("orc-err", "usr-1");
-        when(htmlUseCase.gerarHtml(any(), any()))
+        when(htmlUseCase.gerarHtml(any(), any(), anyString()))
                 .thenThrow(new IllegalStateException("falha html"));
 
         var ex = assertThrows(IllegalStateException.class, () -> sut.salvarArquivo(input));
         assertEquals("falha html", ex.getMessage());
 
-        verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId());
+        verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId(), TEMPLATE_TEST);
         verifyNoInteractions(gateway, orcamentoIaUseCase);
     }
 
     @Test
     void salvarArquivoDevePropagarExcecaoQuandoSalvarPdfFalha() {
         var input = novoOrcamento("orc-err", "usr-1");
-        when(htmlUseCase.gerarHtml(any(), any())).thenReturn("<html/>");
+        when(htmlUseCase.gerarHtml(any(), any(), anyString())).thenReturn("<html/>");
         when(gateway.salvarPdf(anyString(), anyString()))
                 .thenThrow(new RuntimeException("falha pdf"));
 
         var ex = assertThrows(RuntimeException.class, () -> sut.salvarArquivo(input));
         assertEquals("falha pdf", ex.getMessage());
 
-        verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId());
+        verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId(), TEMPLATE_TEST);
         verify(gateway).salvarPdf(anyString(), eq("<html/>"));
         verifyNoInteractions(orcamentoIaUseCase);
     }
@@ -155,13 +159,13 @@ class   ArquivoUseCaseTest {
     @Test
     void salvarArquivoDeveLancarNullPointerSeConsultarPorIdRetornaNull() {
         var input = novoOrcamento("orc-x", "usr-1");
-        when(htmlUseCase.gerarHtml(any(), any())).thenReturn("<html/>");
+        when(htmlUseCase.gerarHtml(any(), any(), anyString())).thenReturn("<html/>");
         when(gateway.salvarPdf(anyString(), anyString())).thenReturn("url");
         when(orcamentoIaUseCase.consultarPorId("orc-x")).thenReturn(null);
 
         assertThrows(NullPointerException.class, () -> sut.salvarArquivo(input));
 
-        verify(htmlUseCase).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId());
+        verify(htmlUseCase, times(1)).gerarHtml(input.getOrcamentoFormatado(), input.getUsuarioId(), TEMPLATE_TEST);
         verify(gateway).salvarPdf(anyString(), eq("<html/>"));
         verify(orcamentoIaUseCase).consultarPorId("orc-x");
         verify(orcamentoIaUseCase, never()).alterar(anyString(), any());
@@ -170,7 +174,7 @@ class   ArquivoUseCaseTest {
     @Test
     void salvarArquivoDevePropagarExcecaoQuandoAlterarFalha() {
         var input = novoOrcamento("orc-2", "usr-1");
-        when(htmlUseCase.gerarHtml(any(), any())).thenReturn("<html/>");
+        when(htmlUseCase.gerarHtml(any(), any(), anyString())).thenReturn("<html/>");
         when(gateway.salvarPdf(anyString(), anyString())).thenReturn("url");
         when(orcamentoIaUseCase.consultarPorId("orc-2")).thenReturn(novoOrcamento("orc-2", "usr-1"));
         when(orcamentoIaUseCase.alterar(eq("orc-2"), any()))

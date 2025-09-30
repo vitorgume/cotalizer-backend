@@ -26,7 +26,6 @@ class UsuarioDataProviderTest {
 
     private static final String ERR_SALVAR = "Erro ao salvar usuário.";
     private static final String ERR_CONSULT_ID = "Erro ao consultar usuário pelo seu id.";
-    private static final String ERR_CONSULT_CPF = "Erro ao consultar usuário pelo seu cpf.";
     private static final String ERR_LISTAR = "Erro ao listar usuários.";
     private static final String ERR_CONSULT_EMAIL = "Erro ao consultar usuário pelo seu email.";
 

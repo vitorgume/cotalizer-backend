@@ -19,6 +19,7 @@ public class OrcamentoTradicionalMapper {
                 .tipoOrcamento(entity.getTipoOrcamento())
                 .status(entity.getStatus())
                 .dataCriacao(entity.getDataCriacao())
+                .template(TemplateMapper.paraDomain(entity.getTemplate()))
                 .build();
     }
 
@@ -36,6 +37,7 @@ public class OrcamentoTradicionalMapper {
                 .tipoOrcamento(domain.getTipoOrcamento())
                 .status(domain.getStatus())
                 .dataCriacao(domain.getDataCriacao())
+                .template(TemplateMapper.paraEntity(domain.getTemplate()))
                 .build();
     }
 }

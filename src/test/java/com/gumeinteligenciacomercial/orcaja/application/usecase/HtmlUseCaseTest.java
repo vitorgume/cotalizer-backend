@@ -1,10 +1,8 @@
 package com.gumeinteligenciacomercial.orcaja.application.usecase;
 
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.ArquivoException;
-import com.gumeinteligenciacomercial.orcaja.domain.CampoPersonalizado;
-import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
-import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
-import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
+import com.gumeinteligenciacomercial.orcaja.domain.*;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.TemplateEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +41,7 @@ class HtmlUseCaseTest {
     private Usuario usuarioSemLogo;
     private Usuario usuarioComLogo;
     private Path logoFile;
+    private static final String TEMPLATE_TEST = "classic_neutral";
 
     @BeforeEach
     void setup() throws IOException {
@@ -75,7 +74,7 @@ class HtmlUseCaseTest {
         );
         when(usuarioUseCase.consultarPorId("user1")).thenReturn(usuarioSemLogo);
 
-        String html = htmlUseCase.gerarHtml(orc, "user1");
+        String html = htmlUseCase.gerarHtml(orc, "user1", TEMPLATE_TEST);
 
         assertTrue(Pattern.compile("\\d{2}:\\d{2} - \\d{2}/\\d{2}/\\d{4}")
                 .matcher(html).find(), "Deve conter data formatada");
@@ -106,6 +105,7 @@ class HtmlUseCaseTest {
                 .produtos(List.of(
                         ProdutoOrcamento.builder().descricao("Desc").quantidade(3).valor(BigDecimal.valueOf(2.5)).build()
                 ))
+                .template(Template.builder().id("teste").nomeArquivo(TEMPLATE_TEST).build())
                 .build();
         when(usuarioUseCase.consultarPorId("user1")).thenReturn(usuarioSemLogo);
 
@@ -130,7 +130,7 @@ class HtmlUseCaseTest {
         orc.put("itens", java.util.List.of());       // vazio, sem linhas
         when(usuarioUseCase.consultarPorId("user1")).thenReturn(usuarioSemLogo);
 
-        String html = htmlUseCase.gerarHtml(orc, "user1");
+        String html = htmlUseCase.gerarHtml(orc, "user1", TEMPLATE_TEST);
 
         // "Tags" viria de formatarChave("tags") -> "Tags"
         assertFalse(html.contains("<p><strong>Tags:</strong>"));
@@ -152,7 +152,7 @@ class HtmlUseCaseTest {
 
         when(usuarioUseCase.consultarPorId("userX")).thenReturn(u);
 
-        String html = htmlUseCase.gerarHtml(orc, "userX");
+        String html = htmlUseCase.gerarHtml(orc, "userX", TEMPLATE_TEST);
 
         // logo inline deve aparecer
         assertTrue(html.contains(dataUri));
@@ -171,7 +171,7 @@ class HtmlUseCaseTest {
         Map<String, Object> orc = Map.of("campo_x", "y"); // sem "itens"
 
         ArquivoException ex = assertThrows(ArquivoException.class,
-                () -> htmlUseCase.gerarHtml(orc, "user1"));
+                () -> htmlUseCase.gerarHtml(orc, "user1", TEMPLATE_TEST));
         assertEquals("Erro ao gerar html para orçamento com IA.", ex.getMessage());
     }
 
@@ -182,7 +182,7 @@ class HtmlUseCaseTest {
                 .thenThrow(new IllegalStateException("boom"));
 
         ArquivoException ex = assertThrows(ArquivoException.class,
-                () -> htmlUseCase.gerarHtml(orc, "user1"));
+                () -> htmlUseCase.gerarHtml(orc, "user1", TEMPLATE_TEST));
         assertEquals("Erro ao gerar html para orçamento com IA.", ex.getMessage());
     }
 
@@ -199,7 +199,8 @@ class HtmlUseCaseTest {
                 .cnpjCpf("000")
                 .observacoes("Obs")
                 .camposPersonalizados(null) // branch: null
-                .produtos(null)             // branch: null
+                .produtos(null)
+                .template(Template.builder().id("teste").nomeArquivo(TEMPLATE_TEST).build())// branch: null
                 .build();
 
         String html = htmlUseCase.gerarHtmlTradicional(trad);
@@ -222,6 +223,7 @@ class HtmlUseCaseTest {
                 .cliente("C")
                 .cnpjCpf("1")
                 .observacoes("O")
+                .template(Template.builder().id("teste").nomeArquivo(TEMPLATE_TEST).build())
                 .build();
 
         when(usuarioUseCase.consultarPorId("bad"))
@@ -256,6 +258,7 @@ class HtmlUseCaseTest {
                 .observacoes("Obs & \" < >")
                 .camposPersonalizados(java.util.List.of(cp))
                 .produtos(java.util.List.of(p))
+                .template(Template.builder().id("teste").nomeArquivo(TEMPLATE_TEST).build())
                 .build();
 
         String html = htmlUseCase.gerarHtmlTradicional(trad);
@@ -290,7 +293,7 @@ class HtmlUseCaseTest {
                 "itens", List.of(Map.of("produto","X","quantidade",1,"valor_unit",1))
         );
 
-        String html = new HtmlUseCase(usuarioUseCase).gerarHtml(orc, "u1");
+        String html = new HtmlUseCase(usuarioUseCase).gerarHtml(orc, "u1", TEMPLATE_TEST);
         assertTrue(html.contains("data:image/png;base64,"));
 
         http.stop(0);
@@ -311,7 +314,7 @@ class HtmlUseCaseTest {
         when(usuarioUseCase.consultarPorId("u1")).thenReturn(usuario);
 
         Map<String,Object> orc = Map.of("itens", List.of());
-        String html = new HtmlUseCase(usuarioUseCase).gerarHtml(orc, "u1");
+        String html = new HtmlUseCase(usuarioUseCase).gerarHtml(orc, "u1", TEMPLATE_TEST);
         assertFalse(html.contains("data:image/"));
 
         http.stop(0);

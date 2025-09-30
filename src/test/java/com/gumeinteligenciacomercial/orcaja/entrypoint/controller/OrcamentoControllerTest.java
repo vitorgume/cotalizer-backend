@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ia.IaUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.StatusOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.Template;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoOrcamento;
 import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.OrcamentoDto;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.TemplateDto;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.OrcamentoRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.UsuarioRepository;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.OrcamentoEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.PlanoEntity;
+import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.TemplateEntity;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities.UsuarioEntity;
 import org.bson.Document;
 import org.junit.jupiter.api.Assertions;
@@ -84,6 +87,7 @@ class OrcamentoControllerTest {
                 .status(StatusOrcamento.APROVADO)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(110))
+                .template(TemplateDto.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         orcamento = OrcamentoEntity.builder()
@@ -97,6 +101,7 @@ class OrcamentoControllerTest {
                 .status(StatusOrcamento.PENDENTE)
                 .tipoOrcamento(TipoOrcamento.TRADICIONAL)
                 .valorTotal(BigDecimal.valueOf(100))
+                .template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         usuarioEntity = UsuarioEntity.builder()
@@ -107,9 +112,9 @@ class OrcamentoControllerTest {
                 .build();
 
         pageOrcamentos = new PageImpl<>(List.of(
-                OrcamentoEntity.builder().id("C").build(),
-                OrcamentoEntity.builder().id("C").build(),
-                OrcamentoEntity.builder().id("C").build()
+                OrcamentoEntity.builder().id("C").template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build()).build(),
+                OrcamentoEntity.builder().id("C").template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build()).build(),
+                OrcamentoEntity.builder().id("C").template(TemplateEntity.builder().id("teste").nomeArquivo("teste").build()).build()
         ));
     }
 

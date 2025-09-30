@@ -2,10 +2,8 @@ package com.gumeinteligenciacomercial.orcaja.entrypoint.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.ArquivoUseCase;
-import com.gumeinteligenciacomercial.orcaja.domain.CampoPersonalizado;
-import com.gumeinteligenciacomercial.orcaja.domain.Orcamento;
-import com.gumeinteligenciacomercial.orcaja.domain.OrcamentoTradicional;
-import com.gumeinteligenciacomercial.orcaja.domain.ProdutoOrcamento;
+import com.gumeinteligenciacomercial.orcaja.domain.*;
+import com.gumeinteligenciacomercial.orcaja.entrypoint.dto.TemplateDto;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
@@ -59,8 +57,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class ArquivoApiControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+            @Autowired
+            MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -76,7 +74,8 @@ class ArquivoApiControllerTest {
         var requestJson = objectMapper.writeValueAsString(Map.of(
                 "id", "orc-1",
                 "usuarioId", "usr-1",
-                "orcamentoFormatado", Map.of("k", "v")
+                "orcamentoFormatado", Map.of("k", "v"),
+                "template", TemplateDto.builder().id("teste").nomeArquivo("teste").build()
         ));
 
         Orcamento salvo = Orcamento.builder()
@@ -85,6 +84,7 @@ class ArquivoApiControllerTest {
                 .urlArquivo("https://files/ARQ-abcde.pdf")
                 .dataCriacao(LocalDate.now())
                 .valorTotal(new BigDecimal("100.00"))
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         given(arquivoUseCase.salvarArquivo(any(Orcamento.class))).willReturn(salvo);
@@ -108,7 +108,8 @@ class ArquivoApiControllerTest {
                 "idUsuario", "usr-9",
                 "cliente", "Cliente X",
                 "produtos", List.of(),
-                "camposPersonalizados", List.of()
+                "camposPersonalizados", List.of(),
+                "template", TemplateDto.builder().id("teste").nomeArquivo("teste").build()
         ));
 
         OrcamentoTradicional salvo = OrcamentoTradicional.builder()
@@ -119,6 +120,7 @@ class ArquivoApiControllerTest {
                 .dataCriacao(LocalDate.now())
                 .produtos(List.of(ProdutoOrcamento.builder().descricao("teste").valor(new BigDecimal(20)).quantidade(2).build()))
                 .camposPersonalizados(List.of(CampoPersonalizado.builder().titulo("teste").valor("teste").build()))
+                .template(Template.builder().id("teste").nomeArquivo("teste").build())
                 .build();
 
         given(arquivoUseCase.salvarArquivoTradicional(any(OrcamentoTradicional.class)))
