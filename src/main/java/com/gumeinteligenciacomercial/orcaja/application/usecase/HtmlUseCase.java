@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -42,24 +44,74 @@ public class HtmlUseCase {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
             String dataFormatada = LocalDateTime.now().format(formatter);
 
-            // ===== Campos (tudo exceto 'itens')
+            // ========= normalização & regras
+            Set<String> hideInCampos = new HashSet<>(Arrays.asList(
+                    "itens",
+                    // totais/derivados: deixam de aparecer em ${campos}
+                    "subtotal", "total", "valor_total", "valortotal", "valor_total_final", "valor_total_liquido", "valor_total_bruto",
+                    "desconto_calculado", "descontocalculado"
+            ));
+
+            Set<String> moneyKeys = new HashSet<>(Arrays.asList(
+                    "subtotal", "total", "valor_total", "valortotal", "valor_total_final", "valor_total_liquido", "valor_total_bruto"
+            ));
+
+            Set<String> discountKeys = new HashSet<>(Arrays.asList(
+                    "desconto", "desconto_percentual"
+                    // NOTE: desconto_calculado é oculto em campos; fica só nos Totais em R$
+            ));
+
+            // rótulos “bonitos”
+            Map<String, String> labelOverrides = new HashMap<>();
+            labelOverrides.put("nome_orcamento", "Nome do Orçamento");
+            labelOverrides.put("nomeorcamento", "Nome do Orçamento");
+            labelOverrides.put("nome_cliente", "Cliente");
+            labelOverrides.put("nomecliente", "Cliente");
+            labelOverrides.put("forma_pagamento", "Forma de Pagamento");
+            labelOverrides.put("formapagamento", "Forma de Pagamento");
+            labelOverrides.put("observacao", "Observação");
+            labelOverrides.put("prazo", "Prazo");
+            labelOverrides.put("segmento", "Segmento");
+            labelOverrides.put("empresa", "Empresa");
+            labelOverrides.put("contato", "Contato");
+            labelOverrides.put("cnpj_cpf", "CNPJ/CPF");
+            labelOverrides.put("cnpj", "CNPJ");
+            labelOverrides.put("cpf", "CPF");
+            labelOverrides.put("desconto", "Desconto");
+
+            // ========= monta ${campos} (filtrado, formatado)
             StringBuilder camposHtml = new StringBuilder();
             for (Map.Entry<String, Object> entry : orcamento.entrySet()) {
-                String key = entry.getKey();
-                Object valor = entry.getValue();
-                if ("itens".equalsIgnoreCase(key) || valor instanceof List) continue;
+                String rawKey = entry.getKey();
+                Object rawVal = entry.getValue();
 
-                String chaveFmt = formatarChave(key);
-                String valorFmt = valor != null ? escapeHtml(String.valueOf(valor)) : "";
+                // pula listas/mapas (ex.: itens) e chaves derivadas que não queremos em ${campos}
+                if (rawVal instanceof Collection || rawVal instanceof Map) continue;
 
-                camposHtml.append("<p><strong>")
-                        .append(escapeHtml(chaveFmt))
+                String normKey = normalizeKey(rawKey); // camelCase/snake → snake minúsculo
+                if (hideInCampos.contains(normKey)) continue;
+
+                // valor vazio? pula
+                if (isEmptyValue(rawVal)) continue;
+
+                // formata valor (%, BRL, texto)
+                String displayVal = formatDisplayValue(normKey, rawVal, moneyKeys, discountKeys);
+
+                // se após formatação ficou vazio, pula
+                if (displayVal == null || displayVal.isBlank()) continue;
+
+                // rótulo bonito
+                String label = prettyLabel(normKey, labelOverrides);
+
+                camposHtml
+                        .append("<p><strong>")
+                        .append(escapeHtml(label))
                         .append(":</strong> ")
-                        .append(valorFmt)
+                        .append(escapeHtml(displayVal))
                         .append("</p>");
             }
 
-            // ===== Itens
+            // ========= Itens (sem mudança estrutural)
             StringBuilder itensHtml = new StringBuilder();
             double subtotal = 0.0;
 
@@ -67,38 +119,32 @@ public class HtmlUseCase {
             List<Map<String, Object>> itens = (List<Map<String, Object>>) orcamento.get("itens");
             if (itens != null) {
                 for (Map<String, Object> item : itens) {
-                    String descricao = String.valueOf(
-                            item.getOrDefault("descricao",
-                                    item.getOrDefault("produto", ""))
-                    );
+                    String descricao = String.valueOf(item.getOrDefault("descricao", item.getOrDefault("produto", "")));
                     int quantidade = (int) Math.round(parseNumberFlexible(item.getOrDefault("quantidade", "0")));
-                    double valorUnit = parseNumberFlexible(
-                            item.getOrDefault("valorUnitario", item.getOrDefault("valor_unit", "0"))
-                    );
+                    double valorUnit = parseNumberFlexible(item.getOrDefault("valorUnitario", item.getOrDefault("valor_unit", "0")));
                     double totalItem = quantidade * valorUnit;
                     subtotal += totalItem;
 
-                    itensHtml.append("""
-                    <tr>
-                      <td><strong>%s</strong></td>
-                      <td>%d</td>
-                      <td>%s</td>
-                      <td>%s</td>
-                    </tr>
-                """.formatted(
+                    itensHtml.append(String.format(
+                            "<tr>" +
+                                    "<td><div class=\"item-name\">%s</div></td>" +
+                                    "<td>%d</td>" +
+                                    "<td>%s</td>" +
+                                    "<td>%s</td>" +
+                                    "</tr>",
                             escapeHtml(descricao),
                             quantidade,
-                            toBRL(valorUnit),
-                            toBRL(totalItem)
+                            escapeHtml(toBRL(valorUnit)),
+                            escapeHtml(toBRL(totalItem))
                     ));
                 }
             }
 
-            // ===== Desconto (valor absoluto; se vier "5%" vira subtotal*5/100)
+            // ========= Desconto/Total (usados na caixa de Totais)
             double desconto = parseDiscount(orcamento.get("desconto"), subtotal);
             double valorFinal = subtotal - desconto;
 
-            // ===== Logo (data URI se possível)
+            // ========= Logo
             Usuario usuario = usuarioUseCase.consultarPorId(idUsuario);
             String rawLogo = Optional.ofNullable(usuario.getUrlLogo()).map(String::trim).orElse("");
             String logoSrc = Optional.ofNullable(toDataUri(rawLogo)).orElse("");
@@ -193,6 +239,79 @@ public class HtmlUseCase {
         }
     }
 
+    /* ===== Helpers ===== */
+
+
+    private String normalizeKey(String key) {
+        if (key == null) return "";
+        String k = key.trim();
+
+        k = k.replaceAll("([a-z])([A-Z])", "$1_$2");
+
+        k = k.replaceAll("[\\s\\-]+", "_");
+
+        k = k.toLowerCase(Locale.ROOT);
+        return k;
+    }
+
+
+    private String prettyLabel(String normKey, Map<String, String> overrides) {
+        if (overrides.containsKey(normKey)) return overrides.get(normKey);
+
+        String[] parts = normKey.split("_");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            String p = parts[i];
+            if (p.isEmpty()) continue;
+            sb.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1));
+            if (i < parts.length - 1) sb.append(' ');
+        }
+        return sb.toString();
+    }
+
+    private boolean isEmptyValue(Object v) {
+        if (v == null) return true;
+        if (v instanceof String) return ((String) v).trim().isEmpty();
+        return false;
+    }
+
+    private String formatDisplayValue(
+            String normKey,
+            Object rawVal,
+            Set<String> moneyKeys,
+            Set<String> discountKeys
+    ) {
+        String s = rawVal == null ? "" : String.valueOf(rawVal).trim();
+
+        if (discountKeys.contains(normKey)) {
+
+            if (s.endsWith("%")) return s;
+            double n = parseNumberFlexible(s);
+            if (Double.isNaN(n)) return s;
+            if (n <= 1.0) n *= 100.0;
+            return stripTrailingZeros(n) + "%";
+        }
+
+        if (moneyKeys.contains(normKey)) {
+
+            double n = parseNumberFlexible(s);
+            return toBRL(n);
+        }
+
+        return s;
+    }
+
+    private static String stripTrailingZeros(double n) {
+        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
+        if (nf instanceof DecimalFormat) {
+            DecimalFormat df = (DecimalFormat) nf;
+            df.setMaximumFractionDigits(2);
+            df.setMinimumFractionDigits(0);
+            df.setGroupingUsed(false);
+            return df.format(n);
+        }
+        return String.valueOf(n);
+    }
 
     private String escapeHtml(String s) {
         return s == null ? "" : s

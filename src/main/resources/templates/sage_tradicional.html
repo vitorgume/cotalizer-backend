@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Orçamento</title>
+    <style type="text/css">
+        /* Página e reset */
+        @page { size: A4; margin: 15mm; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+          background-color:#ffffff; /* fundo branco em todas as páginas */
+          font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          color:#1A1A1A;
+        }
+        .container { background-color:#ffffff; margin:0; border:1px solid rgba(91,109,85,0.12); }
+
+        /* Header (tabela = mais estável no PDF) */
+        .header { padding:40px 60px 30px; background-color:#5B6D55; }
+        .header-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+        .logo-cell { width:50%; vertical-align:middle; }
+        .info-cell { width:50%; vertical-align:middle; text-align:right; }
+
+        .logo-box { width:180px; height:60px; overflow:hidden; background-color:rgba(255,255,255,0.15); padding:10px; }
+        .logo-box img { max-width:100%; max-height:100%; display:block; }
+
+        .doc-title { font-size:42px; font-weight:700; letter-spacing:-1px; color:#ffffff; margin-bottom:10px; line-height:1; }
+        .doc-meta { font-size:13px; color:#ffffff; line-height:1.5; } /* branco puro */
+        .doc-meta strong { font-weight:600; color:#ffffff; }
+
+        /* Barra de acento */
+        .accent-bar { height:6px; background-color:#E1DED7; }
+
+        /* Seções de conteúdo (sem gradient; mais compacto) */
+        .cliente-section { padding:30px 60px; background-color:#ffffff; border-bottom:1px solid rgba(91,109,85,0.1); page-break-inside:avoid; }
+        .section-label { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#5B6D55; font-weight:700; margin-bottom:10px; }
+        .cliente-info { font-size:14px; line-height:1.6; color:rgba(26,26,26,0.85); }
+        .cliente-info div { margin-bottom:3px; }
+
+        /* Itens */
+        .itens-section { padding:32px 60px; page-break-inside:avoid; }
+        .items-table { width:100%; border-collapse:collapse; margin-top:16px; table-layout:fixed; }
+        .items-table thead { display:table-header-group; }
+        .items-table thead th {
+          text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:1.2px; font-weight:700;
+          color:#ffffff; padding:12px; background-color:#5B6D55;
+          border-right:1px solid rgba(255,255,255,0.15);
+        }
+        .items-table thead th:last-child { text-align:right; border-right:none; }
+        .items-table tbody tr { page-break-inside:avoid; }
+        .items-table tbody td {
+          padding:16px 12px; border-bottom:1px solid rgba(91,109,85,0.08);
+          font-size:14px; vertical-align:top;
+        }
+        .items-table tbody td:last-child { text-align:right; }
+        .items-table tbody tr:last-child td { border-bottom:none; }
+        .item-name { font-weight:600; color:#1A1A1A; }
+        .item-desc { font-size:13px; color:rgba(26,26,26,0.6); margin-top:3px; }
+
+        /* Totais (tabela, centralizado) */
+        .totais-section { padding:28px 60px 40px; background-color:#E1DED7; page-break-inside:avoid; }
+        .totais-box {
+          width:380px;
+          margin:0 auto; /* centralizado */
+          background-color:#ffffff;
+          border:1px solid rgba(91,109,85,0.15);
+          padding:20px 24px;
+        }
+        .totals-table { width:100%; border-collapse:collapse; }
+        .totals-table td {
+          padding:10px 0; font-size:14px; border-bottom:1px solid rgba(91,109,85,0.08); color:#1A1A1A;
+        }
+        .totals-table tr:last-child td { border-bottom:none; }
+        .totals-table td:last-child { text-align:right; font-weight:600; }
+        .totals-table .final td {
+          border-top:2px solid #5B6D55; padding-top:16px; font-size:18px; font-weight:700; color:#5B6D55;
+        }
+
+        /* Footer */
+        .footer { padding:24px 60px; background-color:#ffffff; border-top:1px solid rgba(91,109,85,0.1); color:rgba(26,26,26,0.65); font-size:12px; line-height:1.6; page-break-inside:avoid; }
+        .footer-title { color:#5B6D55; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; font-size:11px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header" style="background-color:#5B6D55;">
+        <table class="header-table" role="presentation" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="logo-cell">
+                    <div class="logo-box" style="background-color:rgba(255,255,255,0.15);">
+                        <img src="${logo_src}" alt="Logo" width="180" height="60"/>
+                    </div>
+                </td>
+                <td class="info-cell">
+                    <div class="doc-title" style="color:#ffffff;">Orçamento</div>
+                    <!-- força branco nos valores também -->
+                    <div class="doc-meta" style="color:#ffffff;">
+                        <div><strong style="color:#ffffff;">Nº</strong> <span style="color:#ffffff;">${id}</span></div>
+                        <div><strong style="color:#ffffff;">Data</strong> <span style="color:#ffffff;">${data}</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Accent Bar -->
+    <div class="accent-bar" style="background-color:#E1DED7; height:6px;"></div>
+
+    <!-- Dados do Cliente -->
+    <div class="cliente-section" style="background-color:#ffffff;">
+        <div class="section-label" style="color:#5B6D55;">Dados do Cliente</div>
+        <div class="cliente-info">
+            <div><strong>Cliente:</strong> ${cliente}</div>
+            <div><strong>CNPJ/CPF:</strong> ${cnpjCpf}</div>
+        </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="cliente-section" style="background-color:#ffffff;">
+        <div class="section-label" style="color:#5B6D55;">Observações</div>
+        <div class="cliente-info">
+            ${observacoes}
+        </div>
+    </div>
+
+    <!-- Campos Personalizados -->
+    <div class="cliente-section" style="background-color:#ffffff;">
+        <div class="section-label" style="color:#5B6D55;">Campos Personalizados</div>
+        <div class="cliente-info">
+            ${campos_personalizados}
+        </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="itens-section">
+        <div class="section-label" style="color:#5B6D55;">Itens do Orçamento</div>
+        <table class="items-table">
+            <thead>
+            <tr>
+                <th style="width:45%; background-color:#5B6D55; color:#ffffff;">Descrição</th>
+                <th style="width:15%; background-color:#5B6D55; color:#ffffff;">Qtd</th>
+                <th style="width:20%; background-color:#5B6D55; color:#ffffff;">Valor Unit.</th>
+                <th style="width:20%; background-color:#5B6D55; color:#ffffff; text-align:right;">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${itens}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Totais (centralizado) -->
+    <div class="totais-section" style="background-color:#E1DED7;">
+        <div class="totais-box" style="background-color:#ffffff; margin:0 auto;">
+            <table class="totals-table" role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>Subtotal</td>
+                    <td>${subtotal}</td>
+                </tr>
+                <tr>
+                    <td>Desconto</td>
+                    <td>${desconto}</td>
+                </tr>
+                <tr class="final">
+                    <td style="border-top:2px solid #5B6D55; color:#5B6D55; padding-top:16px;">Total</td>
+                    <td style="border-top:2px solid #5B6D55; color:#5B6D55; padding-top:16px; text-align:right; font-weight:700;">
+                        ${total}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Condições -->
+    <div class="footer">
+        <div class="footer-title" style="color:#5B6D55;">Condições</div>
+        Este orçamento é válido por até 7 dias. Valores sujeitos a alteração após esse período. Em caso de dúvidas,
+        entre em contato.
+    </div>
+</div>
+
+</body>
+</html>
