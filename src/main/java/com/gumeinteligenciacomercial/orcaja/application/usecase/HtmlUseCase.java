@@ -47,7 +47,6 @@ public class HtmlUseCase {
             // ========= normalização & regras
             Set<String> hideInCampos = new HashSet<>(Arrays.asList(
                     "itens",
-                    // totais/derivados: deixam de aparecer em ${campos}
                     "subtotal", "total", "valor_total", "valortotal", "valor_total_final", "valor_total_liquido", "valor_total_bruto",
                     "desconto_calculado", "descontocalculado"
             ));
@@ -58,11 +57,11 @@ public class HtmlUseCase {
 
             Set<String> discountKeys = new HashSet<>(Arrays.asList(
                     "desconto", "desconto_percentual"
-                    // NOTE: desconto_calculado é oculto em campos; fica só nos Totais em R$
             ));
 
             // rótulos “bonitos”
             Map<String, String> labelOverrides = new HashMap<>();
+            labelOverrides.put("cliente", "Cliente"); // <— novo
             labelOverrides.put("nome_orcamento", "Nome do Orçamento");
             labelOverrides.put("nomeorcamento", "Nome do Orçamento");
             labelOverrides.put("nome_cliente", "Cliente");
@@ -70,6 +69,7 @@ public class HtmlUseCase {
             labelOverrides.put("forma_pagamento", "Forma de Pagamento");
             labelOverrides.put("formapagamento", "Forma de Pagamento");
             labelOverrides.put("observacao", "Observação");
+            labelOverrides.put("observacoes", "Observação"); // variação
             labelOverrides.put("prazo", "Prazo");
             labelOverrides.put("segmento", "Segmento");
             labelOverrides.put("empresa", "Empresa");
@@ -79,39 +79,95 @@ public class HtmlUseCase {
             labelOverrides.put("cpf", "CPF");
             labelOverrides.put("desconto", "Desconto");
 
-            // ========= monta ${campos} (filtrado, formatado)
-            StringBuilder camposHtml = new StringBuilder();
+            // aliases → canônico (para ordenar/deduplicar)
+            Map<String, String> canonical = new HashMap<>();
+            canonical.put("nome_cliente", "cliente");
+            canonical.put("nomecliente", "cliente");
+            canonical.put("cliente", "cliente");
+
+            canonical.put("nome_orcamento", "nome_orcamento");
+            canonical.put("nomeorcamento", "nome_orcamento");
+
+            canonical.put("observacao", "observacao");
+            canonical.put("observacoes", "observacao");
+
+            canonical.put("desconto", "desconto");
+            canonical.put("desconto_percentual", "desconto");
+
+            canonical.put("prazo", "prazo");
+
+            // prioridade (menor = aparece primeiro)
+            Map<String, Integer> priority = new HashMap<>();
+            priority.put("cliente", 1);
+            priority.put("nome_orcamento", 2);
+            priority.put("observacao", 3);
+            priority.put("desconto", 4);
+            priority.put("prazo", 5);
+
+            // ========= monta ${campos} (filtrado, formatado, ordenado)
+            final class Campo {
+                String canon, normKey, label, value;
+
+                Campo(String canon, String normKey, String label, String value) {
+                    this.canon = canon;
+                    this.normKey = normKey;
+                    this.label = label;
+                    this.value = value;
+                }
+            }
+            List<Campo> lista = new ArrayList<>();
+            Set<String> seenCanon = new HashSet<>(); // evita duplicatas (ex.: cliente vs nome_cliente)
+
             for (Map.Entry<String, Object> entry : orcamento.entrySet()) {
                 String rawKey = entry.getKey();
                 Object rawVal = entry.getValue();
 
-                // pula listas/mapas (ex.: itens) e chaves derivadas que não queremos em ${campos}
+                // pula listas/mapas (ex.: itens)
                 if (rawVal instanceof Collection || rawVal instanceof Map) continue;
 
-                String normKey = normalizeKey(rawKey); // camelCase/snake → snake minúsculo
+                String normKey = normalizeKey(rawKey); // camel/snake → snake minúsculo
+
+                // campos a esconder da área ${campos}
                 if (hideInCampos.contains(normKey)) continue;
 
                 // valor vazio? pula
                 if (isEmptyValue(rawVal)) continue;
 
-                // formata valor (%, BRL, texto)
+                // prepara valor
                 String displayVal = formatDisplayValue(normKey, rawVal, moneyKeys, discountKeys);
-
-                // se após formatação ficou vazio, pula
                 if (displayVal == null || displayVal.isBlank()) continue;
 
-                // rótulo bonito
-                String label = prettyLabel(normKey, labelOverrides);
+                // canônico para ordenar/deduplicar
+                String canonKey = canonical.getOrDefault(normKey, normKey);
 
-                camposHtml
-                        .append("<p><strong>")
-                        .append(escapeHtml(label))
+                // dedup por canônico (fica o primeiro válido)
+                if (seenCanon.contains(canonKey)) continue;
+                seenCanon.add(canonKey);
+
+                String label = prettyLabel(normKey, labelOverrides);
+                lista.add(new Campo(canonKey, normKey, label, displayVal));
+            }
+
+            // ordenação pela prioridade, depois rótulo alfabético
+            lista.sort((a, b) -> {
+                int pa = priority.getOrDefault(a.canon, 1000);
+                int pb = priority.getOrDefault(b.canon, 1000);
+                if (pa != pb) return Integer.compare(pa, pb);
+                int byLabel = a.label.compareToIgnoreCase(b.label);
+                if (byLabel != 0) return byLabel;
+                return a.canon.compareTo(b.canon);
+            });
+
+            StringBuilder camposHtml = new StringBuilder();
+            for (Campo c : lista) {
+                camposHtml.append("<p><strong>")
+                        .append(escapeHtml(c.label))
                         .append(":</strong> ")
-                        .append(escapeHtml(displayVal))
+                        .append(escapeHtml(c.value))
                         .append("</p>");
             }
 
-            // ========= Itens (sem mudança estrutural)
+            // ========= Itens (igual ao seu)
             StringBuilder itensHtml = new StringBuilder();
             double subtotal = 0.0;
 
@@ -140,7 +196,7 @@ public class HtmlUseCase {
                 }
             }
 
-            // ========= Desconto/Total (usados na caixa de Totais)
+            // ========= Desconto/Total
             double desconto = parseDiscount(orcamento.get("desconto"), subtotal);
             double valorFinal = subtotal - desconto;
 
@@ -166,6 +222,7 @@ public class HtmlUseCase {
             throw new ArquivoException("Erro ao gerar html para orçamento com IA.", ex);
         }
     }
+
 
     public String gerarHtmlTradicional(OrcamentoTradicional novoOrcamento) {
 
@@ -370,11 +427,11 @@ public class HtmlUseCase {
 
         // Se houver vírgula e ponto, assume que o ÚLTIMO separador é o decimal.
         int lastComma = s.lastIndexOf(',');
-        int lastDot   = s.lastIndexOf('.');
-        int lastSep   = Math.max(lastComma, lastDot);
+        int lastDot = s.lastIndexOf('.');
+        int lastSep = Math.max(lastComma, lastDot);
 
         if (lastSep >= 0) {
-            String intPart  = s.substring(0, lastSep).replaceAll("[^0-9-]", ""); // remove milhares
+            String intPart = s.substring(0, lastSep).replaceAll("[^0-9-]", ""); // remove milhares
             String fracPart = s.substring(lastSep + 1).replaceAll("[^0-9]", "");
             s = intPart + "." + fracPart;
         } else {
