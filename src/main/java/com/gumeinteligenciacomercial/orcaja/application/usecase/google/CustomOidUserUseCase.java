@@ -3,8 +3,8 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
-import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -38,7 +38,7 @@ public class CustomOidUserUseCase implements OAuth2UserService<OidcUserRequest, 
                     .nome(nome)
                     .email(email)
                     .senha(UUID.randomUUID().toString())
-                    .plano(planoUseCase.consularPlanoPadrao())
+                    .plano(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS))
                     .tipoCadastro(TipoCadastro.GOOGLE)
                     .onboarding(false)
                     .build();

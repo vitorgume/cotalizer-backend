@@ -52,35 +52,35 @@ class PlanoUseCaseTest {
     }
 
     @Test
-    void consularPlanoPadrao_deveRetornarPlanoQuandoEncontrado() {
+    void consultarPlanoPadrao_deveRetornarPlanoQuandoEncontrado() {
         Plano plano = mock(Plano.class);
-        when(gateway.consultarPlanoPadrao()).thenReturn(Optional.of(plano));
+        when(gateway.consultarPlanoPeloTipo()).thenReturn(Optional.of(plano));
 
-        Plano out = useCase.consularPlanoPadrao();
+        Plano out = useCase.consultarPlanoPeloTipo();
 
         assertNotNull(out);
         assertSame(plano, out);
-        verify(gateway, times(1)).consultarPlanoPadrao();
+        verify(gateway, times(1)).consultarPlanoPeloTipo();
         verifyNoMoreInteractions(gateway);
     }
 
     @Test
-    void consularPlanoPadrao_deveLancarExcecaoQuandoNaoEncontrado() {
-        when(gateway.consultarPlanoPadrao()).thenReturn(Optional.empty());
+    void consultarPlanoPeloTipo_deveLancarExcecaoQuandoNaoEncontrado() {
+        when(gateway.consultarPlanoPeloTipo()).thenReturn(Optional.empty());
 
-        assertThrows(PlanoNaoEncontradoException.class, () -> useCase.consularPlanoPadrao());
-        verify(gateway, times(1)).consultarPlanoPadrao();
+        assertThrows(PlanoNaoEncontradoException.class, () -> useCase.consultarPlanoPeloTipo());
+        verify(gateway, times(1)).consultarPlanoPeloTipo();
         verifyNoMoreInteractions(gateway);
     }
 
     @Test
-    void consularPlanoPadrao_devePropagarExcecaoQuandoGatewayFalha() {
+    void consultarPlanoPeloTipo_devePropagarExcecaoQuandoGatewayFalha() {
         IllegalStateException infra = new IllegalStateException("falha");
-        when(gateway.consultarPlanoPadrao()).thenThrow(infra);
+        when(gateway.consultarPlanoPeloTipo()).thenThrow(infra);
 
-        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> useCase.consularPlanoPadrao());
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> useCase.consultarPlanoPeloTipo());
         assertSame(infra, thrown);
-        verify(gateway, times(1)).consultarPlanoPadrao();
+        verify(gateway, times(1)).consultarPlanoPeloTipo();
         verifyNoMoreInteractions(gateway);
     }
 

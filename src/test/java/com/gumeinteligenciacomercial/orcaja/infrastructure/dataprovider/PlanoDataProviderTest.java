@@ -76,7 +76,7 @@ class PlanoDataProviderTest {
         try (MockedStatic<PlanoMapper> mocked = mockStatic(PlanoMapper.class)) {
             mocked.when(() -> PlanoMapper.paraDomain(e)).thenReturn(p);
 
-            Optional<Plano> out = dataProvider.consultarPlanoPadrao();
+            Optional<Plano> out = dataProvider.consultarPlanoPeloTipo();
 
             assertTrue(out.isPresent());
             assertSame(p, out.get());
@@ -86,11 +86,11 @@ class PlanoDataProviderTest {
     }
 
     @Test
-    void consultarPlanoPadrao_deveRetornarOptionalVazio_quandoNaoEncontrado() {
+    void consultarPlanoPeloTipo_deveRetornarOptionalVazio_quandoNaoEncontrado() {
         when(repository.findByPadraoTrue()).thenReturn(Optional.empty());
 
         try (MockedStatic<PlanoMapper> mocked = mockStatic(PlanoMapper.class)) {
-            Optional<Plano> out = dataProvider.consultarPlanoPadrao();
+            Optional<Plano> out = dataProvider.consultarPlanoPeloTipo();
 
             assertTrue(out.isEmpty());
             verify(repository, times(1)).findByPadraoTrue();
@@ -101,12 +101,12 @@ class PlanoDataProviderTest {
     }
 
     @Test
-    void consultarPlanoPadrao_deveLancarDataProviderException_quandoRepositorioFalha() {
+    void consultarPlanoPeloTipo_deveLancarDataProviderException_quandoRepositorioFalha() {
         RuntimeException infra = new RuntimeException("Falha Mongo");
         when(repository.findByPadraoTrue()).thenThrow(infra);
 
         DataProviderException ex = assertThrows(DataProviderException.class,
-                () -> dataProvider.consultarPlanoPadrao());
+                () -> dataProvider.consultarPlanoPeloTipo());
 
         assertEquals("Erro ao consultar plano padrão.", ex.getMessage());
         verify(repository, times(1)).findByPadraoTrue();

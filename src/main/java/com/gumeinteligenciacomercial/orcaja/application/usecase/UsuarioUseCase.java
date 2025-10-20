@@ -41,7 +41,7 @@ public class UsuarioUseCase {
         }
 
         usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
-        usuario.setPlano(planoUseCase.consularPlanoPadrao());
+        usuario.setPlano(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS));
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
         usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);
@@ -144,7 +144,7 @@ public class UsuarioUseCase {
         return gateway.salvar(usuario);
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 0 0 1 * ?", zone = "America/Sao_Paulo")
     public void ajustarQuantidadeOrcamentoMensal() {
         List<Usuario> usuarios = this.listar();
 
@@ -152,6 +152,23 @@ public class UsuarioUseCase {
             usuario.setQuantidadeOrcamentos(0);
             this.alterar(usuario.getId(), usuario);
         });
+    }
+
+    @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
+    public void verificarPeriodoGratuito() {
+        List<Usuario> usuarios = this.listarPlanoGratis();
+        Plano planoStarter = planoUseCase.consultarPlanoInicial();
+
+        usuarios.forEach(usuario -> {
+            if(usuario.getDataCriacao().plusDays(30).isBefore(LocalDateTime.now())) {
+                usuario.setPlano(planoStarter);
+                this.gateway.salvar(usuario);
+            }
+        });
+    }
+
+    private List<Usuario> listarPlanoGratis() {
+        return gateway.listarPlanoGratis();
     }
 
     private List<Usuario> listar() {

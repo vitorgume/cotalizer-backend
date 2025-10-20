@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.entities;
 
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -23,7 +24,7 @@ public class PlanoEntity {
     private BigDecimal valor;
     private Integer limite;
     private String idPlanoStripe;
-    private Boolean padrao;
+    private TipoPlano tipoPlano;
     private Integer sequencia;
     private List<String> servicos;
 }

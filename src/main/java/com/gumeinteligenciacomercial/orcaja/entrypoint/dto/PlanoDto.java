@@ -1,5 +1,6 @@
 package com.gumeinteligenciacomercial.orcaja.entrypoint.dto;
 
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class PlanoDto {
     private BigDecimal valor;
     private Integer limite;
     private String idPlanoStripe;
-    private Boolean padrao;
+    private TipoPlano tipoPlano;
     private Integer sequencia;
     private List<String> servicos;
 }

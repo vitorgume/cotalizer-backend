@@ -4,7 +4,6 @@ import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface UsuarioGateway {
     Usuario salvar(Usuario usuario);
@@ -14,4 +13,6 @@ public interface UsuarioGateway {
     Optional<Usuario> consultarPorEmail(String email);
 
     List<Usuario> listar();
+
+    List<Usuario> listarPlanoGratis();
 }

@@ -12,7 +12,7 @@ public class PlanoMapper {
                 .descricao(domain.getDescricao())
                 .valor(domain.getValor())
                 .limite(domain.getLimite())
-                .padrao(domain.getPadrao())
+                .tipoPlano(domain.getTipoPlano())
                 .sequencia(domain.getSequencia())
                 .servicos(domain.getServicos())
                 .build();
@@ -25,7 +25,7 @@ public class PlanoMapper {
                 .descricao(dto.getDescricao())
                 .valor(dto.getValor())
                 .limite(dto.getLimite())
-                .padrao(dto.getPadrao())
+                .tipoPlano(dto.getTipoPlano())
                 .sequencia(dto.getSequencia())
                 .servicos(dto.getServicos())
                 .build();

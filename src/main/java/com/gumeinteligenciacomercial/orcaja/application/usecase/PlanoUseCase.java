@@ -3,7 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.PlanoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.PlanoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
-import io.netty.handler.codec.http2.Http2Connection;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +21,18 @@ public class PlanoUseCase {
         return planos;
     }
 
-    public Plano consularPlanoPadrao() {
-        Optional<Plano> plano = gateway.consultarPlanoPadrao();
+    public Plano consultarPlanoPeloTipo(TipoPlano tipoPlano) {
+        Optional<Plano> plano = gateway.consultarPlanoPeloTipo(tipoPlano);
+
+        if(plano.isEmpty()) {
+            throw new PlanoNaoEncontradoException();
+        }
+
+        return plano.get();
+    }
+
+    public Plano consultarPlanoInicial() {
+        Optional<Plano> plano = gateway.consultarPlanoInicial();
 
         if(plano.isEmpty()) {
             throw new PlanoNaoEncontradoException();

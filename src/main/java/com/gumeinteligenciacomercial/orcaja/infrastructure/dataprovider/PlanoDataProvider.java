@@ -2,6 +2,7 @@ package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.PlanoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.mapper.PlanoMapper;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.repositories.PlanoRepository;
@@ -21,6 +22,7 @@ public class PlanoDataProvider implements PlanoGateway {
     private final PlanoRepository repository;
     private static final String MENSAGEM_ERRO_LISTAR = "Erro ao listar planos.";
     private static final String MENSAGEM_ERRO_CONSULTAR_PADRAO = "Erro ao consultar plano padrão.";
+    private static final String MENSAGEM_ERRO_CONSULTAR_PLANO_INICIAL = "Erro ao consultar plano inicial.";
 
     @Override
     public List<Plano> listar() {
@@ -37,14 +39,28 @@ public class PlanoDataProvider implements PlanoGateway {
     }
 
     @Override
-    public Optional<Plano> consultarPlanoPadrao() {
+    public Optional<Plano> consultarPlanoPeloTipo(TipoPlano tipoPlano) {
         Optional<PlanoEntity> planoEntity;
 
         try {
-            planoEntity = repository.findByPadraoTrue();
+            planoEntity = repository.findByTipoPlano(tipoPlano);
         } catch (Exception ex) {
             log.error(MENSAGEM_ERRO_CONSULTAR_PADRAO, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_PADRAO, ex.getCause());
+        }
+
+        return planoEntity.map(PlanoMapper::paraDomain);
+    }
+
+    @Override
+    public Optional<Plano> consultarPlanoInicial() {
+        Optional<PlanoEntity> planoEntity;
+
+        try {
+            planoEntity = repository.findBySequencia(1);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_CONSULTAR_PLANO_INICIAL, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_PLANO_INICIAL, ex.getCause());
         }
 
         return planoEntity.map(PlanoMapper::paraDomain);

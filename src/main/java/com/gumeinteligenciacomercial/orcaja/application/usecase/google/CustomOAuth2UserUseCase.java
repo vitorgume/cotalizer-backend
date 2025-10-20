@@ -3,12 +3,10 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase.google;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
-import com.gumeinteligenciacomercial.orcaja.domain.Plano;
 import com.gumeinteligenciacomercial.orcaja.domain.TipoCadastro;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -48,7 +46,7 @@ public class CustomOAuth2UserUseCase implements OAuth2UserService<OAuth2UserRequ
                     .nome(nome)
                     .email(email)
                     .senha(UUID.randomUUID().toString())
-                    .plano(planoUseCase.consularPlanoPadrao())
+                    .plano(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS))
                     .tipoCadastro(TipoCadastro.GOOGLE)
                     .build();
             usuarioUseCase.cadastrar(novo);

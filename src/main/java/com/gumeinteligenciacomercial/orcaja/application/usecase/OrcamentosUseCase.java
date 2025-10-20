@@ -36,7 +36,7 @@ public class OrcamentosUseCase {
     }
 
     private void validarPlanoUsuario(Usuario usuario) {
-        if(Objects.equals(usuario.getQuantidadeOrcamentos(), usuario.getPlano().getLimite())) {
+        if(usuario.getPlano().getLimite() > 0 && Objects.equals(usuario.getQuantidadeOrcamentos(), usuario.getPlano().getLimite())) {
             throw new LimiteOrcamentosPlanoException();
         }
     }

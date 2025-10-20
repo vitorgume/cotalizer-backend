@@ -1,6 +1,7 @@
 package com.gumeinteligenciacomercial.orcaja.infrastructure.dataprovider;
 
 import com.gumeinteligenciacomercial.orcaja.application.gateway.UsuarioGateway;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.exceptions.DataProviderException;
 import com.gumeinteligenciacomercial.orcaja.infrastructure.mapper.UsuarioMapper;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,9 +22,9 @@ public class UsuarioDataProvider implements UsuarioGateway {
     private final UsuarioRepository repository;
     private final String MENSAGEM_ERRO_SALVAR = "Erro ao salvar usuário.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar usuário pelo seu id.";
-    private final String MENSAGEM_ERRO_CONSULTAR_POR_CPF = "Erro ao consultar usuário pelo seu cpf.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_EMAIL = "Erro ao consultar usuário pelo seu email.";
     private final String MENSAGEM_ERRO_LISTAR_USUARIOS = "Erro ao listar usuários.";
+    private static final String MENSAGEM_ERRO_LISTAR_PLANO_PADRAO = "Erro ao listar usuário pelo plano padrão.";
 
     @Override
     public Usuario salvar(Usuario usuario) {
@@ -61,7 +61,7 @@ public class UsuarioDataProvider implements UsuarioGateway {
         try {
             usuarioEntity = repository.findByEmail(email);
         } catch (Exception ex) {
-            log.info(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex);
+            log.error(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex);
             throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_EMAIL, ex.getCause());
         }
 
@@ -75,9 +75,24 @@ public class UsuarioDataProvider implements UsuarioGateway {
         try {
             usuarios = repository.findAll();
         } catch (Exception ex) {
-            log.info(MENSAGEM_ERRO_LISTAR_USUARIOS, ex);
+            log.error(MENSAGEM_ERRO_LISTAR_USUARIOS, ex);
             throw new DataProviderException(MENSAGEM_ERRO_LISTAR_USUARIOS, ex.getCause());
         }
+
+        return usuarios.stream().map(UsuarioMapper::paraDomain).toList();
+    }
+
+    @Override
+    public List<Usuario> listarPlanoGratis() {
+        List<UsuarioEntity> usuarios;
+
+        try {
+            usuarios = repository.findByPlanoTipoPlano(TipoPlano.GRATIS);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_LISTAR_PLANO_PADRAO, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_LISTAR_PLANO_PADRAO, ex.getCause());
+        }
+
 
         return usuarios.stream().map(UsuarioMapper::paraDomain).toList();
     }
