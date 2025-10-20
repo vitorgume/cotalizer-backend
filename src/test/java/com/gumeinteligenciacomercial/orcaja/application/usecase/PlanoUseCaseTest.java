@@ -3,6 +3,7 @@ package com.gumeinteligenciacomercial.orcaja.application.usecase;
 import com.gumeinteligenciacomercial.orcaja.application.exceptions.PlanoNaoEncontradoException;
 import com.gumeinteligenciacomercial.orcaja.application.gateway.PlanoGateway;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,33 +55,33 @@ class PlanoUseCaseTest {
     @Test
     void consultarPlanoPadrao_deveRetornarPlanoQuandoEncontrado() {
         Plano plano = mock(Plano.class);
-        when(gateway.consultarPlanoPeloTipo()).thenReturn(Optional.of(plano));
+        when(gateway.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(Optional.of(plano));
 
-        Plano out = useCase.consultarPlanoPeloTipo();
+        Plano out = useCase.consultarPlanoPeloTipo(TipoPlano.PADRAO);
 
         assertNotNull(out);
         assertSame(plano, out);
-        verify(gateway, times(1)).consultarPlanoPeloTipo();
+        verify(gateway, times(1)).consultarPlanoPeloTipo(TipoPlano.PADRAO);
         verifyNoMoreInteractions(gateway);
     }
 
     @Test
     void consultarPlanoPeloTipo_deveLancarExcecaoQuandoNaoEncontrado() {
-        when(gateway.consultarPlanoPeloTipo()).thenReturn(Optional.empty());
+        when(gateway.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(Optional.empty());
 
-        assertThrows(PlanoNaoEncontradoException.class, () -> useCase.consultarPlanoPeloTipo());
-        verify(gateway, times(1)).consultarPlanoPeloTipo();
+        assertThrows(PlanoNaoEncontradoException.class, () -> useCase.consultarPlanoPeloTipo(TipoPlano.PADRAO));
+        verify(gateway, times(1)).consultarPlanoPeloTipo(TipoPlano.PADRAO);
         verifyNoMoreInteractions(gateway);
     }
 
     @Test
     void consultarPlanoPeloTipo_devePropagarExcecaoQuandoGatewayFalha() {
         IllegalStateException infra = new IllegalStateException("falha");
-        when(gateway.consultarPlanoPeloTipo()).thenThrow(infra);
+        when(gateway.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenThrow(infra);
 
-        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> useCase.consultarPlanoPeloTipo());
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> useCase.consultarPlanoPeloTipo(TipoPlano.PADRAO));
         assertSame(infra, thrown);
-        verify(gateway, times(1)).consultarPlanoPeloTipo();
+        verify(gateway, times(1)).consultarPlanoPeloTipo(TipoPlano.PADRAO);
         verifyNoMoreInteractions(gateway);
     }
 

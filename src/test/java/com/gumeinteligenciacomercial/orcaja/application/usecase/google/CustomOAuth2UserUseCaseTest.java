@@ -4,6 +4,7 @@ import com.gumeinteligenciacomercial.orcaja.application.exceptions.UsuarioNaoEnc
 import com.gumeinteligenciacomercial.orcaja.application.usecase.PlanoUseCase;
 import com.gumeinteligenciacomercial.orcaja.application.usecase.UsuarioUseCase;
 import com.gumeinteligenciacomercial.orcaja.domain.Plano;
+import com.gumeinteligenciacomercial.orcaja.domain.TipoPlano;
 import com.gumeinteligenciacomercial.orcaja.domain.Usuario;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +75,7 @@ class CustomOAuth2UserUseCaseTest {
         when(delegate.loadUser(userRequest)).thenReturn(oauth2User);
         when(oauth2User.getAttribute("email")).thenReturn(email);
         when(oauth2User.getAttribute("name")).thenReturn(nome);
-        when(planoUseCase.consultarPlanoPeloTipo()).thenReturn(Plano.builder().id("idteste123").build());
+        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(Plano.builder().id("idteste123").build());
 
         doThrow(new UsuarioNaoEncontradoException())
                 .when(usuarioUseCase).consultarPorEmail(email);

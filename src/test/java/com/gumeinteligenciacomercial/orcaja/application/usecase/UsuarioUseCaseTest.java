@@ -60,7 +60,7 @@ class UsuarioUseCaseTest {
         Usuario saved = Usuario.builder().id(userId).build();
         when(gateway.salvar(captor.capture())).thenReturn(saved);
 
-        when(planoUseCase.consultarPlanoPeloTipo()).thenReturn(plano);
+        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(plano);
 
         useCase.cadastrar(u);
 
