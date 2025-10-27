@@ -36,11 +36,12 @@ public class UsuarioUseCase {
 
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
-        if(usuario.getTipoCadastro().equals(TipoCadastro.TRADICIONAL)) {
-            this.validacaoEmail(usuario.getEmail());
-        }
+//        if(usuario.getTipoCadastro().equals(TipoCadastro.TRADICIONAL)) {
+//            this.validacaoEmail(usuario.getEmail());
+//        }
 
-        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+//        usuario.setStatus(StatusUsuario.PENDENTE_VALIDACAO_EMAIL);
+        usuario.setStatus(StatusUsuario.ATIVO);
         usuario.setPlano(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS));
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
