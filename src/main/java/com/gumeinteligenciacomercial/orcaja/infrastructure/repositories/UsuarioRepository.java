@@ -13,4 +13,6 @@ public interface UsuarioRepository extends MongoRepository<UsuarioEntity, String
     Optional<UsuarioEntity> findByEmail(String email);
 
     List<UsuarioEntity> findByPlanoTipoPlano(TipoPlano tipoPlano);
+
+    Optional<UsuarioEntity> findByTelefone(String telefone);
 }

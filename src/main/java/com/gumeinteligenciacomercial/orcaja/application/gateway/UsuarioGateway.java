@@ -15,4 +15,6 @@ public interface UsuarioGateway {
     List<Usuario> listar();
 
     List<Usuario> listarPlanoGratis();
+
+    Optional<Usuario> consultarPorTelefone(String telefone);
 }

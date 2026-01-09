@@ -24,7 +24,8 @@ public class UsuarioDataProvider implements UsuarioGateway {
     private final String MENSAGEM_ERRO_CONSULTAR_POR_ID = "Erro ao consultar usuário pelo seu id.";
     private final String MENSAGEM_ERRO_CONSULTAR_POR_EMAIL = "Erro ao consultar usuário pelo seu email.";
     private final String MENSAGEM_ERRO_LISTAR_USUARIOS = "Erro ao listar usuários.";
-    private static final String MENSAGEM_ERRO_LISTAR_PLANO_PADRAO = "Erro ao listar usuário pelo plano padrão.";
+    private final String MENSAGEM_ERRO_LISTAR_PLANO_PADRAO = "Erro ao listar usuário pelo plano padrão.";
+    private final String MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE = "Erro ao consultar usuário pelo telefone.";
 
     @Override
     public Usuario salvar(Usuario usuario) {
@@ -95,5 +96,19 @@ public class UsuarioDataProvider implements UsuarioGateway {
 
 
         return usuarios.stream().map(UsuarioMapper::paraDomain).toList();
+    }
+
+    @Override
+    public Optional<Usuario> consultarPorTelefone(String telefone) {
+        Optional<UsuarioEntity> usuario;
+
+        try {
+            usuario = repository.findByTelefone(telefone);
+        } catch (Exception ex) {
+            log.error(MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE, ex);
+            throw new DataProviderException(MENSAGEM_ERRO_CONSULTAR_POR_TELEFONE, ex.getCause());
+        }
+
+        return usuario.map(UsuarioMapper::paraDomain);
     }
 }
