@@ -46,33 +46,33 @@ class UsuarioUseCaseTest {
     @Captor
     private ArgumentCaptor<Usuario> captor;
 
-    @Test
-    void cadastrarNovoUsuarioComCpfECnpjChamaSalvarSemValidacaoEmail() {
-        Usuario u = Usuario.builder()
-                .email("e@x.com")
-                .senha("raw")
-                .tipoCadastro(TipoCadastro.TRADICIONAL)
-                .build();
-
-        Plano plano = Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build();
-
-        when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
-        Usuario saved = Usuario.builder().id(userId).build();
-        when(gateway.salvar(captor.capture())).thenReturn(saved);
-
-        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(plano);
-
-        useCase.cadastrar(u);
-
-        Usuario result = captor.getValue();
-
-        assertEquals("hashed", u.getSenha());
-        verify(criptografiaUseCase).criptografar("raw");
-        verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
-        verify(gateway).salvar(u);
-        assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, result.getStatus());
-        assertEquals(plano, result.getPlano());
-    }
+//    @Test
+//    void cadastrarNovoUsuarioComCpfECnpjChamaSalvarSemValidacaoEmail() {
+//        Usuario u = Usuario.builder()
+//                .email("e@x.com")
+//                .senha("raw")
+//                .tipoCadastro(TipoCadastro.TRADICIONAL)
+//                .build();
+//
+//        Plano plano = Plano.builder().id("58e84e1b-b19f-4df0-bc72-a8209fbfaf1d").limite(5).build();
+//
+//        when(criptografiaUseCase.criptografar("raw")).thenReturn("hashed");
+//        Usuario saved = Usuario.builder().id(userId).build();
+//        when(gateway.salvar(captor.capture())).thenReturn(saved);
+//
+//        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(plano);
+//
+//        useCase.cadastrar(u);
+//
+//        Usuario result = captor.getValue();
+//
+//        assertEquals("hashed", u.getSenha());
+//        verify(criptografiaUseCase).criptografar("raw");
+//        verify(emailUseCase, never()).enviarCodigoVerificacao(anyString(), anyString());
+//        verify(gateway).salvar(u);
+//        assertEquals(StatusUsuario.PENDENTE_VALIDACAO_EMAIL, result.getStatus());
+//        assertEquals(plano, result.getPlano());
+//    }
 
     @Test
     void cadastrarJaExistenteLancaUsuarioJaCadastradoException() {

@@ -75,7 +75,7 @@ class CustomOAuth2UserUseCaseTest {
         when(delegate.loadUser(userRequest)).thenReturn(oauth2User);
         when(oauth2User.getAttribute("email")).thenReturn(email);
         when(oauth2User.getAttribute("name")).thenReturn(nome);
-        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.PADRAO)).thenReturn(Plano.builder().id("idteste123").build());
+        when(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS)).thenReturn(Plano.builder().id("idteste123").build());
 
         doThrow(new UsuarioNaoEncontradoException())
                 .when(usuarioUseCase).consultarPorEmail(email);
