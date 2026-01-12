@@ -145,7 +145,7 @@ public class UsuarioUseCase {
         return gateway.salvar(usuario);
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0 1 * *", zone = "America/Sao_Paulo")
     public void ajustarQuantidadeOrcamentoMensal() {
         List<Usuario> usuarios = this.listar();
 
@@ -155,7 +155,7 @@ public class UsuarioUseCase {
         });
     }
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0 * * *", zone = "America/Sao_Paulo")
     public void verificarPeriodoGratuito() {
         List<Usuario> usuarios = this.listarPlanoGratis();
         Plano planoStarter = planoUseCase.consultarPlanoInicial();
