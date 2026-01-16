@@ -30,7 +30,6 @@ public class UsuarioDto {
     @JsonProperty("nome")
     private String nome;
 
-    @NotBlank(message = "O email é obrigatório")
     @Email(message = "Email inválido")
     @JsonProperty("email")
     private String email;
@@ -39,7 +38,6 @@ public class UsuarioDto {
     @JsonProperty("telefone")
     private String telefone;
 
-    @NotBlank(message = "A senha é obrigatória")
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).+$",
             message = "A senha deve conter pelo menos uma letra, um número e um caractere especial.")

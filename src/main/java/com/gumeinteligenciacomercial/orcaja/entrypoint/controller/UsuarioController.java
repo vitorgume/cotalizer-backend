@@ -64,4 +64,11 @@ public class UsuarioController {
         ResponseDto<Usuario> response = new ResponseDto<>(resultado);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/somar/orcamentos/{telefone}")
+    public ResponseEntity<ResponseDto<Usuario>> somarQuantidadeOrcamentos(@PathVariable("telefone") String telefone) {
+        Usuario resultado = useCase.somarQuantidadeOrcamentos(telefone);
+        ResponseDto<Usuario> response = new ResponseDto<>(resultado);
+        return ResponseEntity.ok(response);
+    }
 }

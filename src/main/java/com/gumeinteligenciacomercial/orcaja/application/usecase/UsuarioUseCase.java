@@ -34,6 +34,8 @@ public class UsuarioUseCase {
             throw new UsuarioJaCadastradoException();
         });
 
+        usuarioExistente = this.gateway.consultarPorTelefone(usuario.getTelefone());
+
         usuario.setSenha(criptografiaUseCase.criptografar(usuario.getSenha()));
 
 //        if(usuario.getTipoCadastro().equals(TipoCadastro.TRADICIONAL)) {
@@ -47,6 +49,22 @@ public class UsuarioUseCase {
         usuario.setDataCriacao(LocalDateTime.now());
         usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);
         usuario.setOnboarding(false);
+        usuario.setTelefone(this.ajustarTelefone(usuario.getTelefone()));
+
+        if(usuarioExistente.isPresent()) {
+            Usuario usuarioExistenteTelefone = usuarioExistente.get();
+
+            if(usuarioExistenteTelefone.getTipoCadastro().equals(TipoCadastro.CHATBOT)) {
+                usuarioExistenteTelefone.setDados(usuario);
+                usuarioExistenteTelefone.setSenha(usuario.getSenha());
+            }
+
+            Usuario usuarioSalvo = gateway.salvar(usuarioExistenteTelefone);
+
+            log.info("Cadastro de usuário finalizado com sucesso. Usuário: {}", usuario);
+
+            return usuarioSalvo;
+        }
 
         Usuario usuarioSalvo = gateway.salvar(usuario);
 
@@ -54,6 +72,7 @@ public class UsuarioUseCase {
 
         return usuarioSalvo;
     }
+
 
     public Usuario consultarPorId(String idUsuario) {
         log.info("Consultando usuário pelo seu id. Id do usuário: {}", idUsuario);
@@ -168,6 +187,22 @@ public class UsuarioUseCase {
         });
     }
 
+    public Usuario somarQuantidadeOrcamentos(String telefone) {
+        Usuario usuario = this.consultarPorTelefone(telefone);
+        usuario.somarOrcamentos();
+        return gateway.salvar(usuario);
+    }
+
+    public Usuario consultarPorTelefone(String telefone) {
+        Optional<Usuario> usuario = gateway.consultarPorTelefone(telefone);
+
+        if(usuario.isEmpty()) {
+            throw new UsuarioNaoEncontradoException();
+        }
+
+        return usuario.get();
+    }
+
     private List<Usuario> listarPlanoGratis() {
         return gateway.listarPlanoGratis();
     }
@@ -180,5 +215,9 @@ public class UsuarioUseCase {
     private void validacaoEmail(String email) {
         String codigo = codigoValidacaoUseCase.gerarCodigo(email);
         emailUseCase.enviarCodigoVerificacao(email, codigo);
+    }
+
+    private String ajustarTelefone(String telefone) {
+        return telefone.replaceAll("\\D+", "");
     }
 }

@@ -32,7 +32,7 @@ public class IaDataProvider implements IaGateway {
     }
 
     @Override
-    public OpenIaResponseDto    enviarMensagem(PromptDto prompt) {
+    public OpenIaResponseDto enviarMensagem(PromptDto prompt) {
         try {
             return webClient
                     .post()
