@@ -47,7 +47,6 @@ public class UsuarioUseCase {
         usuario.setPlano(planoUseCase.consultarPlanoPeloTipo(TipoPlano.GRATIS));
         usuario.setQuantidadeOrcamentos(0);
         usuario.setDataCriacao(LocalDateTime.now());
-        usuario.setTipoCadastro(TipoCadastro.TRADICIONAL);
         usuario.setOnboarding(false);
         usuario.setTelefone(this.ajustarTelefone(usuario.getTelefone()));
 
